@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#D4A373">
+<title>KapyBa: problems, matrix, and why it is winnable</title>
+<style>
+:root{--cocoa:#7B5544;--tan:#D4A373;--cream:#FDEBD2;--paper:#FFF8EE;--ink:#3A2A22;--muted:#7a6558;--leaf:#4C8C4A;--chili:#C0452F;--rain:#3F6E9A;--ring:rgba(123,85,68,.14);--ease:cubic-bezier(.23,1,.32,1)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px 80px}
+header.top{background:var(--cocoa);color:var(--cream);padding:48px 20px 40px}
+header.top .wrap{padding-bottom:0}
+header.top small{letter-spacing:.08em;text-transform:uppercase;opacity:.75;font-size:12px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:10px 0 12px;text-wrap:balance}
+header.top p{max-width:62ch;margin:0;opacity:.9}
+nav{position:sticky;top:0;z-index:5;background:rgba(255,248,238,.92);backdrop-filter:blur(8px);box-shadow:0 1px 0 var(--ring)}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 20px}
+nav a{white-space:nowrap;text-decoration:none;color:var(--cocoa);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;transition:background-color 160ms ease,transform 160ms var(--ease)}
+nav a:active{transform:scale(.97)}
+@media(hover:hover) and (pointer:fine){nav a:hover{background:var(--cream)}}
+section{padding-top:48px}
+h2{font-size:26px;margin:0 0 6px;color:var(--cocoa);text-wrap:balance}
+h2 .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--tan);color:#fff;font-size:15px;margin-right:10px;vertical-align:3px}
+h3{font-size:17px;margin:24px 0 8px}
+p{margin:8px 0}
+.lede{color:var(--muted);margin-bottom:16px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px;font-size:13px}
+.tag{display:inline-block;border-radius:6px;padding:1px 7px;font-weight:700;font-size:12px;background:var(--cream);color:var(--cocoa);box-shadow:inset 0 0 0 1px var(--ring)}
+.tag.v{background:#e3f0e2;color:#2f6a2d}.tag.s{background:#e4edf6;color:#2d5780}.tag.a{background:#fbe6cf;color:#8a4b12}
+.statement{background:var(--cream);border-radius:20px;padding:24px 26px;font-size:20px;line-height:1.45;font-weight:600;color:var(--cocoa);box-shadow:0 0 0 1px var(--ring);margin:16px 0}
+.statement span{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:10px}
+.scroll{overflow-x:auto;border-radius:16px;box-shadow:0 0 0 1px var(--ring);background:#fff;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--ring)}
+th{background:var(--cream);color:var(--cocoa);font-size:13px;position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.num{font-weight:700;color:var(--tan);width:34px}
+.pain-table{min-width:760px}
+.matrix{min-width:980px;text-align:center}
+.matrix th,.matrix td{text-align:center;padding:9px 8px;font-size:13px}
+.matrix th:first-child,.matrix td:first-child{text-align:left;position:sticky;left:0;background:#fff;min-width:190px;font-weight:600;z-index:1;box-shadow:1px 0 0 var(--ring)}
+.matrix th:first-child{background:var(--cream)}
+.matrix .us{background:#f4faf2;font-weight:700}
+.matrix th.us{background:var(--leaf);color:#fff}
+.c{display:inline-block;min-width:34px;border-radius:8px;padding:2px 6px;font-weight:700;font-size:12px}
+.c.y{background:#d6ebd4;color:#245a22}.c.p{background:#fbe9c2;color:#7a5410}.c.n{background:#f3dad5;color:#8a2c1b}.c.u{background:#e8e8ec;color:#555}.c.x{background:transparent;color:#999}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0}
+.card{background:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 0 0 1px var(--ring),0 1px 2px rgba(58,42,34,.05)}
+.card h4{margin:0 0 4px;font-size:15px;color:var(--cocoa)}
+.card p{margin:4px 0;font-size:14px}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{font-size:12px;border-radius:999px;padding:2px 10px;background:var(--cream);color:var(--cocoa);font-weight:600}
+.pill.pain{background:#f6e0da;color:#8a2c1b}
+.pill.gap{background:#e4edf6;color:#2d5780}
+ul{padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+.win{counter-reset:w;list-style:none;padding:0}
+.win li{counter-increment:w;background:#fff;border-radius:16px;padding:14px 16px 14px 56px;margin:10px 0;position:relative;box-shadow:0 0 0 1px var(--ring)}
+.win li::before{content:counter(w);position:absolute;left:14px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--leaf);color:#fff;display:grid;place-items:center;font-weight:700}
+.warn{background:#fdf0e0;border-radius:16px;padding:14px 18px;box-shadow:0 0 0 1px rgba(192,69,47,.2);margin:14px 0}
+.warn b{color:var(--chili)}
+footer{margin-top:56px;color:var(--muted);font-size:13px}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+section{animation:rise 260ms var(--ease) both}
+@media(prefers-reduced-motion:reduce){section{animation:none}html{scroll-behavior:auto}nav a,nav a:active{transition:none;transform:none}}
+@media print{nav{display:none}header.top{background:#fff;color:#000}section{animation:none}.scroll{overflow:visible}.matrix{min-width:0}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<small>Team Kapybytes · CSSPRINT 2026 · The Tale is Forged</small>
+<h1>KapyBa: problems, findings, feature matrix, and why it is winnable</h1>
+<p>A digital solution for a specific problem faced by Filipino MSMEs: the karinderya that cooks blind.</p>
+</div></header>
+<nav><div class="wrap">
+<a href="#problem">Problem</a><a href="#pains">Pains</a><a href="#low">Low ratings</a><a href="#matrix">Matrix</a><a href="#features">New features</a><a href="#win">Winnable</a><a href="#unknowns">Unknowns</a><a href="#tests">Tests</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="evidence">
+<p class="lede">Nothing here is proven demand for karinderyas. The research notes in <code>docs/research/</code> were written by background agents and only spot-checked.</p>
+<div class="legend">
+<span><span class="tag v">V</span> read at the source</span>
+<span><span class="tag s">S</span> search snippet only</span>
+<span><span class="tag a">A</span> our assumption, to test by interview</span>
+<span>Unmarked = our reasoning</span>
+</div>
+</section>
+
+<section id="problem">
+<h2><span class="n">1</span>Problem statement</h2>
+<div class="statement">Carinderia owners cook blind: they get no dish-level feedback on what customers like, so unsold ulam is wasted, while students and workers cannot tell which stall's dishes are worth their budget.
+<span>One platform serves both halves. The owner side is the product; the buyer side is the distribution.</span></div>
+</section>
+
+<section id="pains">
+<h2><span class="n">2</span>Problems and pain points, ranked</h2>
+<p class="lede">Each pain with its evidence and how the same problem shows up internationally.</p>
+<div class="scroll"><table class="pain-table">
+<thead><tr><th>#</th><th>Pain</th><th>Who</th><th>Evidence</th><th>International</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td><b>No dish-level feedback.</b> Owners cannot see why customers leave.</td><td>Owner</td><td>Ratings move independent-restaurant revenue about 5–9% per star (Seattle) and sell-outs 19 pts per half star (San Francisco) <span class="tag v">V</span>. US online data; transfer to a karinderya unproven.</td><td>Small restaurants rely on word of mouth or open reviews they cannot act on.</td></tr>
+<tr><td class="num">2</td><td><b>Buyers cannot judge quality or value</b> before spending a tight budget.</td><td>Buyer</td><td>No Philippine data on how people find karinderyas <span class="tag a">A</span></td><td>Place-level ratings dominate (Google, Beli); dish-level is inferred or absent.</td></tr>
+<tr><td class="num">3</td><td><b>Unsold ulam is wasted.</b></td><td>Owner</td><td>UNEP: 1.05B tonnes food waste, 290M from food service <span class="tag v">V</span>. PH household plate waste 130 g/household/day (2023) vs 77 g (2018–19) <span class="tag v">V</span>, household data. No karinderya figure found.</td><td>Forecasting tools need POS data and target large kitchens.</td></tr>
+<tr><td class="num">4</td><td><b>Food-safety opacity.</b></td><td>Buyer</td><td>WHO: over 866M foodborne cases, 1.52M deaths (2021) <span class="tag v">V</span>. LA grade cards raised inspection scores and cut hospitalisations <span class="tag v">V</span>.</td><td>UK FHRS and Singapore SFA grade hygiene by inspection only. PH has a permit, no consumer grade.</td></tr>
+<tr><td class="num">5</td><td><b>Informal stalls are invisible.</b></td><td>Owner</td><td>No street-food rating app found in searches <span class="tag v">V</span></td><td>Google lists places; unlisted stalls need someone to add them.</td></tr>
+<tr><td class="num">6</td><td><b>Fake or thin-count ratings.</b></td><td>Both</td><td>Google blocked or removed 292M reviews in 2025; FTC (2024) and UK (2025) banned fake reviews <span class="tag v">V</span></td><td>Policed at platform scale; a micro-vendor feels one bad review.</td></tr>
+<tr><td class="num">7</td><td><b>Reputation is not provable to lenders.</b></td><td>Owner</td><td>BSP MSME loans are 3.6% of bank loans <span class="tag v">V</span>. Grab PH lending needs SEC/DTI papers, a mayor's permit, 6 months of bank statements <span class="tag v">V</span>.</td><td>Alt-data credit exists (World Bank, IFC); none ties restaurant ratings to lending <span class="tag v">V</span>.</td></tr>
+<tr><td class="num">8</td><td><b>Price vs value is invisible.</b></td><td>Buyer</td><td><span class="tag a">A</span></td><td>No product compares ulam price to rating across nearby stalls.</td></tr>
+<tr><td class="num">9</td><td><b>Rating inflation.</b></td><td>Both</td><td>Known pattern; no PH data.</td><td>Mitigations exist separately (IMDb minimum votes, Yelp filter).</td></tr>
+<tr><td class="num">10</td><td><b>A low rating can sink a single-cook stall.</b></td><td>Owner</td><td>Harm evidence from Uber drivers (Data and Society) and restaurants (Berkeley) <span class="tag v">V</span></td><td>Recency windows (Uber, Airbnb) and minimum counts (IMDb) are the proven fixes.</td></tr>
+</tbody></table></div>
+<div class="warn"><b>Weather side track.</b> Typhoons cut a stall's sales for days. No Philippine product pays small traders on a weather trigger <span class="tag v">V</span>; analogues exist (CCRIF vendor cover, Fiji vendors, Korea KB Sonbo). RA 10607 means only a licensed insurer may carry the risk, so KapyBa can be a distribution and data layer at most. In the product this stays labelled "simulation".</div>
+</section>
+
+<section id="low">
+<h2><span class="n">3</span>What if a karinderya gets a low rating?</h2>
+<p class="lede">Built from mechanisms that exist separately.</p>
+<div class="grid">
+<div class="card"><h4>Private first</h4><p>Negatives reach the owner as tags (maalat, malamig, maliit ang serving), not as a public star.</p></div>
+<div class="card"><h4>Minimum count</h4><p>No public score until 10 ratings from 5+ distinct buyers <span class="tag a">A</span>. IMDb hides scores under 5 ratings <span class="tag v">V</span>.</p></div>
+<div class="card"><h4>30-day window</h4><p>A bad week recovers. Uber uses the last 500 trips, Airbnb 12 months <span class="tag v">V</span>.</p></div>
+<div class="card"><h4>Dish-level</h4><p>One weak dish does not brand the whole stall.</p></div>
+<div class="card"><h4>Reply and recovery</h4><p>Owner right of reply and a "gumaganda" (improving) badge. Publication is opt-in.</p></div>
+<div class="card"><h4>No shaming</h4><p>No public "worst" lists. One rating per buyer per day.</p></div>
+</div>
+</section>
+
+<section id="matrix">
+<h2><span class="n">4</span>Feature matrix: existing solutions vs KapyBa</h2>
+<p class="lede">Competitor cells come from the gap analysis in <code>existing-solutions-and-gaps.md</code> <span class="tag v">V</span> unless marked U. The KapyBa column is a target, not a shipped capability. The mock does not show the rating flow yet.</p>
+<div class="legend"><span><span class="c y">Yes</span></span><span><span class="c p">Part</span></span><span><span class="c n">No</span></span><span><span class="c u">U</span> unverified</span><span><span class="c x">n/a</span></span></div>
+<div class="scroll"><table class="matrix">
+<thead><tr><th>Capability</th><th>Google Maps</th><th>Delivery apps</th><th>Beli</th><th>FB / TikTok</th><th>Toast</th><th>Birdeye / Podium</th><th>FHRS / SFA</th><th>Forkly / Oink</th><th>GCash / Maya / Grab Fin</th><th class="us">KapyBa target</th></tr></thead>
+<tbody>
+<tr><td>Dish-level ratings</td><td><span class="c p">Part</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c y">Yes</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c y">Yes</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Structured tags, not free text</td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Private-first negatives</td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c y">Yes</span></td><td><span class="c p">Part</span></td><td><span class="c x">n/a</span></td><td><span class="c n">No</span></td><td><span class="c x">n/a</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Minimum-count public score</td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td><span class="c x">n/a</span></td><td><span class="c u">U</span></td><td><span class="c x">n/a</span></td><td><span class="c u">U</span></td><td><span class="c x">n/a</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>No buyer account</td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c u">U</span></td><td><span class="c x">n/a</span></td><td><span class="c n">No</span></td><td><span class="c x">n/a</span></td><td class="us"><span class="c y">Yes (QR)</span></td></tr>
+<tr><td>Owner coaching</td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>School-area hyperlocal focus</td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Works for informal stalls without permits</td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Free for owners</td><td><span class="c y">Yes</span></td><td><span class="c n">No</span></td><td><span class="c u">U</span></td><td><span class="c y">Yes</span></td><td><span class="c u">U</span></td><td><span class="c n">No</span></td><td><span class="c y">Yes</span></td><td><span class="c u">U</span></td><td><span class="c x">n/a</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Feeds demand forecast</td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c x">n/a</span></td><td class="us"><span class="c y">Yes</span></td></tr>
+<tr><td>Credit-usable record</td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c p">Part</span></td><td class="us"><span class="c p">Later</span></td></tr>
+<tr><td>Leftover / sold-out signal</td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td><span class="c n">No</span></td><td class="us"><span class="c y">Yes (new)</span></td></tr>
+</tbody></table></div>
+<p>No single competitor covers the row set. The closest is Toast: private per-item feedback plus forecasting with sales data. It needs the Toast POS, which karinderyas are not known to use (unverified for PH). The last row is our own addition, not taken from the research table; "No" for competitors reflects that none was found to offer it.</p>
+</section>
+
+<section id="features">
+<h2><span class="n">5</span>Gap-closing features, mapped to pain</h2>
+<p class="lede">Each feature closes a limit in an existing solution and hits a named pain.</p>
+<div class="grid">
+<div class="card"><h4>Stall QR + verified-visit code</h4><p>Receipt or printed slip code, one rating per buyer per day, no account. Gates ratings to people who bought, cutting fakes at the source.</p><div class="meta"><span class="pill gap">Gap: Google/Yelp need accounts, Toast needs POS</span><span class="pill pain">Pain 1, 6</span></div></div>
+<div class="card"><h4>Tag-based dish rating</h4><p>Taste, alat, init, dami, sulit in two taps. Fast at lunch hour, no typing.</p><div class="meta"><span class="pill gap">Gap: Google infers dishes from text</span><span class="pill pain">Pain 1, 2</span></div></div>
+<div class="card"><h4>Private inbox + capybara coach</h4><p>"Sinigang: 7 of 12 said maalat." Coaching is the owner value that Forkly and Oink lacked.</p><div class="meta"><span class="pill gap">Gap: Google offers reply only, Birdeye is paid</span><span class="pill pain">Pain 1, 10</span></div></div>
+<div class="card"><h4>Publish rule + window + badge</h4><p>Minimum distinct buyers, 30-day window, "gumaganda" badge. Protects a single-cook stall from one bad week.</p><div class="meta"><span class="pill gap">Gap: IMDb, Yelp, Uber do pieces, none for micro-eateries</span><span class="pill pain">Pain 6, 9, 10</span></div></div>
+<div class="card"><h4>Leftover / sold-out button</h4><p>End of day: "naubos" or "may natira". Feeds the forecast and shrinks tomorrow's list.</p><div class="meta"><span class="pill gap">Gap: no rating product captures waste</span><span class="pill pain">Pain 3</span></div></div>
+<div class="card"><h4>Ratings into forecast and ranking</h4><p>Low-rated dishes get fewer servings, high-rated more. Half-built already in the mock's rank score.</p><div class="meta"><span class="pill gap">Gap: Toast needs POS sales</span><span class="pill pain">Pain 3, 1</span></div></div>
+<div class="card"><h4>Ulam Board</h4><p>School-area view of what is moving today, with price and tag summary. Needs 5+ participating owners nearby <span class="tag a">A</span>.</p><div class="meta"><span class="pill gap">Gap: place-level, permit-bound apps</span><span class="pill pain">Pain 2, 5, 8</span></div></div>
+<div class="card"><h4>Sulit view</h4><p>Rating against price per dish across nearby stalls. Answers a student's budget question.</p><div class="meta"><span class="pill gap">Gap: none found</span><span class="pill pain">Pain 8</span></div></div>
+<div class="card"><h4>Weekly hygiene check-in</h4><p>Owner self-checklist plus a buyer "malinis?" tag. Self-reported and labelled so; not an inspection or certification.</p><div class="meta"><span class="pill gap">Gap: FHRS/SFA inspection-only, absent in PH</span><span class="pill pain">Pain 4</span></div></div>
+<div class="card"><h4>Bagyo Mode + simulated Bagyo Fund</h4><p>Typhoon-aware shopping list now; fund stays a simulation until a licensed partner attaches.</p><div class="meta"><span class="pill gap">Gap: no PH weather cover for small traders</span><span class="pill pain">Weather</span></div></div>
+<div class="card"><h4>Reputation record export</h4><p>Dish ratings plus sales consistency, owner-consented. Later pitch; no source ties ratings to repayment <span class="tag v">V</span>.</p><div class="meta"><span class="pill gap">Gap: Grab/Maya need formal accounts</span><span class="pill pain">Pain 7</span></div></div>
+</div>
+</section>
+
+<section id="win">
+<h2><span class="n">6</span>Why it is winnable</h2>
+<ol class="win">
+<li><b>A wedge no verified product serves.</b> A cash-only stall with a printed QR is not served by Google (account), Toast (POS), Grab Financial (permits) or FHRS/SFA (inspection) <span class="tag v">V</span>. A starting position, not a moat.</li>
+<li><b>Hyperlocal beats global.</b> One school belt with 5–10 stalls can reach the minimum-count rule fast. A global product cannot make that its focus.</li>
+<li><b>The owner loop is the hard-to-copy part.</b> Oink shut in 2012, Forkly wound down (founder: data not monetised, weak differentiation), Foodspotting sold for about $10M <span class="tag v">V</span>. KapyBa starts owner-first: coaching, forecast, waste, which need the owner's own data.</li>
+<li><b>Proven mechanics, new combination.</b> Minimum counts (IMDb), spam filter (Yelp), rolling windows (Uber, Airbnb), private item feedback (Toast). Nobody combines them for micro-eateries <span class="tag v">V</span>.</li>
+<li><b>Cheap to run.</b> QR plus small storage. Free to owners; funded first by partners (school, LGU, DTI), later a ₱49–99 monthly option <span class="tag a">A</span>, unit economics unproven.</li>
+<li><b>Waste is concrete and measurable</b> per stall (portions cooked vs sold) once interviews supply a baseline.</li>
+</ol>
+
+<h3>How an incumbent could still beat us</h3>
+<div class="scroll"><table>
+<thead><tr><th>Threat</th><th>Why it is real</th><th>Our defence</th></tr></thead>
+<tbody>
+<tr><td><b>Google Maps</b></td><td>Already extracts popular dishes, offers QR review links, blocked 292M reviews <span class="tag v">V</span>. Could add tags and minimum counts quickly.</td><td>Unlisted stalls without accounts; owner sales and forecast loop; a school belt it has no reason to prioritise.</td></tr>
+<tr><td><b>GCash / Maya</b></td><td>Own QR payments at small merchants; could attach ratings to receipts. Plans unverified.</td><td>Partner rather than compete; keep the owner product free.</td></tr>
+<tr><td><b>Toast / POS vendors</b></td><td>Closest feature set.</td><td>Karinderyas rarely use POS (unverified for PH).</td></tr>
+<tr><td><b>Delivery apps</b></td><td>Hold per-dish order data.</td><td>Permit-based onboarding, delivery-only coverage.</td></tr>
+<tr><td><b>Apathy</b></td><td>Dish apps failed on retention.</td><td>Do not rely on buyer growth: owner value works with zero public ratings.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="unknowns">
+<h2><span class="n">7</span>Honest unknowns</h2>
+<ul>
+<li><b>No Philippine karinderya data</b> on waste, review behaviour or how buyers choose stalls. First task: the owner (8 questions) and buyer (6) interviews in <code>problems-and-pain-points.md</code>.</li>
+<li>Revenue-per-star figures are US online restaurants. Transfer is unproven.</li>
+<li>Not verified at all: Booky, Foodpanda PH ownership, delivery-app item ratings, GCash/Maya plans, Birdeye pricing, Vietnam rules.</li>
+<li>Thresholds (10 ratings, 5 buyers, 5 owners), price points and unit economics are our assumptions.</li>
+<li>DTI and BSP digital figures in <code>msme-global-problems-and-solutions.md</code> are unverified.</li>
+<li>Insurance depends on a licensed partner. Until then the UI says "simulation".</li>
+</ul>
+</section>
+
+<section id="tests">
+<h2><span class="n">8</span>Falsifiers: what would make us stop or change</h2>
+<div class="scroll"><table>
+<thead><tr><th>Test</th><th>Pass</th><th>Fail means</th></tr></thead>
+<tbody>
+<tr><td>8 owner interviews</td><td>5+ say they cook by guess and waste ulam daily</td><td>Waste is not a felt pain; lean on buyer side or reframe</td></tr>
+<tr><td>Owners shown the private inbox mock</td><td>5+ would scan a QR at their stall</td><td>Rating flow adds friction they will not accept</td></tr>
+<tr><td>Buyers at one school shown the Sulit view</td><td>Majority would use it to pick a stall</td><td>Buyer side has no pull; keep owner-only</td></tr>
+<tr><td>2-week pilot at 3 stalls</td><td>30+ verified ratings per stall</td><td>Collection too slow; add incentive or receipt code</td></tr>
+</tbody></table></div>
+<h3>Next steps</h3>
+<ul><li>Run the interviews and update the evidence.</li><li>Update PRD, UX and PLAN for the pivot.</li><li>Add the rating flow and owner inbox to the mock.</li></ul>
+</section>
+
+<footer>Source of truth: <code>docs/BRIEF.md</code> (same content in markdown). Research notes in <code>docs/research/</code>.</footer>
+</main>
+</body>
+</html>

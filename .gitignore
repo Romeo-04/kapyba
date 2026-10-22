@@ -10,6 +10,7 @@ web-build/
 # Secrets
 .env
 .env.*
+!.env.example
 
 # OS and editor
 .DS_Store

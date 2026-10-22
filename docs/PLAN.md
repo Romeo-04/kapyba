@@ -195,4 +195,4 @@ Agents build; humans own the decisions marked (open), every review and the pilot
 
 ## 11. Alignment with other docs
 
-`docs/PRD.md` is still the pre-pivot forecast-app PRD and no longer matches this plan. Rewrite it from `IDEA.md` before Phase 1 starts, or mark it superseded. This plan treats `IDEA.md` and `UX.md` as the source of truth.
+`IDEA.md` and `UX.md` are the source of truth for the product. `PRD.md` (v2) holds the requirements this plan builds, `docs/adr/001-decisions.md` tracks open decisions, and `PRIVACY.md` and `RUNBOOK.md` are drafts to finish before the pilot (U17, U20).

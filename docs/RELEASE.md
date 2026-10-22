@@ -16,7 +16,8 @@ Everything the code needs is built and tested. These steps need a person with ac
 | `DATABASE_URL` | Neon connection string |
 | `AUTH_SECRET` | any long random string; rotating it signs every owner out |
 | `QR_SIGNING_SECRET` | 16+ random characters; rotating it makes open scan tokens expire (buyers rescan) |
-| `RESEND_API_KEY`, `MAIL_FROM` | the email provider; production refuses to start sign-in without them |
+| `RESEND_API_KEY`, `MAIL_FROM` | the email provider (needs a verified domain); production refuses to start sign-in without mail settings |
+| `SMTP_USER`, `SMTP_PASS` | Gmail instead, no domain needed: the Gmail address and a 16-character app password (Google Account, Security, 2-Step Verification, App passwords) |
 | `NEXT_PUBLIC_APP_URL` | the live URL |
 | `REVIEWER_EMAILS` | who may decide Ulat reports (the team during the pilot) |
 | `NEXT_PUBLIC_PRIVACY_EMAIL` | the privacy contact (D5) |

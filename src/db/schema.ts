@@ -113,3 +113,12 @@ export const events = pgTable("events", {
   detail: text("detail"),
   createdAt: createdAt(),
 });
+
+export const loginTokens = pgTable("login_tokens", {
+  id: id(),
+  email: text("email").notNull(),
+  tokenHash: text("token_hash").notNull().unique(), // sha256 of the emailed token; the raw token is never stored
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: createdAt(),
+}, (t) => [index("login_tokens_email_idx").on(t.email)]);

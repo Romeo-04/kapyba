@@ -650,7 +650,7 @@ export function Simula({
                     key={lm}
                     type="button"
                     aria-pressed={selected}
-                    className={`chip chip-sm ${selected ? "on" : ""}`}
+                    className={`chip ${selected ? "on" : ""}`}
                     onClick={() => toggleLandmark(lm)}
                   >
                     {lm}

@@ -6,6 +6,7 @@ import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
+import { Palengke } from "./Palengke";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
@@ -106,6 +107,7 @@ export function Owner() {
 
       {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} />}
       {dishes.length > 0 && <Bukas stallId={stall.id} refresh={bukasTick} />}
+      {dishes.length > 0 && <Palengke stallId={stall.id} refresh={bukasTick} />}
 
       <form className="card stack" onSubmit={async (e) => {
         e.preventDefault();

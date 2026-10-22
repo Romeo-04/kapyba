@@ -28,7 +28,7 @@ export function Rate({ code }: { code: string }) {
   const [tone, setTone] = useState<Tone | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
   const [key, setKey] = useState("");
-  const [result, setResult] = useState<"sending" | "done" | "already" | "queued" | "error" | null>(null);
+  const [result, setResult] = useState<"sending" | "done" | "already" | "queued" | "error" | "expired" | null>(null);
   const outbox = useOutbox();
 
   useEffect(() => {
@@ -46,6 +46,8 @@ export function Rate({ code }: { code: string }) {
 
   async function send(t: Tone) {
     if (!scan || scan === "missing" || !dish) return;
+    // A page kept open (or cached offline) past the 12-hour scan window would be refused and the tap lost, so say so now.
+    if (Number(scan.scanToken.split(".")[0]) < Date.now()) { setResult("expired"); return; }
     setResult("sending");
     // The same key is reused on a retry, so a slow network never counts a rating twice.
     const k = key || crypto.randomUUID();
@@ -66,6 +68,16 @@ export function Rate({ code }: { code: string }) {
 
   if (scan === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
   if (scan === "missing") return <p className="err center" style={{ paddingTop: 48 }} role="alert">Hindi mahanap ang stall na ito.</p>;
+
+  if (result === "expired") {
+    return (
+      <div className="stack center" style={{ paddingTop: 64, alignItems: "center" }}>
+        <Capybara mood="sleepy" size={120} />
+        <h1>Lumipas na ang scan</h1>
+        <p className="mute" role="alert">This page is too old to send a rating. Scan the QR at the stall again.</p>
+      </div>
+    );
+  }
 
   if (result === "done" || result === "already" || result === "queued") {
     return (

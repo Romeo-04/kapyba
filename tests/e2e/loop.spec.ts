@@ -57,6 +57,11 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Bukas now suggests 9 (the average sold) for Adobo.
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
+  // Palengke: 9 servings of Adobo need 1.4 kg chicken; the list shows a range and the placeholder notice.
+  await expect(owner.getByText("Chicken · 1.4 kg")).toBeVisible();
+  await expect(owner.getByTestId("palengke-total")).toContainText("likely total");
+  await expect(owner.getByRole("note")).toContainText("placeholder estimate");
+
   await ownerCtx.close();
   await buyerCtx.close();
 });

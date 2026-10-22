@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="fil">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D4A373">
+<title>KapyBa (mock)</title>
+<style>
+:root{--cocoa:#7B5544;--tan:#D4A373;--cream:#FDEBD2;--paper:#fff;--leaf:#4F7A44;--chili:#C8553D;--rain:#4A6D96;--night:#2B1D17;--ink:#3A2A22;--mute:#8C7568}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#cfc3b8;font-family:Nunito,"Segoe UI",system-ui,sans-serif;color:var(--ink);display:flex;justify-content:center;min-height:100vh}
+#phone{width:390px;height:844px;max-height:100vh;margin:auto;background:var(--paper);border-radius:36px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 20px 60px #0004}
+@media(max-width:430px){#phone{width:100vw;height:100vh;border-radius:0;box-shadow:none}}
+#screen{flex:1;overflow-y:auto;position:relative}
+#screen.night{background:var(--night);color:#f4e6d6}
+.pad{padding:18px 18px 24px}
+h1{font-size:26px;margin:0 0 4px;color:var(--cocoa)} h2{font-size:18px;margin:18px 0 8px;color:var(--cocoa)}
+.night h1,.night h2{color:var(--tan)}
+p{margin:4px 0;line-height:1.35} .mute{color:var(--mute);font-size:13px}
+.btn{display:block;width:100%;border:0;border-radius:999px;background:var(--cocoa);color:#fff;font:700 16px inherit;font-family:inherit;padding:15px;margin:10px 0;cursor:pointer;min-height:48px;text-align:center}
+.btn.alt{background:transparent;color:var(--cocoa);border:2px solid var(--cocoa)}
+.btn.tanbtn{background:var(--cocoa)} .btn.small{display:inline-block;width:auto;padding:8px 16px;font-size:14px;min-height:36px;margin:4px 6px 4px 0}
+.card{background:var(--cream);border-radius:20px;padding:14px;margin:10px 0}
+.row{display:flex;align-items:center;gap:12px}
+.row .grow{flex:1;min-width:0}
+.av{width:48px;height:48px;border-radius:50%;background:var(--tan);display:grid;place-items:center;font-size:24px;flex:none}
+.av.sq{border-radius:14px;background:var(--cocoa)}
+.chip{display:inline-block;white-space:nowrap;border-radius:999px;background:var(--cream);color:var(--cocoa);padding:7px 14px;font-weight:700;font-size:13px;margin:0 6px 6px 0;border:0;cursor:pointer;font-family:inherit}
+.chip.on{background:var(--cocoa);color:#fff}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid var(--tan);margin-right:4px;display:inline-block}
+input[type=text],input[type=number]{width:100%;border:2px solid var(--cream);background:#fff;border-radius:14px;padding:13px;font:600 16px inherit;font-family:inherit;margin:6px 0}
+.tabs{display:flex;background:var(--cream);padding:6px 10px 10px;gap:4px;flex:none}
+.tabs button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 0;font:700 12px inherit;font-family:inherit;color:var(--cocoa);cursor:pointer}
+.tabs button span{display:block;font-size:20px}
+.tabs button.on{background:var(--cocoa);color:#fff}
+.hdr{display:flex;align-items:center;gap:10px;padding:14px 18px 0}
+.hdr .back{border:0;background:var(--cream);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer}
+.hdr .t{font-weight:800;color:var(--cocoa);flex:1;text-align:center}
+.night .hdr .t{color:var(--tan)}
+.big{font-size:34px;font-weight:800;color:var(--cocoa);letter-spacing:-.5px}
+.bar{height:12px;border-radius:99px;background:#fff;position:relative;overflow:hidden;margin:10px 0 4px}
+.bar i{position:absolute;top:0;bottom:0;background:var(--tan);border-radius:99px}
+.bar b{position:absolute;top:-2px;bottom:-2px;width:4px;background:var(--cocoa);border-radius:2px}
+.dots{text-align:center;margin:10px 0}.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cream);margin:0 3px}.dots i.on{background:var(--cocoa)}
+.splash{background:var(--tan);color:#fff;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.splash h1{color:#fff;font-size:40px;margin:10px 0 0}
+.splash .btn{background:var(--cocoa)} .splash .btn.alt{color:#fff;border-color:#fff}
+.hero{height:200px;padding-top:44px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.pill-status{position:absolute;top:14px;left:14px;right:14px;background:#fffd;border-radius:999px;padding:9px 16px;font-weight:800;font-size:13px;color:var(--cocoa)}
+.dark{background:var(--cocoa);color:#fff;border-radius:22px;padding:16px;margin:10px 0}
+.dark .big{color:#fff} .dark h2{color:var(--tan);margin-top:0}
+.up{color:var(--chili);font-weight:800} .down{color:var(--leaf);font-weight:800}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--cream);border-radius:16px;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;cursor:pointer}
+.tile .e{font-size:28px;display:block}
+.check{width:28px;height:28px;border-radius:50%;border:2px solid var(--cocoa);display:grid;place-items:center;font-weight:800;color:#fff;flex:none;cursor:pointer;background:transparent}
+.check.on{background:var(--leaf);border-color:var(--leaf)}
+.done{opacity:.45;text-decoration:line-through}
+.stepper{display:flex;align-items:center;gap:10px}.stepper button{width:40px;height:40px;border-radius:50%;border:0;background:var(--cocoa);color:#fff;font:800 20px inherit;cursor:pointer}
+.stepper b{min-width:24px;text-align:center;font-size:18px}
+.toggle{border:2px solid var(--cocoa);background:#fff;color:var(--cocoa);font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;font-family:inherit;font-size:12px}.toggle.on{background:var(--chili);border-color:var(--chili);color:#fff}
+.mascot{display:block;margin:0 auto}
+.banner{background:var(--chili);color:#fff;text-align:center;font-size:12px;font-weight:700;padding:6px}
+.confetti i{position:absolute;width:8px;height:14px;border-radius:2px;animation:fall 2.4s linear infinite}
+@keyframes fall{from{transform:translateY(-30px) rotate(0)}to{transform:translateY(900px) rotate(540deg)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+.mascot{animation:breathe 4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.mascot,.confetti i{animation:none}}
+.drag{cursor:grab;touch-action:none}.drag.over{outline:2px dashed var(--cocoa)}
+.fab{position:sticky;bottom:0;padding:10px 18px 14px;background:linear-gradient(#fff0,#fff 30%)}
+.night .fab{background:linear-gradient(#0000,var(--night) 30%)}
+.struck{text-decoration:line-through;color:var(--mute)}
+.note{position:absolute;left:50%;transform:translateX(-50%);bottom:90px;background:var(--night);color:#fff;border-radius:999px;padding:10px 18px;font-size:13px;font-weight:700;z-index:9}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="banner"></div>
+  <div id="screen"></div>
+  <nav class="tabs" id="tabs" hidden></nav>
+</div>
+<script src="engine.js"></script>
+<script>
+// ---------- state ----------
+const S = {
+  screen: 'splash', stack: [], level: 'none', store: 'Carinderia ni Aling Rosa',
+  order: DISHES.map(d => d.id), tags: Object.fromEntries(DISHES.map(d => [d.id, [...d.tags]])),
+  checked: new Set(), shop: false, section: 'Lahat', budget: 2000, item: 'onion',
+  logMode: 'total', paid: '', leftovers: Object.fromEntries(DISHES.map(d => [d.id, 3])), soldOut: {},
+  dismissed: new Set(), intro: 0, period: 'Buwan', celebrate: null, swapped: false, bagyoAdded: new Set(),
+};
+const peso = n => '₱' + Math.round(n).toLocaleString('en-PH');
+const range = (a, b) => `${peso(a)}–${peso(b).slice(1)}`;
+const kg = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, '') + ' kg';
+const $ = s => document.querySelector(s);
+
+// ---------- mascot ----------
+function mascot(state = 'calm', size = 150) {
+  const brown = '#A9744F', dark = '#7B5544';
+  const eyebrow = state === 'eyebrow' ? '<path d="M96 70 q8 -10 18 -2" stroke="#3A2A22" stroke-width="3" fill="none" stroke-linecap="round"/>' : '';
+  const eyes = state === 'cheer'
+    ? '<path d="M70 82 q6 -8 12 0 M110 82 q6 -8 12 0" stroke="#3A2A22" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    : state === 'sleepy'
+    ? '<path d="M70 84 h12 M110 84 h12" stroke="#3A2A22" stroke-width="3" stroke-linecap="round"/>'
+    : '<circle cx="76" cy="82" r="4.5" fill="#3A2A22"/><circle cx="116" cy="82" r="4.5" fill="#3A2A22"/>';
+  const arms = state === 'cheer'
+    ? `<path d="M52 140 q-22 -34 -8 -52" stroke="${brown}" stroke-width="14" fill="none" stroke-linecap="round"/><path d="M140 140 q22 -34 8 -52" stroke="${brown}" stroke-width="14" fill="none" stroke-linecap="round"/>`
+    : `<ellipse cx="62" cy="150" rx="9" ry="14" fill="${dark}"/><ellipse cx="130" cy="150" rx="9" ry="14" fill="${dark}"/>`;
+  const umbrella = state === 'umbrella'
+    ? '<path d="M20 52 q76 -64 152 0 z" fill="#E7B93C"/><path d="M96 52 v110" stroke="#7B5544" stroke-width="4"/>' : '';
+  const coat = state === 'raincoat'
+    ? '<path d="M48 120 q48 -22 96 0 l8 66 h-112 z" fill="#E7B93C" opacity=".95"/><path d="M60 62 q36 -40 72 0 l-8 8 h-56 z" fill="#E7B93C"/>' : '';
+  const ring = state === 'salbabida'
+    ? '<ellipse cx="96" cy="168" rx="62" ry="22" fill="none" stroke="#C8553D" stroke-width="14"/><path d="M60 156 l10 22 M132 156 l-10 22 M96 148 v10" stroke="#fff" stroke-width="10" opacity=".9"/>' : '';
+  const apron = (state === 'raincoat' || state === 'umbrella' && false) ? '' : `<path d="M70 124 h52 l6 60 h-64 z" fill="#FDEBD2" stroke="${dark}" stroke-width="2"/><path d="M84 124 v-10 M108 124 v-10" stroke="${dark}" stroke-width="2"/>`;
+  const extras = state === 'eyebrow' ? '<rect x="132" y="150" width="22" height="28" rx="4" fill="#fff" stroke="#7B5544" stroke-width="2"/><path d="M137 158 h12 M137 164 h12 M137 170 h12" stroke="#7B5544" stroke-width="2"/>'
+    : state === 'sleepy' ? '<text x="136" y="50" font-size="22" fill="#D4A373" font-weight="800">z</text><text x="150" y="34" font-size="16" fill="#D4A373" font-weight="800">z</text>' : '';
+  const confetti = state === 'cheer' ? '<g>' + [[20,30,'#C8553D'],[160,24,'#4F7A44'],[40,70,'#E7B93C'],[152,76,'#4A6D96'],[96,10,'#D4A373']].map(([x,y,c]) => `<rect x="${x}" y="${y}" width="8" height="12" rx="2" fill="${c}" transform="rotate(${x*3} ${x} ${y})"/>`).join('') + '</g>' : '';
+  return `<svg class="mascot" width="${size}" height="${size * 1.05}" viewBox="0 0 192 200" role="img" aria-label="Capybara, ${state}">
+  ${confetti}${umbrella}
+  <ellipse cx="96" cy="150" rx="58" ry="44" fill="${brown}"/>${arms}${apron}${coat}
+  <ellipse cx="96" cy="84" rx="50" ry="42" fill="${brown}"/>
+  <ellipse cx="56" cy="50" rx="10" ry="9" fill="${dark}"/><ellipse cx="136" cy="50" rx="10" ry="9" fill="${dark}"/>
+  <ellipse cx="96" cy="104" rx="30" ry="20" fill="#C69372"/>
+  <ellipse cx="86" cy="96" rx="4" ry="5" fill="#3A2A22"/><ellipse cx="106" cy="96" rx="4" ry="5" fill="#3A2A22"/>
+  <path d="M86 112 q10 8 20 0" stroke="#3A2A22" stroke-width="3" fill="none" stroke-linecap="round"/>
+  ${eyes}${eyebrow}${ring}${extras}</svg>`;
+}
+
+// ---------- helpers ----------
+const bannerHtml = () => navigator.onLine ? '' : '<div class="banner">Walang signal. Gamit ang huling listahan.</div>';
+const L = () => buildList(S.order, S.level);
+const mood = () => S.level !== 'none' ? BAGYO[S.level].mascot : 'eyebrow';
+const header = (title, back = true) => `<div class="hdr">${back ? '<button class="back" data-back aria-label="Bumalik">←</button>' : '<span style="width:40px"></span>'}<div class="t">${title}</div><span style="width:40px"></span></div>`;
+const todayLabel = () => new Date().toLocaleDateString('fil-PH', { weekday: 'long', day: 'numeric', month: 'short' });
+const alerts = () => {
+  const out = [];
+  const spike = Math.round((SPIKE.onion - 1) * 100);
+  out.push({ id: 'spike', tab: 'Presyo', e: '🧅', title: `Tumaas ng ${spike}% ang sibuyas`, body: 'Madami ito sa sinigang at bistek. Bawasan muna ang bistek?', go: 'item', item: 'onion', mood: 'eyebrow' });
+  out.push({ id: 'margin', tab: 'Kita', e: '🍲', title: `₱${margin('sinigang')} lang ang kita sa sinigang`, body: 'Sa presyo ng baboy ngayon. Taasan ng ₱5 o palitan?', go: 'menu', mood: 'eyebrow' });
+  out.push({ id: 'sub', tab: 'Palit', e: '🐟', title: 'Tilapia, 20% mas mura', body: 'Mahal ang galunggong ngayon. Palitan?', go: 'item', item: 'galunggong', mood: 'calm' });
+  out.push({ id: 'budget', tab: 'Badyet', e: '💰', title: 'May ₱2,000 ka ba?', body: 'Ito ang pinakamainam na listahan.', go: 'budget', mood: 'calm' });
+  if (S.level !== 'none') out.unshift({ id: 'bagyo', tab: 'Presyo', e: '🌧️', title: `${BAGYO[S.level].label}`, body: 'Binawasan ko ang listahan. Bumili ng de-lata at bigas nang maaga.', go: 'bagyo', mood: BAGYO[S.level].mascot });
+  return out.filter(a => !S.dismissed.has(a.id));
+};
+
+// ---------- screens ----------
+const screens = {
+  splash: () => `<div class="splash">${mascot('calm', 190)}<h1>KapyBa</h1><p>Handa sa palengke, handa sa ulam.</p>
+    <div style="margin-top:auto;width:100%"><button class="btn" data-go="setup">Simulan</button><button class="btn alt" data-go="home" data-demo>Demo ni Aling Rosa</button></div></div>`,
+
+  setup: () => `${header('Tindahan mo', true)}<div class="pad">${mascot('calm', 130)}<h1>Ano ang pangalan ng carinderia mo?</h1>
+    <input id="store" type="text" value="" placeholder="Hal. Carinderia ni Aling Rosa" aria-label="Pangalan ng carinderia">
+    <input type="text" placeholder="Malapit sa (paaralan o lugar)" aria-label="Malapit sa">
+    <button class="btn" data-act="saveStore">Tuloy</button><p class="mute" style="text-align:center">O <a href="#" data-go="home" data-demo style="color:var(--cocoa);font-weight:700">gamitin ang demo na tindahan</a></p></div>`,
+
+  intro: () => {
+    const slides = [['Alam mo na ang presyo bago pumunta.', 'calm'], ['Eksakto ang dami, walang sayang.', 'cheer'], ['Handa kahit bumagyo.', 'salbabida']];
+    const [t, m] = slides[S.intro];
+    return `<div class="pad" style="text-align:center;padding-top:60px"><div style="background:var(--cream);border-radius:28px;padding:26px 0">${mascot(m, 190)}</div>
+      <h1 style="margin-top:24px">${t}</h1><div class="dots">${slides.map((_, i) => `<i class="${i === S.intro ? 'on' : ''}"></i>`).join('')}</div>
+      <button class="btn" data-act="introNext">${S.intro === 2 ? 'Simulan' : 'Susunod'}</button><button class="btn alt" data-go="menu0">Laktawan</button></div>`;
+  },
+
+  menu0: () => screens.menu(true),
+  menu: (setup) => `${header(setup ? 'Ranking ng ulam · 1 ng 3' : 'Menu', !!setup)}<div class="pad"><p class="mute">I-drag para i-ranggo. Pinakapopular sa itaas.</p>
+    ${S.order.map((id, i) => { const d = DISHES.find(x => x.id === id); return `<div class="card drag" draggable="true" data-drag="${id}"><div class="row"><b style="width:18px">${i + 1}</b><div class="av">${d.emoji}</div>
+      <div class="grow"><b>${d.name}</b><div class="mute">${peso(d.price)} · kita ${peso(margin(id))}</div></div>
+      <div><button class="chip" data-up="${id}" aria-label="Itaas">▲</button><button class="chip" data-down="${id}" aria-label="Ibaba">▼</button></div></div>
+      <div style="margin-top:8px">${[['keepsWell', 'Matagal tumagal'], ['rainyFav', 'Pang-ulan'], ['highProfit', 'Mataas ang kita']].map(([k, l]) => `<button class="chip ${S.tags[id].includes(k) ? 'on' : ''}" data-tag="${id}|${k}">${l}</button>`).join('')}</div></div>`; }).join('')}
+    <button class="btn" data-go="${setup ? 'home' : 'list'}">${setup ? 'Tapos na ang ranking' : 'Tingnan ang listahan'}</button></div>`,
+
+  home: () => {
+    const l = L(), a = alerts().slice(0, 3), hr = new Date().getHours();
+    const cta = hr >= 16 || hr < 3 ? ['Tingnan ang listahan bukas', 'list'] : hr < 8 ? ['Simulan ang palengke', 'list'] : ['I-log ang benta', 'sales'];
+    return `<div class="pad"><div class="row" style="justify-content:space-between"><div><p class="mute">${todayLabel()}</p><h1 style="font-size:22px">Magandang gabi, Aling Rosa</h1></div><span class="chip on">Exam week</span></div>
+      <div style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px">
+        <div class="card" style="min-width:290px;scroll-snap-align:start;text-align:center">${mascot(mood(), 110)}<p><b>${S.level === 'none' ? 'Kalmado ang presyo, pero tumaas ang sibuyas.' : BAGYO[S.level].label}</b></p></div>
+        <div class="dark" style="min-width:250px;scroll-snap-align:start;margin:10px 0"><p class="mute" style="color:#e9d6c3">Bukas, malamang</p><div class="big">${peso(l.total.likely)}</div><p>${range(l.total.low, l.total.high)}</p><p class="mute" style="color:#e9d6c3">${l.totalServings} servings, ${S.order.length} ulam</p></div>
+        <div class="card" style="min-width:230px;scroll-snap-align:start"><p class="mute">Badyet ko</p><div class="big">${peso(S.budget)}</div><button class="btn small" data-go="budget">Ayusin</button></div></div>
+      <h2>Mga paalala</h2>${a.map(x => `<div class="card row" data-go="alerts"><div class="av">${x.e}</div><div class="grow"><b>${x.title}</b><div class="mute">${x.body}</div></div></div>`).join('') || '<p class="mute">Wala pang paalala. Kalma lang. 🌿</p>'}
+      <button class="btn small alt" data-go="alerts">Tingnan lahat</button>
+      <button class="btn" data-go="${cta[1]}">${cta[0]}</button>
+      <button class="btn alt" data-go="bagyo">${S.level === 'none' ? '🌧️ Bagyo Mode' : '🌧️ Bagyo Mode: ' + S.level.toUpperCase()}</button></div>`;
+  },
+
+  list: () => {
+    const l = L(), secs = ['Lahat', 'Karne', 'Isda', 'Gulay', 'Pampalasa'];
+    const items = l.items.filter(i => S.section === 'Lahat' || i.section === S.section);
+    const spent = l.items.filter(i => S.checked.has(i.id)).reduce((t, i) => t + i.cLikely, 0);
+    return `${header(S.shop ? 'Namamalengke ako' : 'Listahan sa palengke')}<div class="pad">
+      <div class="dark"><p class="mute" style="color:#e9d6c3">Gastos sa palengke</p><div class="big">${range(l.total.low, l.total.high)}</div><p>malamang ${peso(l.total.likely)}</p>
+        <div class="bar"><i style="left:0;right:0;background:#a8806e"></i><b style="left:${(l.total.likely - l.total.low) / (l.total.high - l.total.low) * 100}%;background:#fff"></b></div>
+        <p class="mute" style="color:#e9d6c3">Magdala ng ${peso(l.total.high)}. Kung mas mababa sa ${peso(l.total.low)}, panalo ka.</p>${S.shop ? `<p><b>Nabili na: ${peso(spent)}</b></p>` : ''}</div>
+      <div>${secs.map(s => `<button class="chip ${S.section === s ? 'on' : ''}" data-section="${s}">${s}</button>`).join('')}</div>
+      ${items.map(i => `<div class="card row ${S.checked.has(i.id) ? 'done' : ''}"><button class="check ${S.checked.has(i.id) ? 'on' : ''}" data-check="${i.id}" aria-label="Nabili na ${i.name}">${S.checked.has(i.id) ? '✓' : ''}</button>
+        <div class="av" data-item="${i.id}">${i.emoji}</div><div class="grow" data-item="${i.id}"><b>${i.name}</b><div class="mute">${kg(i.qLow)}–${kg(i.qHigh)} · para sa ${i.usedBy.join(', ')}</div></div>
+        <div style="text-align:right"><b>${range(i.cLow, i.cHigh)}</b></div></div>`).join('')}
+      <p class="mute" style="text-align:center">${S.level !== 'none' ? 'Bagyo Mode: mas maliit ang listahan ngayon.' : 'Huling presyo: ngayong linggo (DA NCR)'}</p></div>
+      <div class="fab"><button class="btn" data-act="toggleShop">${S.shop ? 'Tapos na mamili' : 'Bilhin na'}</button>${S.shop ? '<button class="btn alt" data-go="spend" style="color:#f4e6d6;border-color:#f4e6d6">I-log ang gastos</button>' : '<button class="btn alt" data-go="budget">💰 May badyet ako</button>'}</div>`;
+  },
+
+  item: () => {
+    const id = S.item, i = INGREDIENTS[id], p = priceOf(id), h = PRICE_HISTORY[id] ?? [i.low, i.low + 2, i.low + 1, i.low + 3, i.low + 2, i.low + 4, i.low + 3, i.low + 2, i.low + 4, i.high - 5, i.high - 4, i.high - 6, i.high - 5, i.high - 4].map((v, k) => v);
+    const mn = Math.min(...h), mx = Math.max(...h), pts = h.map((v, k) => `${k * 25},${70 - (v - mn) / (mx - mn || 1) * 60}`).join(' ');
+    const sub = id === 'galunggong';
+    return `${header(i.name)}<div class="pad"><div style="text-align:center"><div class="av" style="width:110px;height:110px;font-size:56px;margin:0 auto">${i.emoji}</div></div>
+      <div class="card"><p class="mute">Presyo ngayon (DA NCR)</p><div class="big">${peso(p.low)}–${peso(p.high).slice(1)}<span class="mute" style="font-size:14px"> /kg</span></div>
+      <svg viewBox="0 0 325 80" width="100%" height="80" aria-label="Presyo sa nakaraang 14 na araw"><polyline points="${pts}" fill="none" stroke="#7B5544" stroke-width="3" stroke-linejoin="round"/></svg>
+      <p class="mute">14 araw · ${h[13] > h[0] ? '<span class="up">▲ Tumaas</span>' : '<span class="down">▼ Bumaba</span>'} ${Math.round((h[13] / h[0] - 1) * 100)}%</p></div>
+      <div class="card"><p class="mute">Karaniwan mong bayad</p><b>${peso(p.mid - 8)}/kg</b> <span class="mute">(mula sa log mo)</span></div>
+      ${sub ? `<div class="card row"><div class="av">${INGREDIENTS.tilapia.emoji}</div><div class="grow"><b>Tilapia, 20% mas mura</b><div class="mute">${peso(INGREDIENTS.tilapia.low)}–${peso(INGREDIENTS.tilapia.high).slice(1)} /kg</div></div></div>
+      <button class="btn" data-act="swap">${S.swapped ? '✓ Napalitan na' : 'Palitan'}</button><button class="btn alt" data-back>Huwag</button>` : '<button class="btn" data-back>Isama sa listahan</button>'}</div>`;
+  },
+
+  prices: () => `${header('Presyo', false)}<div class="pad"><input type="text" placeholder="Hanapin ang sangkap" aria-label="Hanapin"><div>${['Lahat', 'Karne', 'Isda', 'Gulay', 'Pampalasa'].map(s => `<button class="chip ${S.section === s ? 'on' : ''}" data-section="${s}">${s}</button>`).join('')}</div>
+    <div class="grid3">${Object.entries(INGREDIENTS).filter(([, i]) => S.section === 'Lahat' || i.section === S.section).map(([id, i]) => { const p = priceOf(id), up = id === 'onion'; return `<div class="tile" data-item="${id}"><span class="e">${i.emoji}</span>${i.name}<div class="mute">${peso(p.mid)}/kg</div><div class="${up ? 'up' : 'down'}">${up ? '▲ tumaas' : '▬ steady'}</div></div>`; }).join('')}</div>
+    <div class="row" style="margin-top:14px"><div class="dark grow" style="text-align:center"><b>Tumaas ngayon</b><br>🧅 Sibuyas +30%</div><div class="dark grow" style="text-align:center;background:var(--leaf)"><b>Bumaba ngayon</b><br>🍅 Kamatis −4%</div></div></div>`,
+
+  spend: () => `${header('Magkano ang nagastos mo?')}<div class="pad" style="text-align:center">${mascot('calm', 110)}
+    <div style="margin:8px 0"><button class="chip ${S.logMode === 'total' ? 'on' : ''}" data-mode="total">Kabuuan</button><button class="chip ${S.logMode === 'each' ? 'on' : ''}" data-mode="each">Isa-isa</button></div>
+    <input id="paid" type="number" inputmode="numeric" placeholder="₱" value="${S.paid}" aria-label="Gastos"><div>${[1500, 2000, 2500].map(n => `<button class="chip" data-quick="${n}">${peso(n)}</button>`).join('')}</div>
+    <p class="mute">Tantya: ${range(L().total.low, L().total.high)}</p><button class="btn" data-act="saveSpend">I-save</button></div>`,
+
+  sales: () => `${header('Ilan ang natira?')}<div class="pad"><p class="mute">Isang tap bawat ulam. Wala pang isang minuto.</p>
+    ${DISHES.map(d => `<div class="card row"><div class="av">${d.emoji}</div><div class="grow"><b>${d.name}</b>${S.soldOut[d.id] ? '<div class="mute">Ibig sabihin, mas marami pa ang gusto.</div>' : ''}</div>
+      <div><div class="stepper"><button data-lo="${d.id}|-1">−</button><b>${S.soldOut[d.id] ? 0 : S.leftovers[d.id]}</b><button data-lo="${d.id}|1">+</button></div><button class="toggle ${S.soldOut[d.id] ? 'on' : ''}" data-sold="${d.id}" style="margin-top:6px">Naubos</button></div></div>`).join('')}
+    <button class="btn" data-act="saveSales">Tapos na</button></div>`,
+
+  alerts: () => { const a = alerts(); return `${header('Mga paalala')}<div class="pad"><div>${['Lahat', 'Presyo', 'Kita', 'Palit', 'Badyet'].map(t => `<button class="chip ${S.section === t ? 'on' : ''}" data-section="${t}">${t}</button>`).join('')}</div>
+    ${a.filter(x => S.section === 'Lahat' || x.tab === S.section).map(x => `<div class="card"><div class="row"><div class="av">${x.e}</div><div class="grow" data-alert="${x.id}"><b>${x.title}</b><div class="mute">${x.body}</div></div></div>
+      <div style="margin-top:8px"><button class="btn small" data-alert="${x.id}">Tingnan</button><button class="btn small alt" data-dismiss="${x.id}">Ihinto</button></div></div>`).join('') || `<div style="text-align:center;margin-top:30px">${mascot('sleepy', 120)}<p class="mute">Walang paalala. Kalma lang.</p></div>`}</div>`; },
+
+  bagyo: () => {
+    const l = L(), base = buildList(S.order, 'none'), cut = Math.round((1 - l.total.likely / base.total.likely) * 100);
+    const early = [['Bigas', '🍚'], ['De-lata', '🥫'], ['Asukal', '🧂']];
+    return `<div style="background:${S.level === 'none' ? 'linear-gradient(#f9d6a5,#fdebd2)' : 'linear-gradient(#5B7FA6,#9DB7D1)'}"><div class="hero">${mascot(BAGYO[S.level].mascot, 128)}<div class="pill-status">${S.level === 'none' ? 'PAGASA: Walang babala' : 'PAGASA: ' + BAGYO[S.level].label}</div></div></div>
+    <div class="pad" style="margin-top:-18px;position:relative"><div style="text-align:center">${['none', 'yellow', 'orange', 'red'].map(k => `<button class="chip ${S.level === k ? 'on' : ''}" data-level="${k}">${k === 'none' ? 'Wala' : k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
+      <div class="dark"><h2>Mas maliit na listahan</h2><div class="row"><div class="big">${cut > 0 ? '−' + cut + '%' : '0%'}</div><div><p>${peso(l.total.likely)} ngayon</p><p style="opacity:.7">dati ${peso(base.total.likely)} · ${l.totalServings} servings</p></div></div><p class="mute" style="color:#e9d6c3">Mas binawasan ang isda at gulay dahil madaling masira.</p><button class="btn alt small" data-go="list" style="color:#fff;border-color:#fff">Tingnan ang listahan</button></div>
+      <div class="dark"><h2>Bumili nang maaga</h2>${early.map(([n, e]) => `<div class="row" style="margin:8px 0"><div class="av">${e}</div><div class="grow"><b>${n}</b></div><button class="chip ${S.bagyoAdded.has(n) ? 'on' : ''}" data-early="${n}">${S.bagyoAdded.has(n) ? '✓ Nakadagdag' : 'Idagdag'}</button></div>`).join('')}</div>
+      <div class="card row" data-go="fund"><div class="av">🐷</div><div class="grow"><b>Bagyo Fund</b><div class="mute">₱1,240 · simulated</div></div><span>›</span></div></div>`;
+  },
+
+  fund: () => `${header('Bagyo Fund')}<div class="pad" style="text-align:center">${mascot('cheer', 140)}<div class="big">₱1,240</div><p class="mute">Ilang piso bawat benta. Bubukas kapag may bagyo.</p>
+    <div class="card"><p>Lumago ng ₱310 ngayong buwan.</p><p class="mute">Demo lang ito. Walang tunay na pera.</p></div><button class="btn" data-go="bagyo">Balik</button></div>`,
+
+  budget: () => { const b = budgetFit(S.order, S.level, S.budget);
+    return `${header('Badyet ngayon')}<div class="pad"><p><b>Magkano ang hawak mo ngayon?</b></p><input id="budget" type="number" value="${S.budget}" aria-label="Badyet">
+    <div>${[1000, 1500, 2000, 2500].map(n => `<button class="chip ${S.budget === n ? 'on' : ''}" data-budget="${n}">${peso(n)}</button>`).join('')}</div>
+    <div class="dark"><p class="mute" style="color:#e9d6c3">Pinakamainam na listahan</p><div class="big">${range(b.list.total.low, b.list.total.high)}</div><p>malamang ${peso(b.list.total.likely)} · ${b.servings} servings</p></div>
+    ${S.order.map(id => { const d = DISHES.find(x => x.id === id), out = b.dropped.includes(id); return `<div class="card row"><div class="av">${d.emoji}</div><div class="grow"><b class="${out ? 'struck' : ''}">${d.name}</b>${out ? `<div class="mute">Tinanggal: ₱${margin(id)} lang ang kita</div>` : ''}</div></div>`; }).join('')}
+    <button class="btn" data-go="list">Gamitin ang listahang ito</button></div>`; },
+
+  dash: () => { const mx = Math.max(...Object.values(SALES_BY_DISH)), h = PRICE_HISTORY.onion, mn = Math.min(...h), hx = Math.max(...h);
+    const pts = h.map((v, k) => `${k * 12},${50 - (v - mn) / (hx - mn) * 44}`).join(' ');
+    return `${header('Tala', false)}<div class="pad"><div class="card row">${mascot('cheer', 70)}<div><b>Nakatipid ka ng ₱3,420 ngayong buwan.</b></div></div>
+    <div>${['Linggo', 'Buwan'].map(p => `<button class="chip ${S.period === p ? 'on' : ''}" data-period="${p}">${p}</button>`).join('')}</div>
+    <div class="grid3" style="grid-template-columns:1fr 1fr"><div class="dark"><p class="mute" style="color:#e9d6c3">Natipid</p><div class="big">${S.period === 'Buwan' ? '₱3,420' : '₱860'}</div></div><div class="dark" style="background:var(--leaf)"><p style="opacity:.8">Nasayang na naiwasan</p><div class="big">${S.period === 'Buwan' ? '18 kg' : '4 kg'}</div></div></div>
+    <h2>Benta kada ulam</h2><div class="card">${DISHES.map(d => `<div class="row" style="margin:6px 0"><span style="width:26px">${d.emoji}</span><div class="bar grow" style="margin:0"><i style="left:0;width:${SALES_BY_DISH[d.id] / mx * 100}%;background:var(--cocoa)"></i></div><b style="width:36px;text-align:right">${SALES_BY_DISH[d.id]}</b></div>`).join('')}</div>
+    <h2>Presyo ng sibuyas</h2><div class="card"><svg viewBox="0 0 156 56" width="100%" height="70"><polyline points="${pts}" fill="none" stroke="#C8553D" stroke-width="2.5"/></svg><p class="mute"><span class="up">▲ ${Math.round((h[13] / h[0] - 1) * 100)}%</span> sa 14 araw</p></div></div>`; },
+
+  done: () => { const c = S.celebrate || { title: 'Tapos na!', sub: '' };
+    return `<div class="confetti">${Array.from({ length: 24 }, (_, i) => `<i style="left:${(i * 37) % 100}%;background:${['#C8553D', '#4F7A44', '#E7B93C', '#4A6D96', '#D4A373'][i % 5]};animation-delay:${(i % 8) * 0.3}s"></i>`).join('')}</div>
+    <div class="pad" style="text-align:center;padding-top:60px">${mascot('cheer', 200)}<h1 style="margin-top:12px">${c.title}</h1><p>${c.sub}</p><button class="btn" data-go="home">Balik sa Ngayon</button></div>`; },
+
+  settings: () => `${header('Settings', false)}<div class="pad"><div class="card"><b>Wika</b><br><button class="chip on">Taglish</button><button class="chip">English</button></div>
+    <div class="card"><b>Tema</b><br><button class="chip on">Auto</button><button class="chip">Araw</button><button class="chip">Umaga</button></div>
+    <div class="card"><b>Ang data</b><p class="mute">Presyo: DA NCR daily at weekly, DTI e-Presyo. Mock data lang ang ipinapakita dito.</p></div>
+    <button class="btn alt" data-go="splash">I-reset ang demo</button></div>`,
+};
+
+const TABS = [['home', '🏠', 'Ngayon'], ['list', '🛒', 'Palengke'], ['menu', '🍲', 'Menu'], ['dash', '📊', 'Tala']];
+const TAB_SCREENS = new Set(['home', 'list', 'menu', 'dash', 'prices', 'alerts', 'bagyo', 'item', 'budget', 'settings', 'spend', 'sales', 'fund']);
+
+// ---------- router and render ----------
+function go(name, push = true) { if (push && S.screen !== name) S.stack.push(S.screen); S.screen = name; if (name !== 'alerts' && name !== 'list' && name !== 'prices') S.section = 'Lahat'; render(); }
+function back() { S.screen = S.stack.pop() || 'home'; render(); }
+function render() {
+  const el = $('#screen'), tabs = $('#tabs');
+  const fn = screens[S.screen];
+  const keepScroll = el.scrollTop;
+  el.classList.toggle('night', S.shop && S.screen === 'list');
+  el.innerHTML = fn();
+  $('#banner').innerHTML = bannerHtml();
+  tabs.hidden = !TAB_SCREENS.has(S.screen);
+  const tabOf = { home: 'home', alerts: 'home', bagyo: 'home', list: 'list', item: 'list', budget: 'list', spend: 'list', sales: 'home', menu: 'menu', dash: 'dash', prices: 'list', fund: 'home', settings: 'dash' }[S.screen];
+  tabs.innerHTML = TABS.map(([k, e, l]) => `<button class="${tabOf === k ? 'on' : ''}" data-go="${k}" data-root><span>${e}</span>${l}</button>`).join('') + `<button data-go="prices" data-root><span>💲</span>Presyo</button>`;
+  if (S.screen === S.lastScreen) el.scrollTop = keepScroll; else el.scrollTop = 0;
+  S.lastScreen = S.screen;
+  location.hash = S.screen;
+}
+function toast(msg) { const n = document.createElement('div'); n.className = 'note'; n.textContent = msg; $('#phone').appendChild(n); setTimeout(() => n.remove(), 1800); }
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-go],[data-back],[data-act],[data-up],[data-down],[data-tag],[data-section],[data-check],[data-item],[data-level],[data-budget],[data-mode],[data-quick],[data-lo],[data-sold],[data-alert],[data-dismiss],[data-early],[data-period]');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.go) { e.preventDefault(); if (t.hasAttribute('data-root')) S.stack = []; if (d.demo !== undefined) S.stack = []; return go(d.go); }
+  if (t.hasAttribute('data-back')) return back();
+  if (d.up || d.down) { const id = d.up || d.down, i = S.order.indexOf(id), j = i + (d.up ? -1 : 1); if (j >= 0 && j < S.order.length) { [S.order[i], S.order[j]] = [S.order[j], S.order[i]]; } return render(); }
+  if (d.tag) { const [id, k] = d.tag.split('|'), a = S.tags[id]; a.includes(k) ? a.splice(a.indexOf(k), 1) : a.push(k); return render(); }
+  if (d.section) { S.section = d.section; return render(); }
+  if (d.check) { S.checked.has(d.check) ? S.checked.delete(d.check) : S.checked.add(d.check); return render(); }
+  if (d.item) { S.item = d.item; return go('item'); }
+  if (d.level) { S.level = d.level; return render(); }
+  if (d.budget) { S.budget = +d.budget; return render(); }
+  if (d.mode) { S.logMode = d.mode; return render(); }
+  if (d.quick) { S.paid = d.quick; return render(); }
+  if (d.lo) { const [id, n] = d.lo.split('|'); S.soldOut[id] = false; S.leftovers[id] = Math.max(0, S.leftovers[id] + +n); return render(); }
+  if (d.sold) { S.soldOut[d.sold] = !S.soldOut[d.sold]; return render(); }
+  if (d.alert) { const a = alerts().find(x => x.id === d.alert); if (a.item) S.item = a.item; return go(a.go); }
+  if (d.dismiss) { S.dismissed.add(d.dismiss); return render(); }
+  if (d.early) { S.bagyoAdded.has(d.early) ? S.bagyoAdded.delete(d.early) : S.bagyoAdded.add(d.early); return render(); }
+  if (d.period) { S.period = d.period; return render(); }
+  const act = {
+    saveStore() { S.store = $('#store').value || S.store; go('intro'); },
+    introNext() { if (S.intro < 2) { S.intro++; render(); } else go('menu0'); },
+    toggleShop() { S.shop = !S.shop; if (!S.shop) S.checked.clear(); render(); },
+    swap() { S.swapped = true; toast('Napalitan ang galunggong ng tilapia'); render(); },
+    saveSpend() { const v = +($('#paid').value || S.paid || 0), l = L(); S.paid = ''; S.celebrate = v && v < l.total.low ? { title: 'Panalo ka sa presyo!', sub: `${peso(l.total.low - v)} sa baba ng pinakamababang tantya.` } : { title: 'Na-save na!', sub: v ? `Gastos: ${peso(v)}.` : '' }; go('done'); },
+    saveSales() { S.celebrate = { title: 'Salamat, Aling Rosa!', sub: 'Mas matalino na ang listahan bukas.' }; go('done'); },
+  }[d.act];
+  if (act) act();
+});
+document.addEventListener('input', e => { if (e.target.id === 'budget') { S.budget = +e.target.value || 0; clearTimeout(S._t); S._t = setTimeout(() => { render(); const b = $('#budget'); b.focus(); b.setSelectionRange(b.value.length, b.value.length); }, 500); } if (e.target.id === 'paid') S.paid = e.target.value; });
+// drag to reorder
+let dragId;
+document.addEventListener('dragstart', e => { const t = e.target.closest('[data-drag]'); if (t) { dragId = t.dataset.drag; e.dataTransfer.effectAllowed = 'move'; } });
+document.addEventListener('dragover', e => { if (e.target.closest('[data-drag]')) e.preventDefault(); });
+document.addEventListener('drop', e => { const t = e.target.closest('[data-drag]'); if (!t || !dragId) return; e.preventDefault(); const from = S.order.indexOf(dragId), to = S.order.indexOf(t.dataset.drag); S.order.splice(to, 0, S.order.splice(from, 1)[0]); dragId = null; render(); });
+addEventListener('online', render); addEventListener('offline', render);
+const start = location.hash.slice(1);
+if (screens[start]) S.screen = start;
+render();
+</script>
+</body>
+</html>

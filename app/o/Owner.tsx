@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@/src/ui/Icon";
 import { Mascot } from "@/src/ui/Mascot";
+import { OwnerBottomNav } from "@/src/ui/OwnerBottomNav";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { AddDishModal } from "./AddDishModal";
@@ -375,50 +376,14 @@ export function Owner() {
         </>
       )}
 
-      {/* Bottom Navigation Bar: Ngayon · Natira · Bukas (UX.md Section 2) */}
-      <nav className="owner-nav" aria-label="Owner navigation">
-        <button
-          type="button"
-          className={`owner-tab-btn ${activeTab === "ngayon" ? "on" : ""}`}
-          onClick={() => {
-            setActiveTab("ngayon");
-            setShowPalengke(false);
-          }}
-          aria-label="Ngayon"
-          aria-current={activeTab === "ngayon" ? "page" : undefined}
-        >
-          <Icon name="today" />
-          <span>Ngayon</span>
-        </button>
-
-        <button
-          type="button"
-          className={`owner-tab-btn ${activeTab === "natira" ? "on" : ""}`}
-          onClick={() => {
-            setActiveTab("natira");
-            setShowPalengke(false);
-          }}
-          aria-label="Natira"
-          aria-current={activeTab === "natira" ? "page" : undefined}
-        >
-          <Icon name="plate" />
-          <span>Natira</span>
-        </button>
-
-        <button
-          type="button"
-          className={`owner-tab-btn ${activeTab === "bukas" ? "on" : ""}`}
-          onClick={() => {
-            setActiveTab("bukas");
-            setShowPalengke(false);
-          }}
-          aria-label="Bukas"
-          aria-current={activeTab === "bukas" ? "page" : undefined}
-        >
-          <Icon name="cart" />
-          <span>Bukas</span>
-        </button>
-      </nav>
+      {/* Bottom Navigation Bar: Ngayon · Natira · Bukas (Figma Nodes 87:1593, 87:1606, 87:1631) */}
+      <OwnerBottomNav
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          setShowPalengke(false);
+        }}
+      />
 
       {/* Modal Overlays */}
       {currentSelectedDish && (

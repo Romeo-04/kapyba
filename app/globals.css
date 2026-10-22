@@ -259,6 +259,61 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .owner-tab-btn .i { width: 22px; height: 22px; }
 .owner-tab-btn.on { color: var(--chili); background: var(--chili-soft); }
 
+/* Figma Owner Bottom Navigation (Nodes 87:1593, 87:1606, 87:1631) */
+.owner-figma-nav {
+  position: fixed;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 380px;
+  height: 66px;
+  background: #ffffff;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  gap: 4px;
+  box-shadow: 0 16px 36px rgba(36, 28, 24, 0.12), 0 4px 12px rgba(36, 28, 24, 0.06);
+  border: 1px solid var(--ring);
+  z-index: 40;
+}
+.owner-figma-tab {
+  flex: 1;
+  height: 54px;
+  border-radius: 100px;
+  border: 0;
+  background: #fffdf9;
+  color: #7d6d61;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: transform 140ms var(--ease), background-color 160ms var(--ease), color 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.owner-figma-tab:active {
+  transform: scale(0.96);
+}
+.owner-figma-tab.active {
+  background: linear-gradient(180deg, #e05832 0%, #b83b1a 100%);
+  box-shadow: 0 4px 6px rgba(184, 59, 26, 0.22), inset 0 3px 3px rgba(255, 255, 255, 0.3);
+  color: #fffdf9;
+}
+.owner-figma-ico {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.owner-figma-lbl {
+  letter-spacing: 0;
+}
+
 .stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cream); border: 1.5px solid var(--ring); border-radius: 22px; padding: 12px 6px; box-shadow: 0 1px 3px rgba(36, 28, 24, 0.04); }
 .stats-panel-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; padding: 4px 6px; }
 .stats-panel-col:not(:last-child) { border-right: 1px solid var(--ring); }

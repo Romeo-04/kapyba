@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from "react";
 import { ScreenHeader } from "./ScreenHeader";
 
 export type DrilldownSheetProps = {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   title?: string;
   subtitle?: string;
@@ -20,7 +20,7 @@ export type DrilldownSheetProps = {
  * Locks to 100dvh with a fixed ScreenHeader, momentum-scrollable body, and pinned thumb-zone CTA.
  */
 export function DrilldownSheet({
-  isOpen,
+  isOpen = true,
   onClose,
   title,
   subtitle,

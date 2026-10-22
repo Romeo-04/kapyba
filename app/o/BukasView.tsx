@@ -56,18 +56,18 @@ export function BukasView({
   return (
     <div className="stack bukas-view">
       {/* Header */}
-      <div className="row">
+      <div className="row" style={{ gap: 14, alignItems: "center" }}>
         <Mascot mood={isRainy ? "rain" : "calm"} size={54} />
         <div className="grow">
-          <h1>Bukas</h1>
-          <p className="mute">Mungkahing lulutuin para sa benta bukas</p>
+          <h1 style={{ margin: 0, fontSize: 24 }}>Bukas</h1>
+          <p className="mute" style={{ margin: "2px 0 0", fontSize: 14 }}>Mungkahing lulutuin para sa benta bukas</p>
         </div>
       </div>
 
       {/* Weather Pill & Controls */}
       {weather && (
         <div className="card stack weather-card">
-          <div className="row" data-testid="weather-pill" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div className="row" data-testid="weather-pill" style={{ justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div className="grow">
               <div className="row" style={{ gap: 6, marginBottom: 4 }}>
                 <span className="weather-ico" style={{ color: isRainy ? "var(--rain)" : "var(--amber)" }}>
@@ -106,19 +106,19 @@ export function BukasView({
 
       {/* Servings Plan per Dish */}
       <div className="card stack">
-        <div className="row" style={{ justifyContent: "space-between" }}>
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h2 style={{ fontSize: 18 }}>Plano ng Servings</h2>
-            <p className="mute" style={{ fontSize: 13 }}>Kalkulado mula sa benta at panahon</p>
+            <h2 style={{ fontSize: 18, margin: 0 }}>Plano ng Servings</h2>
+            <p className="mute" style={{ fontSize: 13, margin: "2px 0 0" }}>Kalkulado mula sa benta at panahon</p>
           </div>
           {totalSuggested > 0 && (
-            <span className="pill" style={{ background: "var(--cream)", color: "var(--cocoa)", fontWeight: 700 }}>
+            <span className="pill" style={{ background: "var(--cream)", color: "var(--cocoa)", fontWeight: 700, fontSize: 12 }}>
               {totalSuggested} servings kabuuan
             </span>
           )}
         </div>
 
-        <div className="stack" style={{ gap: 12 }}>
+        <div className="stack" style={{ gap: 12, marginTop: 4 }}>
           {rows.map((r) => {
             const yesterday = r.plan?.yesterday ?? 10;
             const servings = r.plan?.servings ?? 10;
@@ -128,27 +128,34 @@ export function BukasView({
 
             return (
               <div key={r.dishId} className="bukas-row-card" data-testid="bukas-row">
-                <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-                  <strong style={{ fontSize: 16 }}>{r.name}</strong>
-                  {r.plan ? (
-                    <div className="row" style={{ gap: 6, alignItems: "baseline" }}>
-                      <span>
-                        {r.plan.yesterday !== null && (
-                          <span className="mute" style={{ fontSize: 13 }}>{r.plan.yesterday} →{" "}</span>
-                        )}
-                        <strong style={{ fontSize: 20, fontFamily: "var(--font-heading)", color: "var(--leaf)" }}>
-                          {r.plan.servings}
-                        </strong>
-                      </span>
-                      <span className="mute" style={{ fontSize: 12 }}>plates</span>
+                <div className="row" style={{ gap: 12, alignItems: "center" }}>
+                  <div className="ico-plate" style={{ width: 42, height: 42, flex: "none" }}>
+                    <Icon name="bowl" />
+                  </div>
+                  <div className="grow">
+                    <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+                      <strong style={{ fontSize: 16 }}>{r.name}</strong>
+                      {r.plan ? (
+                        <div className="row" style={{ gap: 6, alignItems: "baseline" }}>
+                          <span>
+                            {r.plan.yesterday !== null && (
+                              <span className="mute" style={{ fontSize: 13 }}>{r.plan.yesterday} →{" "}</span>
+                            )}
+                            <strong style={{ fontSize: 20, fontFamily: "var(--font-heading)", color: "var(--leaf)" }}>
+                              {r.plan.servings}
+                            </strong>
+                          </span>
+                          <span className="mute" style={{ fontSize: 12 }}>plates</span>
+                        </div>
+                      ) : (
+                        <span className="mute" style={{ fontSize: 13 }}>Kulang pa</span>
+                      )}
                     </div>
-                  ) : (
-                    <span className="mute" style={{ fontSize: 13 }}>Kulang pa</span>
-                  )}
+                  </div>
                 </div>
 
                 {r.plan && (
-                  <>
+                  <div style={{ marginTop: 10 }}>
                     {/* Paired Visual Bars (UX.md 4.5 & O4) */}
                     <div className="paired-bars">
                       {r.plan.yesterday !== null && (
@@ -167,14 +174,14 @@ export function BukasView({
                       </div>
                     </div>
 
-                    <div className="row" style={{ flexWrap: "wrap", gap: 4, marginTop: 2 }}>
+                    <div className="row" style={{ flexWrap: "wrap", gap: 6, marginTop: 8 }}>
                       {r.plan.reasons.map((x) => (
                         <span key={x} className="pill" style={{ fontSize: 11, padding: "2px 8px" }}>
                           {WHY[x] ?? x}
                         </span>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             );

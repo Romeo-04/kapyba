@@ -2,11 +2,12 @@
 import { Icon } from "./Icon";
 
 export type TouchStepperProps = {
-  value: number;
-  onChange: (val: number) => void;
+  value: number | string;
+  onChange: (val: number | string) => void;
   min?: number;
   max?: number;
   step?: number;
+  placeholder?: string;
   prefix?: string;
   suffix?: string;
   name?: string;
@@ -28,6 +29,7 @@ export function TouchStepper({
   min = 0,
   max = 1000,
   step = 1,
+  placeholder = "0",
   prefix,
   suffix,
   name,
@@ -37,26 +39,20 @@ export function TouchStepper({
   className = "",
   disabled = false,
 }: TouchStepperProps) {
+  const numericValue = typeof value === "number" ? value : Number(value) || 0;
+
   const handleDec = () => {
-    if (disabled || value <= min) return;
-    onChange(Math.max(min, value - step));
+    if (disabled || numericValue <= min) return;
+    onChange(Math.max(min, numericValue - step));
   };
 
   const handleInc = () => {
-    if (disabled || value >= max) return;
-    onChange(Math.min(max, value + step));
+    if (disabled || numericValue >= max) return;
+    onChange(Math.min(max, numericValue + step));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    if (raw === "") {
-      onChange(min);
-      return;
-    }
-    const parsed = Number(raw);
-    if (!Number.isNaN(parsed)) {
-      onChange(Math.max(min, Math.min(max, parsed)));
-    }
+    onChange(e.target.value);
   };
 
   return (
@@ -71,7 +67,7 @@ export function TouchStepper({
           type="button"
           className="touch-stepper-btn dec"
           onClick={handleDec}
-          disabled={disabled || value <= min}
+          disabled={disabled || numericValue <= min}
           aria-label={label ? `Bawasan ang ${label}` : "Bawasan"}
         >
           <Icon name="minus" />
@@ -88,6 +84,7 @@ export function TouchStepper({
             max={max}
             step={step}
             value={value}
+            placeholder={placeholder}
             onChange={handleInputChange}
             aria-label={ariaLabel ?? label}
             disabled={disabled}
@@ -100,7 +97,7 @@ export function TouchStepper({
           type="button"
           className="touch-stepper-btn inc"
           onClick={handleInc}
-          disabled={disabled || value >= max}
+          disabled={disabled || numericValue >= max}
           aria-label={label ? `Dagdagan ang ${label}` : "Dagdagan"}
         >
           <Icon name="plus" />

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@/src/ui/Icon";
 import { Mascot } from "@/src/ui/Mascot";
+import { TouchStepper } from "@/src/ui/TouchStepper";
 import { iconFor } from "../s/[code]/Rate";
 
 type Day = { day: string; pesos: number; leftover: number; cooked: number };
@@ -22,7 +23,11 @@ export function NatiraView({
   const [msg, setMsg] = useState("");
   const [tick, setTick] = useState(0);
 
-  // Linis checklist states (UX.md O3)
+  // Form values state for steppers
+  const [cookedMap, setCookedMap] = useState<Record<string, number | string>>({});
+  const [soldMap, setSoldMap] = useState<Record<string, number | string>>({});
+
+  // Linis checklist states (UX.md O3 & Simula .tile design)
   const [linisTable, setLinisTable] = useState(false);
   const [linisCover, setLinisCover] = useState(false);
   const [linisWash, setLinisWash] = useState(false);
@@ -58,7 +63,19 @@ export function NatiraView({
               ₱{today?.pesos ?? 0}
             </div>
           </div>
-          <div className="stat-badge-ico" style={{ background: "var(--cream)", color: "var(--cocoa)", width: 44, height: 44, borderRadius: 14, display: "grid", placeItems: "center" }}>
+          <div
+            className="stat-badge-ico"
+            style={{
+              background: "var(--paper)",
+              color: "var(--cocoa)",
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              display: "grid",
+              placeItems: "center",
+              boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)",
+            }}
+          >
             <Icon name="bin" />
           </div>
         </div>
@@ -77,6 +94,7 @@ export function NatiraView({
       {/* Dish Portions Logging Form */}
       <form
         className="card stack"
+        style={{ background: "#fff" }}
         onSubmit={async (e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
@@ -108,100 +126,105 @@ export function NatiraView({
         <div className="stack" style={{ gap: 10 }}>
           {dishes.map((d) => (
             <div key={d.id} className="natira-dish-row">
-              <div className="row grow" style={{ minWidth: 120 }}>
-                <div className="ico-plate" style={{ width: 38, height: 38 }}>
+              <div className="row grow" style={{ minWidth: 110 }}>
+                <div
+                  className="ico-plate"
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    background: "var(--cream)",
+                    color: "var(--cocoa)",
+                    display: "grid",
+                    placeItems: "center",
+                    boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)",
+                  }}
+                >
                   <Icon name={iconFor(d.icon ?? "bowl")} />
                 </div>
                 <div>
-                  <strong style={{ fontSize: 15, display: "block" }}>{d.name}</strong>
+                  <strong style={{ fontSize: 16, display: "block", fontFamily: "var(--font-heading)" }}>{d.name}</strong>
                   {d.price && <span className="mute" style={{ fontSize: 12 }}>₱{d.price} bawat serving</span>}
                 </div>
               </div>
 
-              <div className="row" style={{ gap: 8 }}>
-                <div>
-                  <label htmlFor={`cooked-${d.id}`} style={{ fontSize: 11, marginBottom: 2, color: "var(--mute)" }}>
-                    Luto
-                  </label>
-                  <input
-                    id={`cooked-${d.id}`}
-                    name={`cooked-${d.id}`}
-                    aria-label={`${d.name} cooked`}
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={10000}
-                    placeholder="0"
-                    style={{ width: 78, textAlign: "center" }}
-                  />
-                </div>
+              <div className="row" style={{ gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <TouchStepper
+                  id={`cooked-${d.id}`}
+                  name={`cooked-${d.id}`}
+                  ariaLabel={`${d.name} cooked`}
+                  label="Luto"
+                  value={cookedMap[d.id] ?? ""}
+                  onChange={(v) => setCookedMap((prev) => ({ ...prev, [d.id]: v }))}
+                />
 
-                <div>
-                  <label htmlFor={`sold-${d.id}`} style={{ fontSize: 11, marginBottom: 2, color: "var(--mute)" }}>
-                    Benta
-                  </label>
-                  <input
-                    id={`sold-${d.id}`}
-                    name={`sold-${d.id}`}
-                    aria-label={`${d.name} sold`}
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={10000}
-                    placeholder="0"
-                    style={{ width: 78, textAlign: "center" }}
-                  />
-                </div>
+                <TouchStepper
+                  id={`sold-${d.id}`}
+                  name={`sold-${d.id}`}
+                  ariaLabel={`${d.name} sold`}
+                  label="Benta"
+                  value={soldMap[d.id] ?? ""}
+                  onChange={(v) => setSoldMap((prev) => ({ ...prev, [d.id]: v }))}
+                />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Linis Row (UX.md O3 & 4.5) */}
-        <div className="card linis-box" style={{ background: "var(--cream)", border: "1px solid var(--ring)", borderRadius: 16, padding: "14px" }}>
-          <div className="row" style={{ justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--cocoa)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+        {/* Linis Row (Simula .tile elevation) */}
+        <div className="card stack linis-box" style={{ background: "var(--cream)", border: "1.5px solid var(--ring)", borderRadius: 20, padding: "16px" }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--cocoa)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Linis Check-in
             </span>
             {allLinisDone && <span className="pill g"><Icon name="check" /> Linis</span>}
           </div>
 
-          <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+          <div className="grid3" style={{ gap: 10 }}>
             <button
               type="button"
-              className={`chip ${linisTable ? "on" : ""}`}
+              className={`tile ${linisTable ? "on" : ""}`}
               onClick={() => setLinisTable(!linisTable)}
               aria-pressed={linisTable}
+              style={{ minHeight: 74, padding: "10px 4px" }}
             >
-              <Icon name="sparkle" /> Lamesa
+              <div className="tile-ico"><Icon name="sparkle" /></div>
+              <span className="tile-name">Lamesa</span>
+              {linisTable && <span className="tile-check"><Icon name="check" /></span>}
             </button>
             <button
               type="button"
-              className={`chip ${linisCover ? "on" : ""}`}
+              className={`tile ${linisCover ? "on" : ""}`}
               onClick={() => setLinisCover(!linisCover)}
               aria-pressed={linisCover}
+              style={{ minHeight: 74, padding: "10px 4px" }}
             >
-              <Icon name="dome" /> Takip
+              <div className="tile-ico"><Icon name="dome" /></div>
+              <span className="tile-name">Takip</span>
+              {linisCover && <span className="tile-check"><Icon name="check" /></span>}
             </button>
             <button
               type="button"
-              className={`chip ${linisWash ? "on" : ""}`}
+              className={`tile ${linisWash ? "on" : ""}`}
               onClick={() => setLinisWash(!linisWash)}
               aria-pressed={linisWash}
+              style={{ minHeight: 74, padding: "10px 4px" }}
             >
-              <Icon name="drop" /> Hugasan
+              <div className="tile-ico"><Icon name="drop" /></div>
+              <span className="tile-name">Hugasan</span>
+              {linisWash && <span className="tile-check"><Icon name="check" /></span>}
             </button>
           </div>
         </div>
 
         {msg && <p role="status" className="mute center" style={{ fontWeight: 600 }}>{msg}</p>}
 
-        <button type="submit" className="btn block primary-cta">
+        <button type="submit" className="btn block primary-cta" style={{ minHeight: 52 }}>
           <Icon name="check" /> Save today
         </button>
 
         {onGoToBukas && (
-          <button type="button" className="btn soft block" onClick={onGoToBukas}>
+          <button type="button" className="btn soft block" onClick={onGoToBukas} style={{ minHeight: 46 }}>
             Tingnan ang Plano sa Bukas <Icon name="next" />
           </button>
         )}

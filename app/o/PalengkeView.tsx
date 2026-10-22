@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { DrilldownSheet } from "@/src/ui/DrilldownSheet";
 import { Icon } from "@/src/ui/Icon";
 
 type List = {
@@ -28,33 +29,25 @@ export function PalengkeView({
     });
   }, [stallId, refresh]);
 
-  if (!list) {
-    return (
-      <div className="card stack center" style={{ padding: 40 }}>
-        <p className="mute">Kinakarga ang listahan sa palengke...</p>
-      </div>
-    );
-  }
-
-  const lowTotal = list.total.low;
-  const highTotal = list.total.high;
+  const lowTotal = list?.total.low ?? 0;
+  const highTotal = list?.total.high ?? 0;
   const midTotal = Math.round((lowTotal + highTotal) / 2);
-  const totalItems = list.items.length;
-  const boughtCount = list.items.filter((i) => got.has(i.key)).length;
+  const totalItems = list?.items.length ?? 0;
+  const boughtCount = list?.items.filter((i) => got.has(i.key)).length ?? 0;
 
   return (
-    <div className={`stack palengke-view ${shopDark ? "shop-dark" : ""}`}>
-      {/* Header */}
-      <div className="detail-hdr">
+    <DrilldownSheet
+      isOpen={true}
+      onClose={onClose}
+      title="Palengke"
+      ariaLabel="Palengke"
+      className={shopDark ? "shop-dark" : ""}
+      left={
         <button type="button" className="simula-back" onClick={onClose} aria-label="Bumalik">
           <Icon name="back" />
         </button>
-        <div className="detail-title-wrap">
-          <div className="ico-plate" style={{ width: 36, height: 36 }}>
-            <Icon name="cart" />
-          </div>
-          <h1 style={{ margin: 0, fontSize: 22 }}>Palengke</h1>
-        </div>
+      }
+      right={
         <button
           type="button"
           className={`chip ${shopDark ? "on" : ""}`}
@@ -64,11 +57,17 @@ export function PalengkeView({
         >
           {shopDark ? "☀️ Araw" : "🌙 Umaga"}
         </button>
-      </div>
-
-      {list.items.length === 0 ? (
-        <div className="card stack center" style={{ padding: 36 }}>
-          <p className="mute">Kulang pa. Mag-log muna sa Natira o maglagay ng karaniwang servings para makabuo ng listahan sa palengke.</p>
+      }
+    >
+      {!list ? (
+        <div className="card stack center" style={{ padding: 40, background: "#fff" }}>
+          <p className="mute">Kinakarga ang listahan sa palengke...</p>
+        </div>
+      ) : list.items.length === 0 ? (
+        <div className="card stack center" style={{ padding: 36, background: "#fff" }}>
+          <p className="mute">
+            Kulang pa. Mag-log muna sa Natira o maglagay ng karaniwang servings para makabuo ng listahan sa palengke.
+          </p>
           <button type="button" className="btn soft" onClick={onClose}>
             Bumalik sa Bukas
           </button>
@@ -76,7 +75,7 @@ export function PalengkeView({
       ) : (
         <>
           {/* Likely Total Card (UX.md O5 & 4.5) */}
-          <div className="card stack palengke-total-card">
+          <div className="card stack palengke-total-card" style={{ background: "#fff" }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <span className="mute" style={{ fontSize: 13, textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.04em" }}>
@@ -107,7 +106,7 @@ export function PalengkeView({
           </div>
 
           {/* Ingredient Checklist */}
-          <div className="card stack">
+          <div className="card stack" style={{ background: "#fff" }}>
             <div className="row" style={{ justifyContent: "space-between" }}>
               <h2 style={{ fontSize: 17 }}>Mga Sangkap</h2>
               <span className="mute" style={{ fontSize: 12 }}>I-check pag nabili na</span>
@@ -161,6 +160,6 @@ export function PalengkeView({
           </div>
         </>
       )}
-    </div>
+    </DrilldownSheet>
   );
 }

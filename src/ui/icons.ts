@@ -45,6 +45,8 @@ export const ICONS = {
   tomato: `<circle cx="12" cy="13" r="7.5"/><path d="M9 6c1 1 2 1 3 0 1 1 2 1 3 0"/>`,
   bin: `<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>`,
   utensils: `<path d="M5 4v5a3 3 0 0 0 6 0V4M8 4v16M17 4v16M17 4c-2.2 0-3.5 2.2-3.5 5.5V13H17"/>`,
+  printer: `<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/>`,
+  download: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>`,
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,0 +1,44 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Capybara } from "./Capybara";
+import { Icon } from "./Icon";
+import type { IconName } from "./icons";
+
+/** Brown top bar with the wordmark, in the style of a food-delivery app header. */
+export function TopBar() {
+  return (
+    <header className="topbar">
+      <Link href="/" className="brand" aria-label="KapyBa home">
+        <Capybara size={34} />
+        <span>KapyBa</span>
+      </Link>
+      <Link href="/ulam" className="locpill">
+        <Icon name="pin" />
+        <span>Ulam near you</span>
+      </Link>
+    </header>
+  );
+}
+
+const TABS: { href: string; icon: IconName; label: string; match: (p: string) => boolean }[] = [
+  { href: "/ulam", icon: "board", label: "Ulam", match: (p) => p.startsWith("/ulam") },
+  { href: "/o", icon: "store", label: "My stall", match: (p) => p === "/o" || p.startsWith("/o/") || p.startsWith("/review") },
+  { href: "/", icon: "home", label: "Home", match: (p) => p === "/" },
+];
+
+/** Bottom tab bar. Hidden on the rating page, where the buyer has one job. */
+export function BottomNav() {
+  const path = usePathname();
+  if (path.startsWith("/s/")) return null;
+  return (
+    <nav className="bottomnav" aria-label="Main">
+      {TABS.map((t) => (
+        <Link key={t.href} href={t.href} aria-current={t.match(path) ? "page" : undefined}>
+          <Icon name={t.icon} />
+          <span>{t.label}</span>
+        </Link>
+      ))}
+    </nav>
+  );
+}

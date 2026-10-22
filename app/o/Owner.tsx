@@ -4,6 +4,7 @@ import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
+import { Natira } from "./Natira";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
@@ -100,6 +101,8 @@ export function Owner() {
         </div>
       ))}
       {msg && <p className="err" role="alert">{msg}</p>}
+
+      {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} />}
 
       <form className="card stack" onSubmit={async (e) => {
         e.preventDefault();

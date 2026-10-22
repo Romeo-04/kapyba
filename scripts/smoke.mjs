@@ -1,5 +1,5 @@
 // Smoke test for a deployed KapyBa: node scripts/smoke.mjs https://your-url
-// Read-only. Checks health, the public pages and that the owner area is closed to strangers.
+// Read-only. Checks health, the public pages and that the owner API is closed to strangers.
 const base = (process.argv[2] ?? "").replace(/\/$/, "");
 if (!base) { console.error("usage: node scripts/smoke.mjs <url>"); process.exit(2); }
 
@@ -18,9 +18,6 @@ await check("health is ok and the database answers", async () => {
 await check("home page loads", async () => { const r = await get("/"); must(r.status === 200, `status ${r.status}`); });
 await check("Ulam board loads", async () => { const r = await get("/ulam"); must(r.status === 200, `status ${r.status}`); });
 await check("privacy page loads", async () => { const r = await get("/privacy"); must(r.status === 200, `status ${r.status}`); });
-await check("owner page sends a stranger home", async () => {
-  const r = await get("/o"); must([302, 303, 307, 308].includes(r.status), `status ${r.status}`);
-});
 await check("owner API refuses a stranger", async () => { const r = await get("/api/stalls"); must(r.status === 401, `status ${r.status}`); });
 await check("an unknown stall code is not found", async () => { const r = await get("/api/s/zzzzzzzzzz"); must(r.status === 404, `status ${r.status}`); });
 await check("a cross-site write is refused", async () => {

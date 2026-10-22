@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/src/db";
 import { consumeLink, requestLink } from "@/src/services/auth";
-import { leftoverPesos, saveDay } from "@/src/services/logs";
+import { bukasPlan, leftoverPesos, saveDay } from "@/src/services/logs";
 import { addDish, createStall } from "@/src/services/stalls";
 import { testDb } from "./helpers/testdb";
 
@@ -56,5 +56,13 @@ describe("daily log", () => {
     expect(await leftoverPesos(db, other, stallId, 7, NOW)).toBeNull();
     const s2 = (await createStall(db, other, { name: "Ben", area: "UST" }))!.id;
     expect(await saveDay(db, other, s2, [{ dishId: adobo, cooked: 5, sold: 1 }], NOW)).toBeNull();
+  });
+
+  it("builds Bukas from the logs and shows Kulang (null) for a dish with no history", async () => {
+    await saveDay(db, owner, stallId, [{ dishId: adobo, cooked: 12, sold: 8 }], NOW);
+    const plan = (await bukasPlan(db, owner, stallId, NOW))!;
+    expect(plan.find((p) => p.dishId === adobo)!.plan).toMatchObject({ servings: 8, yesterday: 12 });
+    expect(plan.find((p) => p.dishId === tinola)!.plan).toBeNull();
+    expect(await bukasPlan(db, other, stallId, NOW)).toBeNull();
   });
 });

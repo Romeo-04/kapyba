@@ -54,6 +54,9 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByRole("button", { name: "Save today" }).click();
   await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱210");
 
+  // Bukas now suggests 9 (the average sold) for Adobo.
+  await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
+
   await ownerCtx.close();
   await buyerCtx.close();
 });

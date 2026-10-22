@@ -16,6 +16,8 @@ We do not collect buyer names, emails, phone numbers, payment details or precise
 
 - A buyer's individual rating is never shown to the public or linked to a person. The public sees only a dish score after enough ratings.
 - Owners see their own dishes' ratings and tags, not buyer tokens.
+- Owners also see the average score of the same dish at other nearby stalls, only for dishes those owners published, without stall names (Kumpara).
+- Anti-abuse counters (internet address, sign-in email) are kept up to one day and purged by the retention job.
 - Ratings under a report may be reviewed by the reviewer, who sees tokens and timestamps only.
 - We do not sell data. Deals (Alok) are never tied to ratings.
 

@@ -55,6 +55,11 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await buyer.getByRole("button", { name: "Masarap", exact: true }).click();
   await expect(buyer.getByRole("heading", { name: "Salamat!" })).toBeVisible();
 
+  // The owner sees what customers ticked, as bars, without opening anything private to the public.
+  await owner.reload();
+  await owner.getByText("Ano ang sinabi ng customers").click();
+  await expect(owner.getByRole("meter", { name: "Maalat o matabang" })).toBeVisible();
+
   // The same buyer cannot rate the same dish twice in a day.
   await buyer.getByRole("button", { name: "Rate another dish" }).click();
   await buyer.getByRole("button", { name: /Adobo/ }).click();

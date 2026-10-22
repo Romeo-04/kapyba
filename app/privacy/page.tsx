@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Privacy | KapyBa" };
 export default function PrivacyPage() {
   const contact = process.env.NEXT_PUBLIC_PRIVACY_EMAIL;
   return (
-    <main className="wrap stack">
+    <main id="main" className="wrap stack">
       <h1>Privacy</h1>
       <p className="mute">
         KapyBa follows the Data Privacy Act of 2012 (RA 10173). This page is a draft that the team is still reviewing.

@@ -36,7 +36,7 @@ h1 { font-size: 26px; line-height: 1.15; font-weight: 800; letter-spacing: -0.01
 .search input { padding-left: 44px; border-radius: 999px; box-shadow: var(--shadow); }
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
-.chip { flex: none; appearance: none; border: 0; min-height: 40px; padding: 0 16px; border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; box-shadow: 0 0 0 1px var(--ring); cursor: pointer; transition: transform 160ms var(--ease), background-color 160ms var(--ease); }
+.chip { flex: none; appearance: none; border: 0; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; box-shadow: 0 0 0 1px var(--ring); cursor: pointer; transition: transform 160ms var(--ease), background-color 160ms var(--ease); }
 .chip:active { transform: scale(0.97); }
 .chip[aria-pressed="true"] { background: var(--cocoa); color: #fff; box-shadow: none; }
 
@@ -98,3 +98,8 @@ label { font-size: 13px; font-weight: 700; color: var(--mute); display: block; m
 .stat { background: #fff; border-radius: 16px; box-shadow: var(--shadow); padding: 12px; display: flex; flex-direction: column; gap: 2px; }
 .stat strong { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Accessibility: skip link and focus rings on every control */
+.skip { position: absolute; left: 8px; top: -60px; z-index: 100; background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 12px; font-weight: 800; }
+.skip:focus { top: 8px; }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }

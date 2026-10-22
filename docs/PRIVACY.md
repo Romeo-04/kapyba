@@ -36,5 +36,5 @@ TODO: team contact email (open, D1c in `docs/adr/001-decisions.md`).
 
 ## In-app notices
 
-- First sign-in (owner) and first rating (buyer): a one-line notice with a link to this page.
+- First sign-in (owner) and first rating (buyer): a one-line notice with a link to /privacy, dismissed per phone. Set NEXT_PUBLIC_PRIVACY_EMAIL once D5 is decided.
 - The Bagyo Fund screen says it is a simulation. KapyBa does not sell or carry insurance.

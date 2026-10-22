@@ -27,3 +27,15 @@ test("a write from another site is refused and pages carry security headers", as
   const same = await request.post("/api/auth/request", { headers: { Origin: baseURL! }, data: { email: "not-an-email" } });
   expect(same.status()).toBe(400);
 });
+
+test("the privacy notice shows once, links to the privacy page and stays dismissed", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("privacy-note")).toBeVisible();
+  await page.getByTestId("privacy-note").getByRole("button", { name: "OK" }).click();
+  await expect(page.getByTestId("privacy-note")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("privacy-note")).toHaveCount(0);
+  await page.goto("/privacy");
+  await expect(page.getByRole("heading", { name: "Privacy" })).toBeVisible();
+  await expect(page.getByText("no money is held or paid out")).toBeVisible();
+});

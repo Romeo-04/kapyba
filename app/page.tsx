@@ -1,4 +1,5 @@
 import { Capybara } from "@/src/ui/Capybara";
+import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { SignIn } from "./SignIn";
 
 export default function Home() {
@@ -12,7 +13,8 @@ export default function Home() {
         </div>
       </div>
       <SignIn />
-      <p><a href="/ulam">Browse the Ulam board</a></p>
+      <PrivacyNote />
+      <p><a href="/ulam">Browse the Ulam board</a> · <a href="/privacy">Privacy</a></p>
       <p className="mute">Customer? Scan the QR at the stall to rate a dish. No account needed.</p>
     </main>
   );

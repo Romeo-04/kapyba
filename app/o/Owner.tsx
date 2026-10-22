@@ -13,6 +13,7 @@ import { NatiraView } from "./NatiraView";
 import { PalengkeView } from "./PalengkeView";
 import { QRModal } from "./QRModal";
 import { loadSimulaState, Simula } from "./Simula";
+import { StoreProfileModal } from "./StoreProfileModal";
 import { UlatModal } from "./UlatModal";
 import type { OwnerDish } from "@/src/services/aggregates";
 
@@ -33,6 +34,7 @@ export function Owner() {
   const [showPalengke, setShowPalengke] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showAlok, setShowAlok] = useState(false);
+  const [showStoreProfile, setShowStoreProfile] = useState(false);
   const [showUlat, setShowUlat] = useState(false);
   const [showAddDish, setShowAddDish] = useState(false);
   const [ulatDishId, setUlatDishId] = useState<string | undefined>(undefined);
@@ -118,35 +120,15 @@ export function Owner() {
                 {stall.name} · {stall.area}
               </p>
             </div>
-            <div className="row" style={{ gap: 6 }}>
-              <button
-                type="button"
-                className="btn soft round"
-                aria-label="Alok deals"
-                onClick={() => setShowAlok(true)}
-                title="Alok Deals"
-              >
-                <Icon name="megaphone" />
-              </button>
-              <button
-                type="button"
-                className="btn soft round"
-                aria-label="Stall QR"
-                onClick={() => setShowQR(true)}
-                title="QR Code"
-              >
-                <Icon name="qr" />
-              </button>
-              <button
-                type="button"
-                className="btn soft round"
-                onClick={() => setShowSimula(true)}
-                title="Simula Setup"
-                aria-label="Simula"
-              >
-                <Icon name="store" />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="store-profile-btn"
+              onClick={() => setShowStoreProfile(true)}
+              title="Profile ng Tindahan"
+              aria-label="Profile ng Tindahan"
+            >
+              <Icon name="store" />
+            </button>
           </div>
 
           {/* Unified 3-column Stat Panel (onboarding elevation) */}
@@ -428,6 +410,21 @@ export function Owner() {
           stallId={stall.id}
           onClose={() => setShowAddDish(false)}
           onAdded={reload}
+        />
+      )}
+
+      {showStoreProfile && (
+        <StoreProfileModal
+          stall={stall}
+          totalDishes={dishes.length}
+          totalRatings={totalRatings}
+          onClose={() => setShowStoreProfile(false)}
+          onUpdated={(updated) => {
+            setStalls((prev) =>
+              prev ? prev.map((s) => (s.id === stall.id ? { ...s, ...updated } : s)) : prev
+            );
+            reload();
+          }}
         />
       )}
     </div>

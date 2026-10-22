@@ -28,6 +28,9 @@ h2 { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color:
 .btn[disabled] { opacity: 0.5; pointer-events: none; }
 @media (hover: hover) { .btn:hover { background: #c2411e; } .btn.soft:hover { background: #ede3d3; } }
 .round { width: 44px; height: 44px; padding: 0; border-radius: 50%; flex: none; }
+.store-profile-btn { width: 40px; height: 40px; min-height: 40px; border-radius: 50%; border: 0; background: #FBE4D7; color: var(--chili); display: grid; place-items: center; cursor: pointer; flex: none; transition: transform 140ms var(--ease), background-color 160ms var(--ease); }
+.store-profile-btn:active { transform: scale(0.94); }
+.store-profile-btn .i { width: 22px; height: 22px; }
 input, select { font: inherit; width: 100%; min-height: 48px; border: 1px solid var(--ring); border-radius: 14px; padding: 0 14px; background: var(--cream); color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; outline: none; }
 input::placeholder { color: var(--mute); font-weight: 500; }
 input:focus-visible, select:focus-visible, .btn:focus-visible, .tile:focus-visible, .chip:focus-visible, .paborito-row:focus-visible, .stepper button:focus-visible, .simula-back:focus-visible, .simula-skip:focus-visible { outline: 2px solid var(--chili); outline-offset: 2px; }

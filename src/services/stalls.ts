@@ -32,6 +32,25 @@ export async function ownedStall(db: Db, ownerId: string, stallId: string) {
   return row ?? null;
 }
 
+export async function updateStall(
+  db: Db,
+  ownerId: string,
+  stallId: string,
+  input: { name?: unknown; area?: unknown }
+) {
+  const current = await ownedStall(db, ownerId, stallId);
+  if (!current) return null;
+  const name = input.name !== undefined ? clean(input.name, 80) : current.name;
+  const area = input.area !== undefined ? clean(input.area, 80) : current.area;
+  if (!name || !area) return null;
+  const [updated] = await db
+    .update(stalls)
+    .set({ name, area })
+    .where(and(eq(stalls.id, stallId), eq(stalls.ownerId, ownerId)))
+    .returning();
+  return updated ?? null;
+}
+
 export type DishInput = { name: unknown; icon: unknown; price: unknown; baseServings?: unknown };
 
 export async function addDish(db: Db, ownerId: string, stallId: string, input: DishInput) {

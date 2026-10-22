@@ -203,6 +203,7 @@ export function Simula({
   const [showCustom, setShowCustom] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customIcon, setCustomIcon] = useState<IconName>("bowl");
+  const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const holdTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -297,6 +298,12 @@ export function Simula({
   }
 
   function adjustPrice(name: string, delta: number) {
+    setPriceDrafts((prev) => {
+      if (!(name in prev)) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
     setState((prev) => {
       const d = prev.dishes[name];
       if (!d) return prev;
@@ -308,16 +315,43 @@ export function Simula({
     });
   }
 
-  function setPriceDirect(name: string, val: number) {
-    setState((prev) => {
-      const d = prev.dishes[name];
-      if (!d) return prev;
-      const nextPrice = Number.isFinite(val) ? Math.max(1, Math.min(10000, Math.round(val))) : d.price;
-      return {
-        ...prev,
-        dishes: { ...prev.dishes, [name]: { ...d, price: nextPrice } },
-      };
+  function handlePriceChange(name: string, raw: string) {
+    setPriceDrafts((prev) => ({ ...prev, [name]: raw }));
+    const parsed = Number(raw);
+    if (raw.trim() !== "" && Number.isFinite(parsed) && parsed >= 1) {
+      const clamped = Math.max(1, Math.min(10000, Math.round(parsed)));
+      setState((prev) => {
+        const d = prev.dishes[name];
+        if (!d) return prev;
+        return {
+          ...prev,
+          dishes: { ...prev.dishes, [name]: { ...d, price: clamped } },
+        };
+      });
+    }
+  }
+
+  function handlePriceBlur(name: string) {
+    const raw = priceDrafts[name];
+    setPriceDrafts((prev) => {
+      if (!(name in prev)) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
     });
+    if (raw === undefined || raw.trim() === "") return;
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      const clamped = Math.max(5, Math.min(10000, Math.round(parsed)));
+      setState((prev) => {
+        const d = prev.dishes[name];
+        if (!d) return prev;
+        return {
+          ...prev,
+          dishes: { ...prev.dishes, [name]: { ...d, price: clamped } },
+        };
+      });
+    }
   }
 
   function setServings(name: string, servings: number) {
@@ -461,6 +495,9 @@ export function Simula({
 
   const allDishNames = Object.keys(state.dishes);
   const meta = STEP_META[state.step] ?? STEP_META[1];
+  const canContinueStep1 =
+    state.stallName.trim().length > 0 &&
+    (state.area.trim().length > 0 || state.landmarks.length > 0);
 
   return (
     <div className="simula stack" data-testid="simula-wizard">
@@ -609,7 +646,7 @@ export function Simula({
               type="submit"
               className="btn block primary-cta"
               aria-label="Next"
-              disabled={busy}
+              disabled={busy || !canContinueStep1}
             >
               <span>Continue</span>
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -760,8 +797,9 @@ export function Simula({
                       className="price-input"
                       min={1}
                       max={10000}
-                      value={d.price}
-                      onChange={(e) => setPriceDirect(d.name, Number(e.target.value))}
+                      value={d.name in priceDrafts ? priceDrafts[d.name] : d.price}
+                      onChange={(e) => handlePriceChange(d.name, e.target.value)}
+                      onBlur={() => handlePriceBlur(d.name)}
                     />
                   </div>
                   <button

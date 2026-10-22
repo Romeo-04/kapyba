@@ -24,7 +24,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByLabel("Dish", { exact: true }).fill("Adobo");
   await owner.getByLabel("Price (₱)").fill("70");
   await owner.getByRole("button", { name: "Add" }).click();
-  await expect(owner.getByText("Adobo", { exact: true })).toBeVisible();
+  await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
 
   // Fetch from the page: the browser keeps the Secure session cookie on 127.0.0.1, the request client may not.
@@ -47,6 +47,12 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // The owner sees exactly one rating.
   await owner.reload();
   await expect(owner.getByText("1 ratings · 1 buyers")).toBeVisible();
+
+  // End-of-day log: 12 cooked, 9 sold at ₱70 leaves 3 portions, about ₱210.
+  await owner.getByLabel("Adobo cooked").fill("12");
+  await owner.getByLabel("Adobo sold").fill("9");
+  await owner.getByRole("button", { name: "Save today" }).click();
+  await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱210");
 
   await ownerCtx.close();
   await buyerCtx.close();

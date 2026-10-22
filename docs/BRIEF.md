@@ -123,6 +123,6 @@ Each feature closes a gap left by an existing solution and hits a named pain. "G
 ## 9. Next steps
 
 1. Run the owner and buyer interviews; update section 2 evidence and falsifiers.
-2. Update `PRD.md`, `UX.md` and `PLAN.md` for the pivot (rating flow, owner inbox, Ulam Board, leftover signal).
-3. Add the rating flow and owner inbox to `mock/`.
-4. Commit this file and the research notes.
+2. Done: `PRD.md`, `UX.md` and `PLAN.md` are updated for the pivot. Answer the open decisions in `docs/adr/001-decisions.md`.
+3. Build the product per `PLAN.md` (Phase 0 first).
+4. Pilot at 3 stalls near one school (`IDEA.md` section 13).

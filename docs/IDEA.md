@@ -193,11 +193,11 @@ A review of the idea and the first simplified mock. Row 17 came from a later que
 
 **In:** Setup, Ngayon, dish detail with Kumpara, Natira, Bukas, Palengke list, Ulam board with Paborito and Kulang pa, Rate, lock rule, Naubos, Sale, Alok, QR, Ulat, Bagyo simulation, Linis, offline queue. Installable PWA.
 
-**Needs a decision:** a small shared backend for ratings. The demo can run on local data; the pilot cannot.
+**Backend:** decided in `docs/PLAN.md`. A small shared backend (Postgres) is part of the build, since ratings from many phones must be collected. The local-data mock is for demos only.
 
 **Out for now:** real insurance, credit record, accounts, payments, delivery, owner reply, languages beyond Taglish, push notifications.
 
-**Plan impact:** `docs/PRD.md`, `docs/UX.md`, `docs/PLAN.md` still describe the pre-pivot forecast app. They need an update for the rating loop (see `BRIEF.md` next steps).
+**Docs:** `docs/PRD.md`, `docs/UX.md` and `docs/PLAN.md` are updated for the rating loop. Open decisions are tracked in `docs/adr/001-decisions.md`.
 
 ## 13. Validation before building more
 

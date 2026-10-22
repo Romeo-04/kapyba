@@ -16,15 +16,21 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.goto(link);
   await expect(owner.getByRole("heading", { name: "Simula" })).toBeVisible();
 
-  // Setup: stall, then a dish.
+  // Simula: stall, dishes, prices, Paborito, QR.
   await owner.getByLabel("Stall name").fill("Karinderya ni Rosa");
   await owner.getByLabel("Area or school nearby").fill("UST");
   await owner.getByRole("button", { name: "Next" }).click();
-  await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
-  await owner.getByLabel("Dish", { exact: true }).fill("Adobo");
+  await owner.getByRole("button", { name: "Adobo", exact: true }).click();
+  await owner.getByRole("button", { name: "Next" }).click();
   await owner.getByLabel("Price (₱)").fill("70");
-  await owner.getByRole("button", { name: "Add" }).click();
+  await owner.getByRole("button", { name: "Next" }).click();
+  await owner.getByRole("button", { name: "Adobo", exact: true }).click(); // Paborito
+  await owner.getByRole("button", { name: "Next" }).click();
+  await expect(owner.getByAltText("Stall QR code")).toBeVisible();
+  await owner.getByRole("button", { name: "Tapos" }).click();
+  await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
+  await expect(owner.getByRole("button", { name: "Paborito" })).toHaveAttribute("aria-pressed", "true");
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
 
   // Fix the price.
@@ -96,8 +102,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByRole("button", { name: "Turn off Bagyo" }).click();
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
-  // Alok: the owner picks Adobo as Paborito (so it shows on the board) and posts a one-plate deal.
-  await owner.getByRole("button", { name: "Paborito" }).click();
+  // Alok: Adobo is already Paborito from setup (so it shows on the board); the owner posts a one-plate deal.
   await owner.getByLabel("Limit").fill("1");
   await owner.getByRole("button", { name: "Post deal" }).click();
   await expect(owner.getByTestId("alok-row")).toContainText("1 of 1 left");

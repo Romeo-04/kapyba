@@ -5,7 +5,7 @@ type Day = { day: string; pesos: number; leftover: number; cooked: number };
 type Dish = { id: string; name: string };
 
 /** End-of-day log: portions cooked and sold per dish. Leftover pesos is the number the pilot is measured on. */
-export function Natira({ stallId, dishes }: { stallId: string; dishes: Dish[] }) {
+export function Natira({ stallId, dishes, onSaved }: { stallId: string; dishes: Dish[]; onSaved?: () => void }) {
   const [days, setDays] = useState<Day[]>([]);
   const [msg, setMsg] = useState("");
   const [tick, setTick] = useState(0);
@@ -28,7 +28,7 @@ export function Natira({ stallId, dishes }: { stallId: string; dishes: Dish[] })
       if (entries.length === 0) return setMsg("Enter at least one dish.");
       const r = await fetch(`/api/stalls/${stallId}/log`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entries }) });
       setMsg(r.ok ? "Saved." : "Sold cannot be more than cooked.");
-      if (r.ok) setTick((t) => t + 1);
+      if (r.ok) { setTick((t) => t + 1); onSaved?.(); }
     }}>
       <h2>Natira</h2>
       <p className="mute">End of day: how many portions did you cook and sell?</p>

@@ -8,7 +8,7 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/dishes/[id]">)
   if (!owner) return NextResponse.json({ error: "sign in" }, { status: 401 });
   const { id } = await ctx.params;
   const body = await req.json().catch(() => ({}));
-  const db = getDb();
+  const db = await getDb();
   if (typeof body?.published === "boolean" && !(await setPublished(db, owner, id, body.published))) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }

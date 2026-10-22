@@ -55,3 +55,15 @@ export function improving(rows: { score: number; day: string }[], today: string,
   const avg = (a: number[]) => a.reduce((s, x) => s + x, 0) / a.length;
   return Math.round((avg(recent) - avg(earlier)) * 100) / 100 >= IMPROVING_BY; // rounded so 4.0 - 3.7 counts as 0.3
 }
+
+/** Average score per week for the last four weeks, oldest first; null for a week with no ratings. */
+export function weeklyTrend(rows: { score: number; day: string }[], today: string): (number | null)[] {
+  const t = Date.parse(today);
+  const weeks: number[][] = [[], [], [], []];
+  for (const r of rows) {
+    const age = Math.floor((t - Date.parse(r.day)) / 86_400_000);
+    if (age < 0 || age >= 28) continue;
+    weeks[3 - Math.floor(age / 7)].push(r.score);
+  }
+  return weeks.map((w) => (w.length ? Math.round((w.reduce((s, x) => s + x, 0) / w.length) * 10) / 10 : null));
+}

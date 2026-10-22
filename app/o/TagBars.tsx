@@ -9,11 +9,12 @@ const ROWS: { tag: string; icon: IconName; label: string }[] = [
 ];
 
 // How often buyers ticked each complaint. The tick marks the same share for this dish at nearby stalls, when there are enough.
-export function TagBars({ shares, nearby }: { shares: Record<string, number>; nearby: Record<string, number> | null }) {
+export function TagBars({ shares, nearby, trend }: { shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[] }) {
   return (
     <details data-testid="tagbars">
       <summary style={{ cursor: "pointer", fontWeight: 700 }}>Ano ang sinabi ng customers</summary>
       <div className="stack" style={{ paddingTop: 8 }}>
+        <Trend values={trend} />
         {ROWS.map((r) => {
           const pct = Math.round((shares[r.tag] ?? 0) * 100);
           const peer = nearby ? Math.round((nearby[r.tag] ?? 0) * 100) : null;
@@ -30,5 +31,21 @@ export function TagBars({ shares, nearby }: { shares: Record<string, number>; ne
         })}
       </div>
     </details>
+  );
+}
+
+// Average score of each of the last four weeks, as a small line. A week with no ratings leaves a gap.
+function Trend({ values }: { values: (number | null)[] }) {
+  const pts = values.map((v, i) => (v === null ? null : `${10 + i * 60},${50 - ((v - 1) / 4) * 44}`));
+  const line = pts.filter(Boolean).join(" ");
+  const label = values.map((v) => (v === null ? "no ratings" : v.toFixed(1))).join(", ");
+  return (
+    <div data-testid="trend">
+      <div className="row"><span className="grow">Huling 4 na linggo</span><span className="mute">{values.filter((v) => v !== null).length < 2 ? "Kulang pa ang datos" : ""}</span></div>
+      <svg viewBox="0 0 190 56" width="100%" height="56" role="img" aria-label={`Average score by week, oldest first: ${label}`}>
+        {line && <polyline points={line} fill="none" stroke="var(--cocoa)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
+        {pts.map((p, i) => p && <circle key={i} cx={p.split(",")[0]} cy={p.split(",")[1]} r="4" fill="var(--cocoa)" />)}
+      </svg>
+    </div>
   );
 }

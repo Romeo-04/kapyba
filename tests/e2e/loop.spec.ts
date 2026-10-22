@@ -59,6 +59,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.reload();
   await owner.getByText("Ano ang sinabi ng customers").click();
   await expect(owner.getByRole("meter", { name: "Maalat o matabang" })).toBeVisible();
+  await expect(owner.getByTestId("trend")).toContainText("Kulang pa ang datos");
 
   // The same buyer cannot rate the same dish twice in a day.
   await buyer.getByRole("button", { name: "Rate another dish" }).click();

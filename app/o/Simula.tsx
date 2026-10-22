@@ -660,18 +660,7 @@ export function Simula({
             </div>
           </div>
 
-          <div className="simula-hint">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-              <path
-                d="M9.8 2.9L12.1 5.2M2.5 9.8L9.8 2.5C10.4 1.9 11.4 1.9 12 2.5C12.6 3.1 12.6 4.1 12 4.7L4.7 12L1.5 13L2.5 9.8Z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span>You can change this anytime.</span>
-          </div>
+          <p className="ulam-hint">You can edit your store details anytime.</p>
 
           {err && (
             <p className="err" role="alert">

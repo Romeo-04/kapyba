@@ -26,7 +26,7 @@ const post = (url: string, body: unknown, method = "POST") =>
 // Simula: six short steps from nothing to a printable QR. Laktaw (skip) is always there; Ngayon has everything too.
 // Once the dishes are saved the step is remembered on this phone, so a refresh resumes at Paborito or the QR.
 export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
-  stall: Stall | null; dishes: Dish[]; step: number; onStall: () => void; onDone: () => void;
+  stall: Stall | null; dishes: Dish[]; step: number; onStall: (createdId?: string) => void; onDone: () => void;
 }) {
   const [step, setStep] = useState(startStep);
   const [picked, setPicked] = useState<Pick[]>([]);
@@ -62,7 +62,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           const r = await post("/api/stalls", { name: f.get("name"), area: f.get("area") });
-          if (r.ok) { setMsg(""); onStall(); setStep(2); } else setMsg("Add a name and an area.");
+          if (r.ok) { setMsg(""); onStall((await r.json()).stall?.id); setStep(2); } else setMsg("Add a name and an area.");
         }}>
           <div className="hero"><Capybara mood="happy" size={72} /><div><h1>Simula</h1><p>Anong pangalan ng tindahan mo? Takes about two minutes.</p></div></div>
           <div><label htmlFor="name">Stall name</label><input id="name" name="name" required maxLength={80} placeholder="Karinderya ni Aling Rosa" /></div>

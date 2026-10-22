@@ -23,13 +23,19 @@ Status: proposed. Items marked **open** need a human answer before the unit that
 | Prices | Bundled file refreshed by script and PR | Reviewable, no scraping in production | Low |
 | Public score gate | 10 ratings from 5 or more devices in 30 days | Assumption, tune with pilot data | Low |
 
-## Open
+## Answered (2026-10-22: the user said to always choose the recommended answer)
 
-| # | Question | Needed by | Options | Recommendation |
-|---|---|---|---|---|
-| D1a | Owner sign-in | U4 | Email magic link; phone OTP (SMS cost) | Email for the pilot, add OTP if owners struggle |
-| D1b | Who reviews Ulat reports and how fast | U13 | Team during the pilot; a school or LGU desk; rule check first | Team, within 24 hours, logged |
-| D1c | Hosting accounts and who owns them | U1 | Team member accounts; shared org | Shared org, two owners |
-| D2 | Receipt or slip code on top of the QR | U7 | QR only; QR plus slip code | QR only for the pilot, add a code if abuse appears |
-| D3 | Pilot school and three stalls | Pilot | n/a | Book interviews now |
-| D4 | Score publication default | U8 | Opt-in per dish; opt-out | Opt-in |
+| # | Question | Decision |
+|---|---|---|
+| D1a | Owner sign-in | Email magic link for the pilot; add phone OTP if owners struggle |
+| D1b | Who reviews Ulat reports | The team during the pilot, within 24 hours, every decision logged |
+| D1c | Hosting accounts | A shared organisation with two owners. The accounts themselves still have to be created by a human |
+| D2 | Receipt or slip code | QR only for the pilot; add a code if abuse appears |
+| D4 | Score publication default | Opt-in per dish |
+
+## Still open
+
+| # | Question | Needed by |
+|---|---|---|
+| D3 | Pilot school and three stalls (needs interviews and a school contact) | Pilot |
+| D5 | Contact email for `PRIVACY.md` | Before launch |

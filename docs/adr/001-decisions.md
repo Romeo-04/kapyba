@@ -39,3 +39,13 @@ Status: proposed. Items marked **open** need a human answer before the unit that
 |---|---|---|
 | D3 | Pilot school and three stalls (needs interviews and a school contact) | Pilot |
 | D5 | Contact email for `PRIVACY.md` | Before launch |
+
+## Problem validation (2026-10-22)
+
+Full write-up: `docs/research/PROBLEM-VALIDATION.md`. What it changes for us:
+
+- The problem is real and costly (sourced; food-waste cost is 22–45 times the planned price), but the local-only market is too small for a subscription-led venture. Do not claim venture scale.
+- The 4–10% unsold-food figure is an Indonesian proxy. Any pitch must label it as such. We have no Philippine figure; the pilot's leftover pesos per day is the first one.
+- Search-trend evidence failed (only Wikipedia views, down 39–43%). Re-run with a real keyword tool before claiming demand growth.
+- No one has shown a budget for dish-level feedback. The partner who funds access (school, LGU or DTI) is unverified, so the owner interviews must find a named role with discretionary spend.
+- Product consequence: keep the owner plan optional and secondary. Revenue paths to test later are partner-funded site contracts, or a transaction-linked layer such as Alok. Neither is built or priced.

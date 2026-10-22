@@ -12,12 +12,13 @@ import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
 import { Setup, setupKey } from "./Setup";
+import { TagBars } from "./TagBars";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
   id: string; name: string; icon: string; price: number; baseServings: number; published: boolean; paborito: boolean;
-  private: { count: number; buyers: number; score: number | null; improving: boolean };
+  private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number> };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
   flagged: number; pansin: number; recs: { icon: string; dir: "up" | "down"; word: string }[];
@@ -105,6 +106,7 @@ export function Owner() {
               {d.private.score !== null && <> Yours is {d.private.score >= d.kumpara.score ? "at or above" : "below"} that.</>}
             </p>
           )}
+          {d.private.count > 0 && <TagBars shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} />}
           <div className="row" style={{ flexWrap: "wrap" }}>
             {d.private.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
             {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />Pansin</span>}

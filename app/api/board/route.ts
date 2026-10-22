@@ -5,7 +5,7 @@ import { publicBoard } from "@/src/services/aggregates";
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const max = Number(q.get("max"));
-  const items = await publicBoard(getDb(), {
+  const items = await publicBoard(await getDb(), {
     area: q.get("area") || undefined,
     maxPrice: Number.isFinite(max) && max > 0 ? max : undefined,
   });

@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const device = (await cookies()).get(DEVICE_COOKIE)?.value;
   if (!body || !device) return NextResponse.json({ result: "forbidden" }, { status: 403 });
-  const result = await submitRating(getDb(), {
+  const result = await submitRating(await getDb(), {
     stallCode: String(body.code ?? ""),
     scanToken: String(body.scanToken ?? ""),
     deviceToken: device,

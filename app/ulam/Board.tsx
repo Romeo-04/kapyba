@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Capybara } from "@/src/ui/Capybara";
 import { Icon } from "@/src/ui/Icon";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
@@ -36,23 +37,35 @@ export function Board() {
         <h1>Ulam</h1>
         <p className="mute">Which dishes are worth your money. Scores show only after enough customers have rated.</p>
       </div>
-      <div><label htmlFor="area">Area or school</label><input id="area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="UST" maxLength={80} /></div>
-      <div className="row" style={{ flexWrap: "wrap" }} role="group" aria-label="Budget">
+      <div className="search">
+        <Icon name="pin" />
+        <input id="area" aria-label="Area or school" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area or school, like UST" maxLength={80} />
+      </div>
+      <div className="chips" role="group" aria-label="Budget">
         {BUDGETS.map((b) => (
-          <button key={b} className="btn soft" aria-pressed={max === b} onClick={() => setMax(b)}>{b ? `₱${b} pababa` : "Any"}</button>
+          <button key={b} className="chip" aria-pressed={max === b} onClick={() => setMax(b)}>{b ? `₱${b} pababa` : "Any"}</button>
         ))}
       </div>
 
       {items === null && <p className="mute center">Sandali...</p>}
-      {items?.length === 0 && <p className="mute center" data-testid="board-empty">No dishes to show yet. Scan a stall QR and rate what you eat.</p>}
+      {items?.length === 0 && (
+        <div className="stack center" style={{ alignItems: "center", padding: "24px 0" }}>
+          <Capybara mood="sleepy" size={96} />
+          <p className="mute" data-testid="board-empty">No dishes to show yet. Scan a stall QR and rate what you eat.</p>
+        </div>
+      )}
+      <div className="grid">
       {items?.map((d) => (
-        <div key={d.dishId} className="card row" data-testid="board-card">
-          <Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} />
-          <div className="grow">
-            <strong>{d.name}</strong> <span className="price">₱{d.price}</span>
+        <div key={d.dishId} className="vcard" data-testid="board-card">
+          <div className="photo">
+            <Icon name={iconFor(d.icon)} />
+            {d.sulit && <span className="ribbon">Sulit</span>}
+            <span className="rating"><Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} size={44} /></span>
+          </div>
+          <div className="body">
+            <div className="title"><strong>{d.name}</strong><span className="price">₱{d.price}</span></div>
             <div className="mute">{d.stallName} · {d.area}</div>
-            <div className="row" style={{ flexWrap: "wrap", marginTop: 4 }}>
-              {d.sulit && <span className="pill g">Sulit</span>}
+            <div className="row" style={{ flexWrap: "wrap", marginTop: 2 }}>
               {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
               {d.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
               {d.alok && <span className="pill" style={{ background: "#dbe9f6", color: "#2b5d8a" }}><Icon name="tag" />Alok · {d.alok.remaining} left</span>}
@@ -70,9 +83,9 @@ export function Board() {
               </div>
             )}
           </div>
-          <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>
         </div>
       ))}
+      </div>
     </div>
   );
 }

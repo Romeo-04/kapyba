@@ -109,6 +109,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // Bagyo mode trims tomorrow's plan to 60% (9 becomes 5); turning it off restores it.
   await owner.getByRole("button", { name: "Bagyo mode" }).click();
+  await expect(owner.getByTestId("fund-card")).toContainText("Simulasyon");
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 5");
   await owner.getByRole("button", { name: "Turn off Bagyo" }).click();
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");

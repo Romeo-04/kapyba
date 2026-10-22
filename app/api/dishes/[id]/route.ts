@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentOwner } from "@/src/auth/current";
 import { getDb } from "@/src/db";
-import { setPaborito, setPublished } from "@/src/services/stalls";
+import { archiveDish, setPaborito, setPublished, updateDish } from "@/src/services/stalls";
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/dishes/[id]">) {
   const owner = await currentOwner();
@@ -14,6 +14,14 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/dishes/[id]">)
   }
   if (typeof body?.paborito === "boolean" && !(await setPaborito(db, owner, id, body.paborito))) {
     return NextResponse.json({ error: "not found or three picks already" }, { status: 409 });
+  }
+  const fields = { name: body?.name, icon: body?.icon, price: body?.price, baseServings: body?.baseServings };
+  const edits = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
+  if (Object.keys(edits).length && !(await updateDish(db, owner, id, edits))) {
+    return NextResponse.json({ error: "not found or invalid" }, { status: 400 });
+  }
+  if (body?.archived === true && !(await archiveDish(db, owner, id))) {
+    return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   return NextResponse.json({ ok: true });
 }

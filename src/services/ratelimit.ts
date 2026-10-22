@@ -1,3 +1,4 @@
+import { log } from "@/src/log";
 import { and, count, eq, gt, lte } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { rateHits } from "@/src/db/schema";
@@ -21,7 +22,10 @@ export async function allow(db: Db, l: Limit, subject: string, now = new Date())
   const since = new Date(now.getTime() - l.windowSec * 1000);
   await db.delete(rateHits).where(and(eq(rateHits.key, key), lte(rateHits.at, since)));
   const [{ n }] = await db.select({ n: count() }).from(rateHits).where(and(eq(rateHits.key, key), gt(rateHits.at, since)));
-  if (n >= l.limit) return false;
+  if (n >= l.limit) {
+    log("warn", "rate-limited", { limit: l.name });
+    return false;
+  }
   await db.insert(rateHits).values({ key, at: now });
   return true;
 }

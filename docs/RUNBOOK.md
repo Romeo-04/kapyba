@@ -8,7 +8,7 @@ For whoever is on call during the pilot. Fill in the TODOs when accounts exist (
 |---|---|
 | App | Vercel project `kapyba` (TODO URL) |
 | Database | Neon project `kapyba`; branch `main` is production |
-| Errors | Sentry project `kapyba` |
+| Errors | Structured JSON logs in Vercel (`event: request-error`, `rate-limited`, `cross-site-refused`); Sentry project `kapyba` is a TODO until a DSN exists. Add its hook in `instrumentation.ts` |
 | Health | `GET /api/health` returns `{ ok: true, db: true, version }` |
 | Secrets | Vercel and Neon settings only. Names are in `.env.example` |
 

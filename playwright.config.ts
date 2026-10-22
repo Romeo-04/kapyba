@@ -22,6 +22,7 @@ export default defineConfig({
           QR_SIGNING_SECRET: "e2e-qr-secret-16chars",
           E2E_MAIL_FILE: MAIL_FILE,
           REVIEWER_EMAILS: "rosa@example.com",
+          E2E_NO_WEATHER: "1",
         },
       },
 });

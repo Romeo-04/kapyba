@@ -62,6 +62,12 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("palengke-total")).toContainText("likely total");
   await expect(owner.getByRole("note")).toContainText("placeholder estimate");
 
+  // Bagyo mode trims tomorrow's plan to 60% (9 becomes 5); turning it off restores it.
+  await owner.getByRole("button", { name: "Bagyo mode" }).click();
+  await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 5");
+  await owner.getByRole("button", { name: "Turn off Bagyo" }).click();
+  await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
+
   // Alok: the owner picks Adobo as Paborito (so it shows on the board) and posts a one-plate deal.
   await owner.getByRole("button", { name: "Paborito" }).click();
   await owner.getByLabel("Limit").fill("1");

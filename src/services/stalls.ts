@@ -51,6 +51,33 @@ export async function listDishes(db: Db, ownerId: string, stallId: string) {
   return db.select().from(dishes).where(and(eq(dishes.stallId, stallId), isNull(dishes.archivedAt)));
 }
 
+/** Fix a typo or a new price. Only the fields given change; false if the dish is not this owner's or a value is invalid. */
+export async function updateDish(db: Db, ownerId: string, dishId: string, input: Partial<DishInput>) {
+  const [d] = await db.select().from(dishes).where(and(eq(dishes.id, dishId), isNull(dishes.archivedAt)));
+  if (!d || !(await ownedStall(db, ownerId, d.stallId))) return false;
+  const set: Partial<typeof dishes.$inferInsert> = {};
+  if (input.name !== undefined) { const n = clean(input.name, 80); if (!n) return false; set.name = n; }
+  if (input.icon !== undefined) { const i = clean(input.icon, 32); if (!i) return false; set.icon = i; }
+  if (input.price !== undefined) {
+    if (typeof input.price !== "number" || !Number.isInteger(input.price) || input.price < 1 || input.price > 10_000) return false;
+    set.price = input.price;
+  }
+  if (input.baseServings !== undefined) {
+    if (typeof input.baseServings !== "number" || !Number.isInteger(input.baseServings) || input.baseServings < 0 || input.baseServings > 1000) return false;
+    set.baseServings = input.baseServings;
+  }
+  if (Object.keys(set).length) await db.update(dishes).set(set).where(eq(dishes.id, dishId));
+  return true;
+}
+
+/** Retire a dish. Its ratings stay in the data; it leaves every list, the QR page and the Ulam board. */
+export async function archiveDish(db: Db, ownerId: string, dishId: string, now = new Date()) {
+  const [d] = await db.select().from(dishes).where(and(eq(dishes.id, dishId), isNull(dishes.archivedAt)));
+  if (!d || !(await ownedStall(db, ownerId, d.stallId))) return false;
+  await db.update(dishes).set({ archivedAt: now, published: false, paborito: false }).where(eq(dishes.id, dishId));
+  return true;
+}
+
 /** Owner opt-in publication per dish (D4). Returns false if the dish is not in one of this owner's stalls. */
 export async function setPublished(db: Db, ownerId: string, dishId: string, published: boolean) {
   const [d] = await db.select().from(dishes).where(eq(dishes.id, dishId));

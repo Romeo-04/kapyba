@@ -1,0 +1,115 @@
+import { sql } from "drizzle-orm";
+import {
+  boolean, check, date, index, integer, pgTable, smallint, text, timestamp, uniqueIndex, uuid,
+} from "drizzle-orm/pg-core";
+
+const id = () => uuid("id").primaryKey().default(sql`gen_random_uuid()`);
+const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
+
+export const owners = pgTable("owners", {
+  id: id(),
+  email: text("email").notNull().unique(),
+  createdAt: createdAt(),
+});
+
+export const stalls = pgTable("stalls", {
+  id: id(),
+  ownerId: uuid("owner_id").notNull().references(() => owners.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  code: text("code").notNull().unique(), // short, unguessable; goes in the QR
+  area: text("area").notNull(),
+  lat: text("lat"), // rounded on write
+  lng: text("lng"),
+  createdAt: createdAt(),
+}, (t) => [index("stalls_area_idx").on(t.area)]);
+
+export const dishes = pgTable("dishes", {
+  id: id(),
+  stallId: uuid("stall_id").notNull().references(() => stalls.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  price: integer("price").notNull(), // whole pesos
+  baseServings: integer("base_servings").notNull().default(0),
+  category: text("category"),
+  published: boolean("published").notNull().default(false), // owner opt-in
+  paborito: boolean("paborito").notNull().default(false),
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
+}, (t) => [index("dishes_stall_idx").on(t.stallId)]);
+
+export const devices = pgTable("devices", {
+  id: id(),
+  tokenHash: text("token_hash").notNull().unique(),
+  firstSeenAt: createdAt(),
+});
+
+export const ratings = pgTable("ratings", {
+  id: id(),
+  dishId: uuid("dish_id").notNull().references(() => dishes.id, { onDelete: "cascade" }),
+  deviceId: uuid("device_id").notNull().references(() => devices.id, { onDelete: "cascade" }),
+  score: smallint("score").notNull(),
+  tags: smallint("tags").notNull().default(0), // bitmask: 1 salt, 2 plate, 4 flame, 8 coin
+  day: date("day").notNull(),
+  idempotencyKey: text("idempotency_key").notNull(),
+  status: text("status").notNull().default("ok"), // ok | flagged | removed
+  createdAt: createdAt(),
+}, (t) => [
+  uniqueIndex("ratings_one_per_day").on(t.dishId, t.deviceId, t.day),
+  uniqueIndex("ratings_idem").on(t.idempotencyKey),
+  index("ratings_dish_day_idx").on(t.dishId, t.day),
+  check("ratings_score_range", sql`${t.score} between 1 and 5`),
+  check("ratings_status_valid", sql`${t.status} in ('ok','flagged','removed')`),
+]);
+
+export const dailyLogs = pgTable("daily_logs", {
+  id: id(),
+  stallId: uuid("stall_id").notNull().references(() => stalls.id, { onDelete: "cascade" }),
+  dishId: uuid("dish_id").notNull().references(() => dishes.id, { onDelete: "cascade" }),
+  day: date("day").notNull(),
+  cooked: integer("cooked").notNull().default(0),
+  sold: integer("sold").notNull().default(0),
+  leftover: integer("leftover").notNull().default(0),
+}, (t) => [uniqueIndex("daily_logs_dish_day").on(t.dishId, t.day)]);
+
+export const alok = pgTable("alok", {
+  id: id(),
+  stallId: uuid("stall_id").notNull().references(() => stalls.id, { onDelete: "cascade" }),
+  dishId: uuid("dish_id").notNull().references(() => dishes.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(), // combo | suki | oras
+  limit: integer("limit").notNull(),
+  claimed: integer("claimed").notNull().default(0),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull().defaultNow(),
+  endsAt: timestamp("ends_at", { withTimezone: true }),
+  closedAt: timestamp("closed_at", { withTimezone: true }),
+}, (t) => [
+  index("alok_stall_idx").on(t.stallId),
+  check("alok_kind_valid", sql`${t.kind} in ('combo','suki','oras')`),
+  check("alok_limit_positive", sql`${t.limit} > 0`),
+]);
+
+export const alokClaims = pgTable("alok_claims", {
+  id: id(),
+  alokId: uuid("alok_id").notNull().references(() => alok.id, { onDelete: "cascade" }),
+  deviceId: uuid("device_id").notNull().references(() => devices.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
+});
+
+export const reports = pgTable("reports", {
+  id: id(),
+  stallId: uuid("stall_id").notNull().references(() => stalls.id, { onDelete: "cascade" }),
+  dishId: uuid("dish_id").notNull().references(() => dishes.id, { onDelete: "cascade" }),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+  windowEnd: timestamp("window_end", { withTimezone: true }).notNull(),
+  reason: text("reason"),
+  status: text("status").notNull().default("open"), // open | upheld | rejected
+  reviewerNote: text("reviewer_note"),
+  createdAt: createdAt(),
+});
+
+export const events = pgTable("events", {
+  id: id(),
+  stallId: uuid("stall_id").references(() => stalls.id, { onDelete: "set null" }),
+  actor: text("actor").notNull(), // owner id, reviewer, or system
+  kind: text("kind").notNull(),
+  detail: text("detail"),
+  createdAt: createdAt(),
+});

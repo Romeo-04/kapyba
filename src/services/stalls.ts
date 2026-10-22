@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { dishes, stalls } from "@/src/db/schema";
+import { manilaDay } from "./ratings";
 
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no look-alikes (i, l, o, 0, 1)
 
@@ -76,6 +77,29 @@ export async function archiveDish(db: Db, ownerId: string, dishId: string, now =
   if (!d || !(await ownedStall(db, ownerId, d.stallId))) return false;
   await db.update(dishes).set({ archivedAt: now, published: false, paborito: false }).where(eq(dishes.id, dishId));
   return true;
+}
+
+/** Naubos: the dish is gone for today. It clears itself at midnight Manila time. */
+export async function setNaubos(db: Db, ownerId: string, dishId: string, on: boolean, now = new Date()) {
+  const [d] = await db.select().from(dishes).where(and(eq(dishes.id, dishId), isNull(dishes.archivedAt)));
+  if (!d || !(await ownedStall(db, ownerId, d.stallId))) return false;
+  await db.update(dishes).set({ soldOutDay: on ? manilaDay(now) : null }).where(eq(dishes.id, dishId));
+  return true;
+}
+
+/** Sale (huling plato): a lower price for today only. Null ends it. The price must be a whole peso below the usual one. */
+export async function setSale(db: Db, ownerId: string, dishId: string, price: number | null, now = new Date()) {
+  const [d] = await db.select().from(dishes).where(and(eq(dishes.id, dishId), isNull(dishes.archivedAt)));
+  if (!d || !(await ownedStall(db, ownerId, d.stallId))) return false;
+  if (price !== null && (!Number.isInteger(price) || price < 1 || price >= d.price)) return false;
+  await db.update(dishes).set(price === null ? { saleDay: null, salePrice: null } : { saleDay: manilaDay(now), salePrice: price }).where(eq(dishes.id, dishId));
+  return true;
+}
+
+/** What is true of a dish today: sold out, and the sale price if one is running. */
+export function todayState(d: { soldOutDay: string | null; saleDay: string | null; salePrice: number | null }, now = new Date()) {
+  const today = manilaDay(now);
+  return { soldOut: d.soldOutDay === today, salePrice: d.saleDay === today ? d.salePrice : null };
 }
 
 /** Owner opt-in publication per dish (D4). Returns false if the dish is not in one of this owner's stalls. */

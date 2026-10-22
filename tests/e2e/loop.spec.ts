@@ -27,6 +27,12 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
 
+  // Fix the price.
+  await owner.getByRole("button", { name: "Edit" }).click();
+  await owner.getByLabel("Price (₱)").first().fill("75");
+  await owner.getByRole("button", { name: "Save", exact: true }).first().click();
+  await expect(owner.getByText("₱75")).toBeVisible();
+
   // Fetch from the page: the browser keeps the Secure session cookie on 127.0.0.1, the request client may not.
   const code = await owner.evaluate(async () => (await (await fetch("/api/stalls")).json()).stalls[0].code as string);
 
@@ -70,11 +76,11 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await offCtx.setOffline(false);
   await offCtx.close();
 
-  // End-of-day log: 12 cooked, 9 sold at ₱70 leaves 3 portions, about ₱210.
+  // End-of-day log: 12 cooked, 9 sold at ₱75 (after the price fix) leaves 3 portions, about ₱225.
   await owner.getByLabel("Adobo cooked").fill("12");
   await owner.getByLabel("Adobo sold").fill("9");
   await owner.getByRole("button", { name: "Save today" }).click();
-  await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱210");
+  await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱225");
 
   // Bukas now suggests 9 (the average sold) for Adobo.
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
@@ -116,6 +122,13 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("review-row")).toContainText("Adobo");
   await owner.getByRole("button", { name: "Reject" }).click();
   await expect(owner.getByTestId("review-empty")).toBeVisible();
+
+  // Signing out ends the session on this device.
+  await owner.goto(new URL("/o", owner.url()).href);
+  await owner.getByRole("button", { name: "Sign out" }).click();
+  await expect(owner.getByRole("button", { name: "Send link" })).toBeVisible();
+  await owner.goto(new URL("/o", owner.url()).href);
+  await expect(owner).toHaveURL(/\/$/);
 
   await ownerCtx.close();
   await buyerCtx.close();

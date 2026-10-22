@@ -6,6 +6,7 @@ import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { Alok } from "./Alok";
+import { DishEdit } from "./DishEdit";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
@@ -13,7 +14,7 @@ import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
-  id: string; name: string; icon: string; price: number; published: boolean; paborito: boolean;
+  id: string; name: string; icon: string; price: number; baseServings: number; published: boolean; paborito: boolean;
   private: { count: number; buyers: number; score: number | null; improving: boolean };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
@@ -74,6 +75,7 @@ export function Owner() {
           <h1>Ngayon</h1>
           <p>{stall.name} · {stall.area}</p>
         </div>
+        <button className="btn soft" style={{ marginLeft: "auto" }} onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); window.location.href = "/"; }}>Sign out</button>
       </div>
       {dishes.length > 0 && (
         <div className="stats">
@@ -111,7 +113,7 @@ export function Owner() {
               <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>
             ))}
           </div>
-          <div className="row">
+          <div className="row" style={{ flexWrap: "wrap" }}>
             <button className="btn soft" aria-pressed={d.published} onClick={async () => { await post(`/api/dishes/${d.id}`, { published: !d.published }, "PATCH"); reload(); }}>
               <Icon name={d.published ? "eye" : "eyeoff"} />{d.published ? "Public" : "Private"}
             </button>
@@ -120,6 +122,7 @@ export function Owner() {
               setMsg(r.ok ? "" : "You can pick up to three Paborito dishes.");
               reload();
             }}><Icon name="heart" />Paborito</button>
+            <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} onDone={reload} />
           </div>
         </div>
       ))}

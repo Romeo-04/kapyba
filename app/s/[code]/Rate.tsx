@@ -5,6 +5,7 @@ import { Face } from "@/src/ui/Face";
 import { Icon } from "@/src/ui/Icon";
 import { ICONS, type IconName } from "@/src/ui/icons";
 import type { Tag, Tone } from "@/src/domain/scoring";
+import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { enqueue } from "@/src/offline/queue";
 import { useOutbox } from "@/src/offline/useOutbox";
 
@@ -86,6 +87,7 @@ export function Rate({ code }: { code: string }) {
           <h1>{scan.stall.name}</h1>
           <p className="mute">{scan.stall.area}</p>
         </div>
+        <PrivacyNote />
         <h2>Alin ang kinain mo?</h2>
         {scan.dishes.length === 0 && <p className="mute">This stall has no dishes yet.</p>}
         {scan.dishes.map((d) => (

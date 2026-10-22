@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "alok_claims_one_per_device" ON "alok_claims" USING btree ("alok_id","device_id");

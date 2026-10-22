@@ -4,6 +4,7 @@ import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
+import { Alok } from "./Alok";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
@@ -107,6 +108,7 @@ export function Owner() {
 
       {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} />}
       {dishes.length > 0 && <Bukas stallId={stall.id} refresh={bukasTick} />}
+      {dishes.length > 0 && <Alok stallId={stall.id} dishes={dishes} />}
       {dishes.length > 0 && <Palengke stallId={stall.id} refresh={bukasTick} />}
 
       <form className="card stack" onSubmit={async (e) => {

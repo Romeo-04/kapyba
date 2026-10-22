@@ -91,7 +91,7 @@ export const alokClaims = pgTable("alok_claims", {
   alokId: uuid("alok_id").notNull().references(() => alok.id, { onDelete: "cascade" }),
   deviceId: uuid("device_id").notNull().references(() => devices.id, { onDelete: "cascade" }),
   createdAt: createdAt(),
-});
+}, (t) => [uniqueIndex("alok_claims_one_per_device").on(t.alokId, t.deviceId)]);
 
 export const reports = pgTable("reports", {
   id: id(),

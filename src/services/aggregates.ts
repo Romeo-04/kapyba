@@ -4,6 +4,7 @@ import { dishes, ratings, stalls } from "@/src/db/schema";
 import { publicGate, type Gate } from "@/src/domain/gate";
 import { mainComplaint, mismatch, recsFor, type Rec } from "@/src/domain/recommend";
 import { distinctBuyers, improving, meanScore, tagShares, tone, type Tag, type Tone } from "@/src/domain/scoring";
+import { activeAlokByDish } from "./alok";
 import { manilaDay } from "./ratings";
 
 export const WINDOW_DAYS = 30;
@@ -60,9 +61,11 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
   });
 }
 
+export type AlokRibbon = { id: string; kind: string; remaining: number; endsAt: string | null };
+
 export type BoardItem =
-  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean }
-  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number };
+  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null }
+  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null };
 
 /**
  * The public Ulam board. Only published dishes that pass the gate show a score; a Paborito
@@ -79,6 +82,7 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
     .where(and(...conds));
   const byDish = await windowRows(db, list.map((d) => d.id), now, ["ok"]);
   const today = manilaDay(now);
+  const deals = await activeAlokByDish(db, now);
 
   const scored: Extract<BoardItem, { kind: "scored" }>[] = [];
   const picks: Extract<BoardItem, { kind: "paborito" }>[] = [];
@@ -88,9 +92,9 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
     const gate = publicGate(rows.length, distinctBuyers(rows), d.published);
     if (gate.state === "public") {
       const score = meanScore(rows)!;
-      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today) });
+      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null });
     } else if (d.paborito) {
-      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price });
+      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null });
     }
   }
   const prices = scored.map((s) => s.price).sort((a, b) => a - b);

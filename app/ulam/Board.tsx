@@ -7,6 +7,7 @@ import { iconFor } from "../s/[code]/Rate";
 type Item = {
   kind: "scored" | "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number;
   score?: number; count?: number; sulit?: boolean; improving?: boolean;
+  alok: { id: string; kind: string; remaining: number; endsAt: string | null } | null;
 };
 
 const BUDGETS = [0, 60, 80, 100];
@@ -15,6 +16,8 @@ export function Board() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [max, setMax] = useState(0);
   const [area, setArea] = useState("");
+  const [claims, setClaims] = useState<Record<string, string>>({});
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const q = new URLSearchParams();
@@ -25,7 +28,7 @@ export function Board() {
       if (live && r.ok) setItems((await r.json()).items);
     });
     return () => { live = false; };
-  }, [max, area]);
+  }, [max, area, tick]);
 
   return (
     <div className="stack">
@@ -52,7 +55,20 @@ export function Board() {
               {d.sulit && <span className="pill g">Sulit</span>}
               {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
               {d.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
+              {d.alok && <span className="pill" style={{ background: "#dbe9f6", color: "#2b5d8a" }}><Icon name="tag" />Alok · {d.alok.remaining} left</span>}
             </div>
+            {(d.alok || claims[d.dishId]) && (
+              <div className="row" style={{ marginTop: 6 }}>
+                {d.alok && !claims[d.dishId] && (
+                  <button className="btn soft" onClick={async () => {
+                    const r = await fetch(`/api/alok/${d.alok!.id}/claim`, { method: "POST" });
+                    setClaims((c) => ({ ...c, [d.dishId]: r.ok || r.status === 409 ? "Reserved. Show this at the stall." : "Sorry, this deal is gone." }));
+                    setTick((t) => t + 1);
+                  }}>Kunin ang deal</button>
+                )}
+                {claims[d.dishId] && <span className="mute" role="status">{claims[d.dishId]}</span>}
+              </div>
+            )}
           </div>
           <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>
         </div>

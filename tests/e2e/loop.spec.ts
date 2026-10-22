@@ -16,19 +16,24 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.goto(link);
   await expect(owner.getByRole("heading", { name: "Simula" })).toBeVisible();
 
-  // Simula: stall, dishes, prices, Paborito, QR.
+  // Simula: stall, dishes, price, plates, Paborito, QR.
   await owner.getByLabel("Stall name").fill("Karinderya ni Rosa");
   await owner.getByLabel("Area or school nearby").fill("UST");
   await owner.getByRole("button", { name: "Next" }).click();
   await owner.getByRole("button", { name: "Adobo", exact: true }).click();
   await owner.getByRole("button", { name: "Next" }).click();
-  await owner.getByLabel("Price (₱)").fill("70");
   await owner.getByRole("button", { name: "Next" }).click();
-  await owner.getByRole("button", { name: "Adobo", exact: true }).click(); // Paborito
+  await expect(owner.getByText("Set a price for every dish.")).toBeVisible();
+  await owner.getByLabel("Price of Adobo (₱)").fill("70");
+  await owner.getByRole("button", { name: "Next" }).click();
+  await owner.getByRole("button", { name: "Next" }).click(); // Karaniwan: leave the plates as they are
+  await owner.getByRole("button", { name: /Adobo/ }).click(); // Paborito
   await owner.getByRole("button", { name: "Next" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
+  await expect(owner.getByRole("button", { name: "Print" })).toBeVisible();
   await owner.getByRole("button", { name: "Tapos" }).click();
   await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
+  await expect(owner.getByTestId("waiting")).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await expect(owner.getByRole("button", { name: "Paborito" })).toHaveAttribute("aria-pressed", "true");
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();

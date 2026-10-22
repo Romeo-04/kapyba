@@ -57,6 +57,18 @@ describe("rate limiter", () => {
     expect(await allow(db, l, "a", new Date(NOW.getTime() + 61_000))).toBe(true);
   });
 
+  it("limits a phone far below a shared address, so one school Wi-Fi does not lock out its buyers", () => {
+    expect(LIMITS.ratingDevice.limit).toBeLessThan(LIMITS.ratingIp.limit / 10);
+    expect(LIMITS.claimDevice.limit).toBeLessThan(LIMITS.claimIp.limit / 10);
+  });
+
+  it("does not store the raw subject", async () => {
+    const db = await testDb();
+    await allow(db, { name: "t", limit: 3, windowSec: 60 }, "rosa@example.com", NOW);
+    const rows = await db.select().from((await import("@/src/db/schema")).rateHits);
+    expect(rows[0].key).not.toContain("rosa");
+  });
+
   it("has an hourly cap on sign-in links per address and per email", () => {
     expect(LIMITS.authIp.windowSec).toBe(3600);
     expect(LIMITS.authEmail.limit).toBeLessThan(LIMITS.authIp.limit);

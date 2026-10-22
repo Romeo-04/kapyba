@@ -34,6 +34,8 @@ export function Owner() {
   const [dishes, setDishes] = useState<Summary[]>([]);
   const [inSetup, setInSetup] = useState<boolean | null>(null); // decided once, when the first dish list arrives
   const [msg, setMsg] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const [tick, setTick] = useState(0);
   const [bukasTick, setBukasTick] = useState(0);
@@ -43,7 +45,7 @@ export function Owner() {
     fetch("/api/stalls").then(async (r) => setStalls(r.ok ? (await r.json()).stalls : []));
   }, [tick]);
 
-  const stall = stalls?.[0];
+  const stall = stalls?.find((s) => s.id === activeId) ?? stalls?.[0];
   const stallId = stall?.id;
   useEffect(() => {
     if (!stallId) return;
@@ -59,6 +61,14 @@ export function Owner() {
 
   // A new owner, or one who left before adding any dish, is walked through Simula.
   if (!stall) return <Setup stall={null} dishes={[]} step={1} onStall={reload} onDone={reload} />;
+  if (adding) {
+    return (
+      <div className="stack">
+        <Setup stall={null} dishes={[]} step={1} onStall={(id) => { setAdding(false); setActiveId(id ?? null); setInSetup(true); setDishes([]); reload(); }} onDone={reload} />
+        <button className="btn soft block" onClick={() => setAdding(false)}>Cancel</button>
+      </div>
+    );
+  }
   if (inSetup === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
   if (inSetup) return <Setup stall={stall} dishes={dishes} step={Math.max(2, Number(localStorage.getItem(setupKey(stall.id))) || 2)} onStall={reload} onDone={() => { setInSetup(false); reload(); }} />;
 
@@ -71,6 +81,12 @@ export function Owner() {
           <p>{stall.name} · {stall.area}</p>
         </div>
         <button className="btn soft" style={{ marginLeft: "auto" }} onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/"); router.refresh(); }}>Sign out</button>
+      </div>
+      <div className="chips" aria-label="Your stalls">
+        {stalls.map((s) => (
+          <button key={s.id} className="chip" aria-pressed={s.id === stall.id} onClick={() => { if (s.id === stall.id) return; setActiveId(s.id); setInSetup(null); setDishes([]); }}>{s.name}</button>
+        ))}
+        <button className="chip" onClick={() => setAdding(true)}><Icon name="plus" />Another stall</button>
       </div>
       {dishes.length > 0 && (
         <div className="stats">

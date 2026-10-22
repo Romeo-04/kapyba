@@ -139,6 +139,17 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByRole("button", { name: "Reject" }).click();
   await expect(owner.getByTestId("review-empty")).toBeVisible();
 
+  // A second stall can be added and the owner can switch back.
+  await owner.goto(new URL("/o", owner.url()).href);
+  await owner.getByRole("button", { name: "Another stall" }).click();
+  await owner.getByLabel("Stall name").fill("Pangalawang Tindahan");
+  await owner.getByLabel("Area or school nearby").fill("UST");
+  await owner.getByRole("button", { name: "Next" }).click();
+  await owner.getByRole("button", { name: "Laktaw" }).click();
+  await expect(owner.getByRole("button", { name: "Pangalawang Tindahan" })).toHaveAttribute("aria-pressed", "true");
+  await owner.getByRole("button", { name: "Karinderya ni Rosa" }).click();
+  await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
+
   // Signing out ends the session on this device.
   await owner.goto(new URL("/o", owner.url()).href);
   await owner.getByRole("button", { name: "Sign out" }).click();

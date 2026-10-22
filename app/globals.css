@@ -219,6 +219,38 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .qr-actions { width: 100%; display: flex; align-items: center; gap: 12px; }
 .qr-download-btn { width: 56px; height: 56px; min-height: 56px; padding: 0; border-radius: 50%; flex: none; }
 .qr-finish-btn { flex: 1; }
+/* Standardized UI Primitives: ScreenHeader, TouchStepper, DrilldownSheet */
+.screen-header { width: 100%; min-height: 44px; display: flex; flex-direction: column; justify-content: center; }
+.screen-header-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+.screen-header-center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.screen-header-title { font-family: var(--font-heading); font-size: 19px; font-weight: 700; margin: 0; color: var(--ink); line-height: 1.2; letter-spacing: -0.01em; }
+.screen-header-sub { font-family: var(--font-sans); font-size: 13px; font-weight: 500; margin: 2px 0 0; color: var(--mute); line-height: 1.2; }
+
+.touch-stepper-wrap { display: flex; flex-direction: column; gap: 4px; }
+.touch-stepper-label { font-size: 12px; font-weight: 600; color: var(--mute); margin: 0; }
+.touch-stepper { display: inline-flex; align-items: center; gap: 2px; background: var(--cream); border: 1.5px solid var(--ring); border-radius: 999px; padding: 4px 6px; flex: none; transition: border-color 160ms var(--ease); }
+.touch-stepper:focus-within { border-color: var(--chili); }
+.touch-stepper-btn { appearance: none; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--paper); display: grid; place-items: center; cursor: pointer; flex: none; transition: transform 120ms var(--ease), background-color 160ms var(--ease); box-shadow: 0 1px 2px rgba(36, 28, 24, 0.06); }
+.touch-stepper-btn:active:not(:disabled) { transform: scale(0.92); }
+.touch-stepper-btn.dec { color: var(--mute); }
+.touch-stepper-btn.inc { color: var(--chili); }
+.touch-stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.touch-stepper-val-wrap { display: inline-flex; align-items: center; justify-content: center; min-width: 60px; padding: 0 4px; }
+.touch-stepper-prefix, .touch-stepper-suffix { font-family: var(--font-heading); font-size: 17px; font-weight: 700; color: var(--leaf); line-height: 1; }
+.touch-stepper-input { min-width: 2.5ch; min-height: 36px; padding: 0; border: 0; background: transparent; font-family: var(--font-heading); font-size: 19px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; text-align: center; outline: none; -moz-appearance: textfield; }
+.touch-stepper-input:focus-visible { outline: none; }
+.touch-stepper-input::-webkit-outer-spin-button, .touch-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+@keyframes drilldown-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.drilldown-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(36, 28, 24, 0.42); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: flex-end; }
+.drilldown-sheet { width: 100%; max-width: 430px; height: 100dvh; max-height: 100dvh; background: var(--paper); border-top: 1px solid var(--ring); display: flex; flex-direction: column; overflow: hidden; animation: drilldown-sheet-up 240ms var(--ease) forwards; box-shadow: 0 -12px 32px rgba(36, 28, 24, 0.16); }
+.drilldown-sheet-hdr { padding: 14px 16px 10px; flex: none; background: var(--paper); border-bottom: 1px solid var(--ring); }
+.drilldown-sheet-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; }
+.drilldown-sheet-footer { padding: 12px 16px max(16px, env(safe-area-inset-bottom)); flex: none; background: var(--paper); border-top: 1px solid var(--ring); display: flex; flex-direction: column; align-items: center; }
+
 /* Owner App Screens (MVP) */
 .owner-container { flex: 1; display: flex; flex-direction: column; padding-bottom: 74px; position: relative; }
 .owner-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid var(--ring); display: flex; align-items: center; justify-content: space-around; padding: 6px 12px calc(8px + env(safe-area-inset-bottom)); z-index: 40; box-shadow: 0 -4px 16px rgba(36, 28, 24, 0.04); }

@@ -15,7 +15,7 @@ export async function POST(req: Request, ctx: RouteContext<"/api/alok/[id]/claim
   const fresh = !device;
   if (!device) device = newDeviceToken();
   const db = await getDb();
-  if (!(await allow(db, LIMITS.claimIp, clientIp(req)))) return NextResponse.json({ result: "limit" }, { status: 429 });
+  if (!(await allow(db, LIMITS.claimDevice, device)) || !(await allow(db, LIMITS.claimIp, clientIp(req)))) return NextResponse.json({ result: "limit" }, { status: 429 });
   const result = await claimAlok(db, device, id);
   const res = NextResponse.json({ result }, { status: STATUS[result] });
   if (fresh) {

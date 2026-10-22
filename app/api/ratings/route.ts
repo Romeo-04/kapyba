@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   const device = (await cookies()).get(DEVICE_COOKIE)?.value;
   if (!body || !device) return NextResponse.json({ result: "forbidden" }, { status: 403 });
   const db = await getDb();
-  if (!(await allow(db, LIMITS.ratingIp, clientIp(req)))) return NextResponse.json({ result: "limit" }, { status: 429 });
+  if (!(await allow(db, LIMITS.ratingDevice, device)) || !(await allow(db, LIMITS.ratingIp, clientIp(req)))) return NextResponse.json({ result: "limit" }, { status: 429 });
   const result = await submitRating(db, {
     stallCode: String(body.code ?? ""),
     scanToken: String(body.scanToken ?? ""),

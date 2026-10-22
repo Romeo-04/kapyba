@@ -23,12 +23,13 @@ export default function PrivacyPage() {
         <h2>How it is used</h2>
         <p>Your individual rating is never shown to the public and never linked to a person. The public sees a dish score only after enough customers have rated it.</p>
         <p>Owners see ratings and tags for their own dishes, not the codes on phones. If an owner reports a burst of ratings, a reviewer sees codes and times only.</p>
+        <p>An owner also sees the average score of the same dish at other stalls nearby, but only for dishes those owners chose to make public, and without the stall names.</p>
         <p>We do not sell data. Deals are never tied to ratings. The Bagyo screen is a simulation: no money is held or paid out.</p>
       </section>
 
       <section className="card stack">
         <h2>How long we keep it</h2>
-        <p>Ratings and logs: up to 12 months. Phone codes: deleted after 12 months without use. Owners can ask us to delete their account and stall, and we do it within 30 days. Customers can clear the cookie; ratings already sent stay as anonymous totals.</p>
+        <p>Ratings and logs: up to 12 months. Phone codes: deleted after 12 months without use. To stop abuse we count requests per internet address and per sign-in email for up to one day, then delete the counts. Owners can ask us to delete their account and stall, and we do it within 30 days. Customers can clear the cookie; ratings already sent stay as anonymous totals.</p>
       </section>
 
       <section className="card stack">

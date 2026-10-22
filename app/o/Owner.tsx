@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Capybara } from "@/src/ui/Capybara";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
@@ -67,10 +68,20 @@ export function Owner() {
 
   return (
     <div className="stack">
-      <div>
-        <h1>Ngayon</h1>
-        <p className="mute">{stall.name} · {stall.area}</p>
+      <div className="hero">
+        <Capybara mood={dishes.some((d) => d.pansin < 0 || d.private.score !== null && d.private.score < 3.4) ? "worry" : "calm"} size={72} />
+        <div>
+          <h1>Ngayon</h1>
+          <p>{stall.name} · {stall.area}</p>
+        </div>
       </div>
+      {dishes.length > 0 && (
+        <div className="stats">
+          <div className="stat"><strong>{dishes.reduce((s, d) => s + d.private.count, 0)}</strong><span>ratings</span></div>
+          <div className="stat"><strong>{dishes.filter((d) => d.gate.state === "public").length}/{dishes.length}</strong><span>dishes scored</span></div>
+          <div className="stat"><strong>{dishes.reduce((s, d) => s + d.flagged, 0)}</strong><span>under review</span></div>
+        </div>
+      )}
 
       {dishes.length === 0 && <p className="mute">Add your first dish below.</p>}
       {dishes.map((d) => (

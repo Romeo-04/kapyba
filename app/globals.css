@@ -20,11 +20,11 @@ h2 { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color:
 .card { background: #fff; border-radius: 20px; border: 1px solid var(--ring); padding: 16px; }
 .i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .i.lg { width: 32px; height: 32px; }
-.btn { appearance: none; border: 0; border-radius: 999px; min-height: 48px; padding: 0 20px; background: var(--chili); color: #fff; font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; text-decoration: none; transition: transform 160ms var(--ease), background-color 160ms var(--ease); }
-.btn:active { transform: scale(0.97); }
-.btn.soft { background: var(--cream); color: var(--ink); border: 1px solid var(--ring); }
+.btn { appearance: none; border: 0; border-radius: 999px; min-height: 48px; padding: 0 20px; background: var(--chili); color: #fff; font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; text-decoration: none; box-shadow: 0 4px 4px 0 rgba(255, 255, 255, 0.25) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25); transition: transform 160ms var(--ease), background-color 160ms var(--ease), box-shadow 160ms var(--ease); }
+.btn:active { transform: scale(0.97); box-shadow: 0 2px 2px 0 rgba(255, 255, 255, 0.2) inset, 0 2px 3px 0 rgba(0, 0, 0, 0.25); }
+.btn.soft { background: var(--cream); color: var(--ink); border: 1px solid var(--ring); box-shadow: none; }
 .btn.block { width: 100%; }
-.btn.primary-cta { min-height: 56px; border-radius: 28px; font-size: 16px; background: var(--chili); color: #fff; }
+.btn.primary-cta { min-height: 56px; border-radius: 28px; font-size: 16px; background: var(--chili); color: #fff; box-shadow: 0 4px 4px 0 rgba(255, 255, 255, 0.25) inset, 0 4px 4px 0 rgba(0, 0, 0, 0.25); }
 .btn[disabled] { opacity: 0.5; pointer-events: none; }
 @media (hover: hover) { .btn:hover { background: #c2411e; } .btn.soft:hover { background: #ede3d3; } }
 .round { width: 44px; height: 44px; padding: 0; border-radius: 50%; flex: none; }

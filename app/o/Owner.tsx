@@ -4,6 +4,7 @@ import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
+import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 
 type Stall = { id: string; name: string; area: string; code: string };
@@ -24,6 +25,7 @@ export function Owner() {
   const [msg, setMsg] = useState("");
 
   const [tick, setTick] = useState(0);
+  const [bukasTick, setBukasTick] = useState(0);
   const reload = () => setTick((t) => t + 1);
 
   useEffect(() => {
@@ -102,7 +104,8 @@ export function Owner() {
       ))}
       {msg && <p className="err" role="alert">{msg}</p>}
 
-      {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} />}
+      {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} />}
+      {dishes.length > 0 && <Bukas stallId={stall.id} refresh={bukasTick} />}
 
       <form className="card stack" onSubmit={async (e) => {
         e.preventDefault();

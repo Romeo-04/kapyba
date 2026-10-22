@@ -9,7 +9,8 @@ export function proxy(req: NextRequest) {
   const origin = req.headers.get("origin");
   // Compare with the Host the browser used: req.nextUrl can report a different hostname than the one typed.
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
-  if (origin && (!host || new URL(origin).host !== host)) {
+  const originHost = (() => { try { return new URL(origin ?? "").host; } catch { return null; } })();
+  if (origin && (!host || originHost !== host)) {
     log("warn", "cross-site-refused", { path: req.nextUrl.pathname });
     return NextResponse.json({ error: "cross-site request refused" }, { status: 403 });
   }

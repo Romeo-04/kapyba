@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { log } from "@/src/log";
 
 // Defence in depth on top of SameSite=Lax cookies: a write to the API must come from this site.
 // Requests with no Origin header (curl, server to server) pass; a browser always sends one on a cross-site write.
@@ -9,6 +10,7 @@ export function proxy(req: NextRequest) {
   // Compare with the Host the browser used: req.nextUrl can report a different hostname than the one typed.
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
   if (origin && (!host || new URL(origin).host !== host)) {
+    log("warn", "cross-site-refused", { path: req.nextUrl.pathname });
     return NextResponse.json({ error: "cross-site request refused" }, { status: 403 });
   }
   return NextResponse.next();

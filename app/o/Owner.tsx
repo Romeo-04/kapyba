@@ -61,7 +61,8 @@ export function Owner() {
   if (stalls === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
 
   // A new owner, or one who left before adding any dish, is walked through Simula.
-  if (!stall) return <Setup stall={null} dishes={[]} step={1} onStall={reload} onDone={reload} />;
+  // inSetup is set at once so the same Setup stays mounted while the stall and dishes reload (a slow network would otherwise reset the picks).
+  if (!stall) return <Setup stall={null} dishes={[]} step={1} onStall={(id) => { setActiveId(id ?? null); setInSetup(true); reload(); }} onDone={reload} />;
   if (adding) {
     return (
       <div className="stack">

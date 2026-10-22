@@ -8,6 +8,7 @@ import { Alok } from "./Alok";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
+import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
@@ -109,6 +110,7 @@ export function Owner() {
       {dishes.length > 0 && <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} />}
       {dishes.length > 0 && <Bukas stallId={stall.id} refresh={bukasTick} />}
       {dishes.length > 0 && <Alok stallId={stall.id} dishes={dishes} />}
+      {dishes.length > 0 && <Ulat dishes={dishes} onFiled={reload} />}
       {dishes.length > 0 && <Palengke stallId={stall.id} refresh={bukasTick} />}
 
       <form className="card stack" onSubmit={async (e) => {

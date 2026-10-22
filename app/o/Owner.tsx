@@ -2,12 +2,14 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
+import { Mascot } from "@/src/ui/Mascot";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { Alok } from "./Alok";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
+import { loadSimulaState, Simula } from "./Simula";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
@@ -26,16 +28,29 @@ export function Owner() {
   const [stalls, setStalls] = useState<Stall[] | null>(null);
   const [dishes, setDishes] = useState<Summary[]>([]);
   const [msg, setMsg] = useState("");
+  const [showSimula, setShowSimula] = useState<boolean | null>(null);
 
   const [tick, setTick] = useState(0);
   const [bukasTick, setBukasTick] = useState(0);
   const reload = () => setTick((t) => t + 1);
 
   useEffect(() => {
-    fetch("/api/stalls").then(async (r) => setStalls(r.ok ? (await r.json()).stalls : []));
+    fetch("/api/stalls").then(async (r) => {
+      const list: Stall[] = r.ok ? (await r.json()).stalls : [];
+      setStalls(list);
+      const first = list[0] ?? null;
+      if (!first) {
+        setShowSimula(true);
+      } else {
+        const persisted = loadSimulaState(first);
+        const midOnboarding =
+          persisted.stall?.id === first.id && !persisted.completed && !persisted.skipped;
+        setShowSimula((prev) => (prev === null ? midOnboarding : prev));
+      }
+    });
   }, [tick]);
 
-  const stall = stalls?.[0];
+  const stall = stalls?.[0] ?? null;
   const stallId = stall?.id;
   useEffect(() => {
     if (!stallId) return;
@@ -44,31 +59,44 @@ export function Owner() {
     });
   }, [stallId, tick]);
 
-  if (stalls === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  if (stalls === null || showSimula === null) {
+    return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  }
 
-  if (!stall) {
+  if (!stall || showSimula) {
     return (
-      <form className="stack" style={{ paddingTop: 24 }} onSubmit={async (e) => {
-        e.preventDefault();
-        const f = new FormData(e.currentTarget);
-        const r = await post("/api/stalls", { name: f.get("name"), area: f.get("area") });
-        if (r.ok) reload(); else setMsg("Add a name and an area.");
-      }}>
-        <h1>Simula</h1>
-        <p className="mute">Set up your stall. Takes about two minutes.</p>
-        <div><label htmlFor="name">Stall name</label><input id="name" name="name" required maxLength={80} placeholder="Karinderya ni Aling Rosa" /></div>
-        <div><label htmlFor="area">Area or school nearby</label><input id="area" name="area" required maxLength={80} placeholder="UST" /></div>
-        {msg && <p className="err" role="alert">{msg}</p>}
-        <button className="btn block">Next</button>
-      </form>
+      <Simula
+        existingStall={stall}
+        existingDishes={dishes}
+        onFinish={() => {
+          setShowSimula(false);
+          reload();
+        }}
+        onSkip={() => {
+          setShowSimula(false);
+          reload();
+        }}
+      />
     );
   }
 
+  const hasWeakDish = dishes.some((d) => d.private.score !== null && d.private.score < 3.4);
+
   return (
     <div className="stack">
-      <div>
-        <h1>Ngayon</h1>
-        <p className="mute">{stall.name} · {stall.area}</p>
+      <div className="row">
+        <Mascot mood={hasWeakDish ? "worry" : "calm"} size={56} />
+        <div className="grow">
+          <h1>Ngayon</h1>
+          <p className="mute">{stall.name} · {stall.area}</p>
+        </div>
+        <button
+          type="button"
+          className="btn soft"
+          onClick={() => setShowSimula(true)}
+        >
+          Simula
+        </button>
       </div>
 
       {dishes.length === 0 && <p className="mute">Add your first dish below.</p>}

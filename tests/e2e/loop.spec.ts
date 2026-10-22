@@ -12,18 +12,47 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByLabel("Owner sign-in").fill("rosa@example.com");
   await owner.getByRole("button", { name: "Send link" }).click();
   await expect(owner.getByText("Check your email")).toBeVisible();
-  const link = readFileSync(MAIL_FILE, "utf8").trim().split("\n").pop()!;
-  await owner.goto(link);
+  const rawLink = readFileSync(MAIL_FILE, "utf8").trim().split("\n").pop()!;
+  const parsed = new URL(rawLink);
+  if (baseURL) parsed.port = new URL(baseURL).port;
+  await owner.goto(parsed.href);
   await expect(owner.getByRole("heading", { name: "Simula" })).toBeVisible();
 
-  // Setup: stall, then a dish.
+  // Step 1 — Simula: stall name, address input, and multi-select landmark chip.
   await owner.getByLabel("Stall name").fill("Karinderya ni Rosa");
-  await owner.getByLabel("Area or school nearby").fill("UST");
+  await owner.getByLabel("Area or school nearby").fill("1245 P. Noval St.");
+  await owner.getByRole("button", { name: "UST", exact: true }).click();
+  await expect(owner.getByRole("button", { name: "UST", exact: true })).toHaveAttribute("aria-pressed", "true");
   await owner.getByRole("button", { name: "Next" }).click();
+
+  // Step 2 — Ulam: keep Adobo selected, deselect the other 5 defaults.
+  await expect(owner.getByRole("heading", { name: "Ulam" })).toBeVisible();
+  for (const dish of ["Sinigang", "Tinola", "Galunggong", "Monggo", "Menudo"]) {
+    await owner.getByRole("button", { name: dish, exact: true }).click();
+  }
+  await owner.getByRole("button", { name: "Next" }).click();
+
+  // Step 3 — Presyo: verify mid-way refresh resumes on Step 3 without losing state.
+  await expect(owner.getByRole("heading", { name: "Presyo" })).toBeVisible();
+  await owner.reload();
+  await expect(owner.getByRole("heading", { name: "Presyo" })).toBeVisible();
+  await expect(owner.getByLabel("Adobo price", { exact: true })).toHaveValue("70");
+  await owner.getByRole("button", { name: "Next" }).click();
+
+  // Step 4 — Karaniwan: usual daily servings.
+  await expect(owner.getByRole("heading", { name: "Karaniwan" })).toBeVisible();
+  await owner.getByRole("button", { name: "Next" }).click();
+
+  // Step 5 — Paborito: signature dish picks (leave unpicked here; toggled on Ngayon for Alok test).
+  await expect(owner.getByRole("heading", { name: "Paborito" })).toBeVisible();
+  await owner.getByRole("button", { name: "Next" }).click();
+
+  // Step 6 — QR: scannable QR displayed, then Finish lands on Ngayon.
+  await expect(owner.getByRole("heading", { name: "QR" })).toBeVisible();
+  await expect(owner.getByAltText("Stall QR code")).toBeVisible();
+  await owner.getByRole("button", { name: "Finish" }).click();
+
   await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
-  await owner.getByLabel("Dish", { exact: true }).fill("Adobo");
-  await owner.getByLabel("Price (₱)").fill("70");
-  await owner.getByRole("button", { name: "Add" }).click();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
 

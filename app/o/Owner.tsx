@@ -148,30 +148,30 @@ export function Owner() {
             </div>
           </div>
 
-          {/* 3 Stat Cards in a row (UX.md O1) */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <Ring score={avgStallScore} size={48} locked={avgStallScore === null} />
-              <div className="stat-card-val">
+          {/* Unified 3-column Stat Panel (onboarding elevation) */}
+          <div className="stats-panel">
+            <div className="stats-panel-col">
+              <Ring score={avgStallScore} size={42} locked={avgStallScore === null} />
+              <div className="stats-panel-val" style={{ marginTop: 2 }}>
                 {avgStallScore !== null ? avgStallScore.toFixed(1) : "—"}
               </div>
-              <span className="stat-card-lbl">Score</span>
+              <span className="stats-panel-lbl">Score</span>
             </div>
 
-            <div className="stat-card">
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--cream)", color: "var(--cocoa)", display: "grid", placeItems: "center" }}>
+            <div className="stats-panel-col">
+              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "var(--paper)", color: "var(--cocoa)", display: "grid", placeItems: "center", boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)" }}>
                 <Icon name="user" />
               </div>
-              <div className="stat-card-val">{totalRatings}</div>
-              <span className="stat-card-lbl">Mga Boto</span>
+              <div className="stats-panel-val" style={{ marginTop: 2 }}>{totalRatings}</div>
+              <span className="stats-panel-lbl">Mga Boto</span>
             </div>
 
-            <div className="stat-card">
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#e3f0e1", color: "var(--leaf)", display: "grid", placeItems: "center" }}>
+            <div className="stats-panel-col">
+              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#e3f0e1", color: "var(--leaf)", display: "grid", placeItems: "center", boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)" }}>
                 <Icon name="leaf" />
               </div>
-              <div className="stat-card-val">{dishes.length}</div>
-              <span className="stat-card-lbl">Ulam Handa</span>
+              <div className="stats-panel-val" style={{ marginTop: 2 }}>{dishes.length}</div>
+              <span className="stats-panel-lbl">Ulam Handa</span>
             </div>
           </div>
 
@@ -208,7 +208,7 @@ export function Owner() {
             {dishes.map((d) => (
               <div
                 key={d.id}
-                className="owner-dish-card"
+                className={`owner-dish-card ${d.paborito ? "is-paborito" : ""}`}
                 onClick={() => setSelectedDish(d)}
                 role="button"
                 tabIndex={0}
@@ -216,11 +216,23 @@ export function Owner() {
               >
                 <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div className="row" style={{ gap: 12 }}>
-                    <div className="ico-plate" style={{ width: 46, height: 46 }}>
+                    <div
+                      className="ico-plate"
+                      style={{
+                        width: 46,
+                        height: 46,
+                        borderRadius: "50%",
+                        background: d.paborito ? "#e3f0e1" : "var(--paper)",
+                        color: d.paborito ? "var(--leaf)" : "var(--cocoa)",
+                        boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)",
+                      }}
+                    >
                       <Icon name={iconFor(d.icon)} className="lg" />
                     </div>
                     <div>
-                      <strong style={{ fontSize: 17, display: "block", color: "var(--ink)" }}>{d.name}</strong>
+                      <strong style={{ fontSize: 17, display: "block", color: "var(--ink)", fontFamily: "var(--font-heading)" }}>
+                        {d.name}
+                      </strong>
                       <div className="row" style={{ gap: 6, marginTop: 2 }}>
                         <span className="price" style={{ color: "var(--leaf)", fontSize: 15 }}>₱{d.price}</span>
                         <span className="mute" style={{ fontSize: 12 }}>· {d.baseServings} servings</span>

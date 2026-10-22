@@ -259,14 +259,17 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .owner-tab-btn .i { width: 22px; height: 22px; }
 .owner-tab-btn.on { color: var(--chili); background: var(--chili-soft); }
 
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.stat-card { background: #fff; border: 1.5px solid var(--ring); border-radius: 20px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; box-shadow: 0 1px 3px rgba(36, 28, 24, 0.04); }
-.stat-card-val { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.stat-card-lbl { font-size: 11px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.04em; }
+.stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cream); border: 1.5px solid var(--ring); border-radius: 22px; padding: 12px 6px; box-shadow: 0 1px 3px rgba(36, 28, 24, 0.04); }
+.stats-panel-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; padding: 4px 6px; }
+.stats-panel-col:not(:last-child) { border-right: 1px solid var(--ring); }
+.stats-panel-val { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stats-panel-lbl { font-size: 11px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.04em; }
 
-.dish-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.owner-dish-card { background: #fff; border: 1.5px solid var(--ring); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: transform 160ms var(--ease), border-color 160ms var(--ease), box-shadow 160ms var(--ease); position: relative; }
+.dish-grid { display: flex; flex-direction: column; gap: 12px; }
+.owner-dish-card { background: var(--cream); border: 1.5px solid var(--ring); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: transform 160ms var(--ease), border-color 160ms var(--ease), background-color 160ms var(--ease); position: relative; }
+.owner-dish-card:hover { border-color: var(--chili-border); }
 .owner-dish-card:active { transform: scale(0.985); }
+.owner-dish-card.is-paborito { background: var(--chili-soft); border-color: var(--chili); }
 .owner-dish-card.is-sold-out { opacity: 0.55; }
 .dish-card-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .dish-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--ring); padding-top: 10px; margin-top: 2px; }

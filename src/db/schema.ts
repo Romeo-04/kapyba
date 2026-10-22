@@ -123,3 +123,11 @@ export const loginTokens = pgTable("login_tokens", {
   usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: createdAt(),
 }, (t) => [index("login_tokens_email_idx").on(t.email)]);
+
+// Recent hits per limiter key (for example "auth-ip:1.2.3.4"). Lives in the database because
+// serverless instances share no memory. Old rows are deleted as new hits arrive.
+export const rateHits = pgTable("rate_hits", {
+  id: id(),
+  key: text("key").notNull(),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("rate_hits_key_at_idx").on(t.key, t.at)]);

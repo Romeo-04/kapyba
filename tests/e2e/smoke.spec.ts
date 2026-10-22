@@ -17,3 +17,13 @@ test("the Ulam board loads with an empty state and a budget filter", async ({ pa
   await page.getByRole("button", { name: "₱60 pababa" }).click();
   await expect(page.getByTestId("board-empty")).toBeVisible();
 });
+
+test("a write from another site is refused and pages carry security headers", async ({ request, baseURL }) => {
+  const evil = await request.post("/api/auth/request", { headers: { Origin: "https://evil.example" }, data: { email: "a@b.co" } });
+  expect(evil.status()).toBe(403);
+  const home = await request.get("/");
+  expect(home.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(home.headers()["x-frame-options"]).toBe("DENY");
+  const same = await request.post("/api/auth/request", { headers: { Origin: baseURL! }, data: { email: "not-an-email" } });
+  expect(same.status()).toBe(400);
+});

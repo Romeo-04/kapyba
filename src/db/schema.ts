@@ -35,6 +35,10 @@ export const dishes = pgTable("dishes", {
   published: boolean("published").notNull().default(false), // owner opt-in
   paborito: boolean("paborito").notNull().default(false),
   archivedAt: timestamp("archived_at", { withTimezone: true }),
+  // Naubos and Sale last for one Manila day, so a forgotten tap never lingers into tomorrow.
+  soldOutDay: date("sold_out_day"),
+  saleDay: date("sale_day"),
+  salePrice: integer("sale_price"),
 }, (t) => [index("dishes_stall_idx").on(t.stallId)]);
 
 export const devices = pgTable("devices", {

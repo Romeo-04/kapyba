@@ -126,7 +126,7 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .ulam-hint { text-align: center; color: var(--mute); font-size: 13px; font-weight: 500; margin-top: 4px; }
 
 /* Ulam 3x3, Presyo, Karaniwan & Paborito layout with pinned bottom CTA & Custom Dish Modal */
-.wrap:has(.simula-ulam), .wrap:has(.simula-presyo), .wrap:has(.simula-karaniwan), .wrap:has(.simula-paborito) { height: 100dvh; max-height: 100dvh; overflow: hidden; padding-bottom: 24px; }
+.wrap:has(.simula-ulam), .wrap:has(.simula-presyo), .wrap:has(.simula-karaniwan), .wrap:has(.simula-paborito), .wrap:has(.owner-container) { height: 100dvh; max-height: 100dvh; overflow: hidden; padding-bottom: 0; }
 .simula-ulam, .simula-presyo, .simula-karaniwan, .simula-paborito { flex: 1; min-height: 0; overflow: hidden; }
 .simula-ulam .simula-body, .simula-presyo .simula-body, .simula-karaniwan .simula-body, .simula-paborito .simula-body { flex: 1; min-height: 0; overflow: hidden; }
 .ulam-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 4px; scrollbar-width: thin; }
@@ -255,7 +255,7 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .drilldown-sheet-footer { padding: 12px 16px max(16px, env(safe-area-inset-bottom)); flex: none; background: var(--paper); border-top: 1px solid var(--ring); display: flex; flex-direction: column; align-items: center; }
 
 /* Owner App Screens (MVP) */
-.owner-container { flex: 1; display: flex; flex-direction: column; padding-bottom: 74px; position: relative; }
+.owner-container { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 .owner-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid var(--ring); display: flex; align-items: center; justify-content: space-around; padding: 6px 12px calc(8px + env(safe-area-inset-bottom)); z-index: 40; box-shadow: 0 -4px 16px rgba(36, 28, 24, 0.04); }
 .owner-tab-btn { appearance: none; border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; padding: 4px 16px; border-radius: 999px; color: var(--mute); font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: transform 140ms var(--ease), color 160ms var(--ease), background-color 160ms var(--ease); }
 .owner-tab-btn:active { transform: scale(0.95); }
@@ -402,6 +402,295 @@ label { font-size: 14px; font-weight: 600; color: var(--ink); display: block; ma
 .range-gauge-marker { position: absolute; top: -3px; bottom: -3px; width: 4px; border-radius: 2px; background: var(--cocoa); transform: translateX(-50%); }
 
 .qr-display-card { border: 2px dashed var(--ring); }
+
+/* Figma node 90:1655 - Ngayon Screen */
+.ngayon-screen,
+.natira-view,
+.bukas-view {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-bottom: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ngayon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ngayon-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.ngayon-subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #7d6d61;
+  margin: 4px 0 0;
+}
+
+.ngayon-hero-card {
+  width: 100%;
+  height: 100px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #d94e28 0%, #e4461b 100%);
+  border: 1px solid #e8dfd2;
+  box-shadow: inset 4px 4px 4px rgba(255, 253, 249, 0.25), inset -4px -4px 4px rgba(125, 109, 97, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  flex: none;
+}
+
+.ngayon-hero-mascot-wrap {
+  width: 125px;
+  height: 98px;
+  position: relative;
+  overflow: hidden;
+  flex: none;
+}
+
+.ngayon-hero-mascot-img {
+  position: absolute;
+  left: 15px;
+  top: 1px;
+  width: 97px;
+  height: 142px;
+  object-fit: contain;
+  object-position: top;
+  pointer-events: none;
+}
+
+.ngayon-hero-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding-right: 24px;
+  gap: 8px;
+  flex: 1;
+}
+
+.ngayon-score-lbl {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1;
+}
+
+.ngayon-score-val-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.ngayon-score-val {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.ngayon-score-scale {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.ngayon-metrics-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ngayon-metric-card {
+  flex: 1;
+  height: 78px;
+  border-radius: 20px;
+  background: #fbe4d7;
+  border: 1px solid #e8dfd2;
+  box-shadow: inset 4px 4px 4px rgba(255, 253, 249, 0.25), inset -4px -4px 4px rgba(217, 78, 40, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: transform 140ms var(--ease);
+}
+
+.ngayon-metric-card:active {
+  transform: scale(0.97);
+}
+
+.ngayon-metric-val {
+  font-size: 25px;
+  font-weight: 800;
+  color: #d94e28;
+  line-height: 1;
+}
+
+.ngayon-metric-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #241c18;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.ngayon-bestsellers-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.ngayon-bestsellers-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #241c18;
+  margin: 0;
+}
+
+.ngayon-bestsellers-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ngayon-bestsellers-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7d6d61;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+  transition: color 140ms var(--ease);
+}
+
+.ngayon-bestsellers-link:hover {
+  color: var(--chili);
+}
+
+.ngayon-dish-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.ngayon-dish-card {
+  background: #f6efe4;
+  border: 1px solid #e8dfd2;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  height: 147px;
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+
+.ngayon-dish-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(36, 28, 24, 0.08);
+}
+
+.ngayon-dish-card:active {
+  transform: scale(0.98);
+}
+
+.ngayon-dish-photo {
+  width: 100%;
+  height: 89px;
+  object-fit: cover;
+  display: block;
+  background: #e8dfd2;
+}
+
+.ngayon-dish-details {
+  height: 58px;
+  padding: 8px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.ngayon-dish-row1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ngayon-dish-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #241c18;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.ngayon-dish-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  flex: none;
+}
+
+.ngayon-dish-score {
+  font-size: 18px;
+  font-weight: 700;
+  color: #dd4a22;
+  line-height: 1;
+}
+
+.ngayon-dish-scale {
+  font-size: 11px;
+  font-weight: 500;
+  color: #241c18;
+}
+
+.ngayon-dish-new {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mute);
+}
+
+.ngayon-dish-row2 {
+  display: flex;
+  align-items: center;
+}
+
+.ngayon-dish-ratings {
+  font-size: 10px;
+  font-weight: 500;
+  color: #7d6d61;
+}
 
 @media print {
   body { background: #fff; }

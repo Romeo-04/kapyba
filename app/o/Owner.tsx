@@ -38,6 +38,7 @@ export function Owner() {
   const [showUlat, setShowUlat] = useState(false);
   const [showAddDish, setShowAddDish] = useState(false);
   const [ulatDishId, setUlatDishId] = useState<string | undefined>(undefined);
+  const [logDays, setLogDays] = useState<{ day: string; pesos: number; leftover: number; cooked: number }[]>([]);
 
   const [tick, setTick] = useState(0);
   const [bukasTick, setBukasTick] = useState(0);
@@ -67,6 +68,12 @@ export function Owner() {
       if (r.ok) {
         const data = await r.json();
         setDishes(data.dishes);
+      }
+    });
+    fetch(`/api/stalls/${stallId}/log`).then(async (r) => {
+      if (r.ok) {
+        const data = await r.json();
+        setLogDays(data.days ?? []);
       }
     });
   }, [stallId, tick]);
@@ -102,23 +109,29 @@ export function Owner() {
       : null;
 
   const totalRatings = dishes.reduce((sum, d) => sum + d.private.count, 0);
+  const latestLog = logDays[logDays.length - 1];
+  const leftoversCount = latestLog ? latestLog.leftover : 0;
+
+  const bestSellers = [...dishes].sort((a, b) => {
+    const scoreA = a.private.score ?? 0;
+    const scoreB = b.private.score ?? 0;
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    return b.private.count - a.private.count;
+  });
 
   // Sync selectedDish with updated dishes on tick
   const currentSelectedDish = selectedDish ? dishes.find((d) => d.id === selectedDish.id) ?? selectedDish : null;
 
   return (
     <div className="owner-container">
-      {/* Tab Screen 1: Ngayon */}
+      {/* Tab Screen 1: Ngayon (Figma Node 90:1655) */}
       {activeTab === "ngayon" && (
-        <div className="stack" style={{ gap: 16 }}>
+        <div className="ngayon-screen">
           {/* Header */}
-          <div className="row" style={{ alignItems: "center" }}>
-            <Mascot mood={hasWeakDish ? "worry" : "calm"} size={54} />
-            <div className="grow">
-              <h1 style={{ fontSize: 26, margin: 0 }}>Ngayon</h1>
-              <p className="mute" style={{ fontSize: 13, margin: "2px 0 0" }}>
-                {stall.name} · {stall.area}
-              </p>
+          <div className="ngayon-header">
+            <div>
+              <h1 className="ngayon-title">Ngayon</h1>
+              <p className="ngayon-subtitle">{stall.name}</p>
             </div>
             <button
               type="button"
@@ -131,52 +144,65 @@ export function Owner() {
             </button>
           </div>
 
-          {/* Unified 3-column Stat Panel (onboarding elevation) */}
-          <div className="stats-panel">
-            <div className="stats-panel-col">
-              <Ring score={avgStallScore} size={42} locked={avgStallScore === null} />
-              <div className="stats-panel-val" style={{ marginTop: 2 }}>
-                {avgStallScore !== null ? avgStallScore.toFixed(1) : "—"}
-              </div>
-              <span className="stats-panel-lbl">Score</span>
+          {/* Metrics Hero Card (Figma Node 92:3484 - Overall Score) */}
+          <div className="ngayon-hero-card">
+            <div className="ngayon-hero-mascot-wrap">
+              <img
+                src={hasWeakDish ? "/mascot/kapyba-worried.png" : "/mascot/kapyba-celebrate.png"}
+                alt="Capybara Mascot"
+                className="ngayon-hero-mascot-img"
+              />
             </div>
-
-            <div className="stats-panel-col">
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "var(--paper)", color: "var(--cocoa)", display: "grid", placeItems: "center", boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)" }}>
-                <Icon name="user" />
+            <div className="ngayon-hero-score">
+              <span className="ngayon-score-lbl">OVERALL SCORE</span>
+              <div className="ngayon-score-val-wrap">
+                <span className="ngayon-score-val">
+                  {avgStallScore !== null ? avgStallScore.toFixed(1) : "—"}
+                </span>
+                <span className="ngayon-score-scale">/5.0</span>
               </div>
-              <div className="stats-panel-val" style={{ marginTop: 2 }}>{totalRatings}</div>
-              <span className="stats-panel-lbl">Mga Boto</span>
-            </div>
-
-            <div className="stats-panel-col">
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#e3f0e1", color: "var(--leaf)", display: "grid", placeItems: "center", boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)" }}>
-                <Icon name="leaf" />
-              </div>
-              <div className="stats-panel-val" style={{ marginTop: 2 }}>{dishes.length}</div>
-              <span className="stats-panel-lbl">Ulam Handa</span>
             </div>
           </div>
 
-          {/* Dishes List Section */}
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
-            <div className="row" style={{ gap: 8 }}>
-              <h2 style={{ fontSize: 18, margin: 0 }}>Mga Ulam</h2>
-              <span className="ulam-count-pill" style={{ padding: "4px 10px", fontSize: 12 }}>
-                {dishes.length}
-              </span>
+          {/* Daily Summary 2-Column Metrics */}
+          <div className="ngayon-metrics-row">
+            <div
+              className="ngayon-metric-card"
+              role="button"
+              tabIndex={0}
+              aria-label={`${totalRatings} reviews`}
+            >
+              <span className="ngayon-metric-val">{totalRatings}</span>
+              <span className="ngayon-metric-lbl">REVIEWS</span>
             </div>
+            <div
+              className="ngayon-metric-card"
+              role="button"
+              tabIndex={0}
+              onClick={() => setActiveTab("natira")}
+              aria-label={`${leftoversCount} left-overs`}
+            >
+              <span className="ngayon-metric-val">{leftoversCount}</span>
+              <span className="ngayon-metric-lbl">LEFT-OVERS</span>
+            </div>
+          </div>
+
+          {/* Best Sellers Section */}
+          <div className="ngayon-bestsellers-hdr">
+            <h2 className="ngayon-bestsellers-title">Best sellers</h2>
             <button
               type="button"
               className="btn soft"
+              style={{ minHeight: 32, padding: "0 10px", fontSize: 12, borderRadius: 999 }}
               onClick={() => setShowAddDish(true)}
-              style={{ minHeight: 38, padding: "0 14px", fontSize: 13 }}
             >
               <Icon name="plus" /> Magdagdag
             </button>
           </div>
 
-          {dishes.length === 0 && (
+          {msg && <p className="err center" role="alert">{msg}</p>}
+
+          {dishes.length === 0 ? (
             <div className="card stack center" style={{ padding: 32 }}>
               <Mascot mood="sleepy" size={56} />
               <p className="mute">Wala pang nakalistang ulam. I-click ang Magdagdag upang simulan.</p>
@@ -184,145 +210,50 @@ export function Owner() {
                 <Icon name="plus" /> Magdagdag ng ulam
               </button>
             </div>
-          )}
-
-          {/* Dish Cards */}
-          <div className="dish-grid">
-            {dishes.map((d) => (
-              <div
-                key={d.id}
-                className={`owner-dish-card ${d.paborito ? "is-paborito" : ""}`}
-                onClick={() => setSelectedDish(d)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Ulam: ${d.name}`}
-              >
-                <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div className="row" style={{ gap: 12 }}>
-                    <div
-                      className="ico-plate"
-                      style={{
-                        width: 46,
-                        height: 46,
-                        borderRadius: "50%",
-                        background: d.paborito ? "#e3f0e1" : "var(--paper)",
-                        color: d.paborito ? "var(--leaf)" : "var(--cocoa)",
-                        boxShadow: "0 1px 2px rgba(36, 28, 24, 0.06)",
-                      }}
-                    >
-                      <Icon name={iconFor(d.icon)} className="lg" />
-                    </div>
-                    <div>
-                      <strong style={{ fontSize: 17, display: "block", color: "var(--ink)", fontFamily: "var(--font-heading)" }}>
+          ) : (
+            <div className="ngayon-dish-grid">
+              {bestSellers.map((d) => (
+                <div
+                  key={d.id}
+                  className="ngayon-dish-card"
+                  onClick={() => setSelectedDish(d)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ulam: ${d.name}`}
+                >
+                  <img
+                    src="/dish-placeholder.jpg"
+                    alt={d.name}
+                    className="ngayon-dish-photo"
+                  />
+                  <div className="ngayon-dish-details">
+                    <div className="ngayon-dish-row1">
+                      <span className="ngayon-dish-name" title={d.name}>
                         {d.name}
-                      </strong>
-                      <div className="row" style={{ gap: 6, marginTop: 2 }}>
-                        <span className="price" style={{ color: "var(--leaf)", fontSize: 15 }}>₱{d.price}</span>
-                        <span className="mute" style={{ fontSize: 12 }}>· {d.baseServings} servings</span>
+                      </span>
+                      <div className="ngayon-dish-score-wrap">
+                        {d.private.score !== null ? (
+                          <>
+                            <span className="ngayon-dish-score">
+                              {d.private.score.toFixed(1)}
+                            </span>
+                            <span className="ngayon-dish-scale">/5.0</span>
+                          </>
+                        ) : (
+                          <span className="ngayon-dish-new">Bago</span>
+                        )}
                       </div>
                     </div>
+                    <div className="ngayon-dish-row2">
+                      <span className="ngayon-dish-ratings">
+                        {d.private.count} {d.private.count === 1 ? "rating" : "ratings"}
+                      </span>
+                    </div>
                   </div>
-
-                  <Ring score={d.private.score} size={50} locked={d.private.score === null} />
                 </div>
-
-                {/* Rating & Buyer counts */}
-                <div className="mute" style={{ fontSize: 13 }}>
-                  <Icon name="user" style={{ verticalAlign: "-2px", marginRight: 4, width: 14, height: 14 }} />
-                  {d.private.count} ratings · {d.private.buyers} buyers
-                  {d.gate.state === "kulang" && d.private.count > 0 && (
-                    <span style={{ color: "var(--chili)", fontWeight: 600 }}> · Kulang pa {Math.min(d.gate.have, d.gate.need)}/{d.gate.need}</span>
-                  )}
-                </div>
-
-                {/* Badges Row */}
-                <div className="dish-card-badges">
-                  {d.private.improving && (
-                    <span className="pill g"><Icon name="trend" /> Gumaganda</span>
-                  )}
-                  {d.pansin !== 0 && (
-                    <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}>
-                      <Icon name={d.pansin < 0 ? "alert" : "up"} /> Pansin
-                    </span>
-                  )}
-                  {d.flagged > 0 && (
-                    <span className="pill r"><Icon name="alert" /> {d.flagged} under review</span>
-                  )}
-                  {d.recs.map((r) => (
-                    <span key={r.word} className="pill">
-                      <Icon name={iconFor(r.icon)} />
-                      <Icon name={r.dir} />
-                      {r.word}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Card Quick Action Footer */}
-                <div
-                  className="dish-card-footer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    className="btn soft"
-                    style={{ minHeight: 36, padding: "0 12px", fontSize: 12.5 }}
-                    aria-pressed={d.published}
-                    onClick={async () => {
-                      await post(`/api/dishes/${d.id}`, { published: !d.published }, "PATCH");
-                      reload();
-                    }}
-                  >
-                    <Icon name={d.published ? "eye" : "eyeoff"} />
-                    {d.published ? "Public" : "Private"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn soft"
-                    style={{ minHeight: 36, padding: "0 12px", fontSize: 12.5 }}
-                    aria-pressed={d.paborito}
-                    onClick={async () => {
-                      const r = await post(`/api/dishes/${d.id}`, { paborito: !d.paborito }, "PATCH");
-                      setMsg(r.ok ? "" : "Hanggang tatlong Paborito dishes lamang ang maaaring piliin.");
-                      reload();
-                    }}
-                  >
-                    <Icon name="heart" style={{ color: d.paborito ? "var(--chili)" : "inherit" }} />
-                    Paborito
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {msg && <p className="err center" role="alert">{msg}</p>}
-
-          {/* Scannable QR Code Card (Always visible on Ngayon for printing and scanning) */}
-          <div className="card stack center qr-display-card" style={{ alignItems: "center", padding: "18px 16px", marginTop: 8 }}>
-            <h2 style={{ fontSize: 18, margin: 0 }}>Koda ng Stall</h2>
-            <p className="mute" style={{ fontSize: 13, margin: "2px 0 8px" }}>
-              I-print at idikit sa tindahan para makapag-rate ang mga suki.
-            </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/stalls/${stall.id}/qr`}
-              alt="Stall QR code"
-              width={180}
-              height={180}
-              style={{ display: "block", borderRadius: 14 }}
-            />
-            <p className="mute" style={{ fontWeight: 700, fontSize: 13, color: "var(--cocoa)" }}>
-              kapyba-{stall.code}
-            </p>
-            <div className="row" style={{ gap: 8, marginTop: 4 }}>
-              <a className="btn soft" href={`/api/stalls/${stall.id}/qr`} download={`kapyba-${stall.code}.svg`}>
-                <Icon name="download" /> Download
-              </a>
-              <button type="button" className="btn soft" onClick={() => setShowQR(true)}>
-                <Icon name="qr" /> Palakihin
-              </button>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -419,6 +350,8 @@ export function Owner() {
           totalDishes={dishes.length}
           totalRatings={totalRatings}
           onClose={() => setShowStoreProfile(false)}
+          onOpenQR={() => setShowQR(true)}
+          onOpenAlok={() => setShowAlok(true)}
           onUpdated={(updated) => {
             setStalls((prev) =>
               prev ? prev.map((s) => (s.id === stall.id ? { ...s, ...updated } : s)) : prev

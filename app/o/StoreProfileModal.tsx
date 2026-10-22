@@ -17,6 +17,8 @@ export type StoreProfileModalProps = {
   totalRatings: number;
   onClose: () => void;
   onUpdated: (updated: { name: string; area: string }) => void;
+  onOpenQR?: () => void;
+  onOpenAlok?: () => void;
 };
 
 export function StoreProfileModal({
@@ -25,6 +27,8 @@ export function StoreProfileModal({
   totalRatings,
   onClose,
   onUpdated,
+  onOpenQR,
+  onOpenAlok,
 }: StoreProfileModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(stall.name);
@@ -139,6 +143,37 @@ export function StoreProfileModal({
               <Icon name="store" />
               <span>I-edit ang Profile</span>
             </button>
+
+            {(onOpenQR || onOpenAlok) && (
+              <div className="row" style={{ gap: 8, marginTop: 4 }}>
+                {onOpenQR && (
+                  <button
+                    type="button"
+                    className="btn soft grow"
+                    onClick={() => {
+                      onClose();
+                      onOpenQR();
+                    }}
+                  >
+                    <Icon name="qr" />
+                    <span>Stall QR</span>
+                  </button>
+                )}
+                {onOpenAlok && (
+                  <button
+                    type="button"
+                    className="btn soft grow"
+                    onClick={() => {
+                      onClose();
+                      onOpenAlok();
+                    }}
+                  >
+                    <Icon name="megaphone" />
+                    <span>Alok Deals</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           /* Edit Mode Form */

@@ -69,7 +69,7 @@ const PRESET_DISHES: { name: string; icon: IconName; price: number; defaultOn?: 
 const STEP_META: Record<number, { title: string; subtitle: string }> = {
   1: { title: "Simula", subtitle: "What’s the name of your store?" },
   2: { title: "Ulam", subtitle: "What do you usually cook?" },
-  3: { title: "Presyo", subtitle: "How much is each plate?" },
+  3: { title: "Presyo", subtitle: "How much is each serving?" },
   4: { title: "Karaniwan", subtitle: "How many plates do you usually sell?" },
   5: { title: "Paborito", subtitle: "Pick up to 3 signature dishes" },
   6: { title: "QR", subtitle: "Print and post your QR at the counter" },
@@ -333,7 +333,7 @@ export function Simula({
     setState((prev) => {
       const d = prev.dishes[name];
       if (!d) return prev;
-      const nextPrice = Math.max(5, Math.min(10000, d.price + delta));
+      const nextPrice = Math.max(1, Math.min(10000, d.price + delta));
       return {
         ...prev,
         dishes: { ...prev.dishes, [name]: { ...d, price: nextPrice } },
@@ -368,7 +368,7 @@ export function Simula({
     if (raw === undefined || raw.trim() === "") return;
     const parsed = Number(raw);
     if (Number.isFinite(parsed)) {
-      const clamped = Math.max(5, Math.min(10000, Math.round(parsed)));
+      const clamped = Math.max(1, Math.min(10000, Math.round(parsed)));
       setState((prev) => {
         const d = prev.dishes[name];
         if (!d) return prev;
@@ -880,7 +880,7 @@ export function Simula({
             <span className="presyo-count" data-testid="presyo-dish-count">
               {selectedDishes.length} ulam
             </span>
-            <span className="presyo-unit">₱ / plate</span>
+            <span className="presyo-unit">₱ / serving</span>
           </div>
 
           <div className="presyo-list">
@@ -895,10 +895,10 @@ export function Simula({
                     type="button"
                     className="presyo-step-btn minus"
                     aria-label={`Decrease ${d.name} price`}
-                    onClick={() => adjustPrice(d.name, -5)}
+                    onClick={() => adjustPrice(d.name, -1)}
                     onPointerDown={() => {
                       stopHold();
-                      holdTimer.current = setInterval(() => adjustPrice(d.name, -5), 140);
+                      holdTimer.current = setInterval(() => adjustPrice(d.name, -1), 140);
                     }}
                     onPointerUp={stopHold}
                     onPointerLeave={stopHold}
@@ -931,10 +931,10 @@ export function Simula({
                     type="button"
                     className="presyo-step-btn plus"
                     aria-label={`Increase ${d.name} price`}
-                    onClick={() => adjustPrice(d.name, 5)}
+                    onClick={() => adjustPrice(d.name, 1)}
                     onPointerDown={() => {
                       stopHold();
-                      holdTimer.current = setInterval(() => adjustPrice(d.name, 5), 140);
+                      holdTimer.current = setInterval(() => adjustPrice(d.name, 1), 140);
                     }}
                     onPointerUp={stopHold}
                     onPointerLeave={stopHold}
@@ -946,7 +946,7 @@ export function Simula({
             ))}
           </div>
 
-          <p className="ulam-hint">Your prices · you can edit later</p>
+          <p className="ulam-hint">Set your prices now, you can edit them later.</p>
 
           <div className="simula-footer">
             <button

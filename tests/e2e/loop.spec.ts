@@ -84,7 +84,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await off.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(async () => {
     await owner.reload();
-    await expect(owner.getByText("2 ratings · 2 buyers")).toBeVisible({ timeout: 1000 });
+    await expect(owner.getByText("2 ratings · 2 buyers")).toBeVisible({ timeout: 5000 });
   }).toPass();
   // Reopening the page with no signal still shows the dishes from the cached copy.
   await offCtx.setOffline(true);

@@ -15,6 +15,7 @@ type Summary = {
   id: string; name: string; icon: string; price: number; published: boolean; paborito: boolean;
   private: { count: number; buyers: number; score: number | null; improving: boolean };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
+  kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
   flagged: number; pansin: number; recs: { icon: string; dir: "up" | "down"; word: string }[];
 };
 
@@ -85,6 +86,12 @@ export function Owner() {
             </div>
             <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>
           </div>
+          {d.kumpara && (
+            <p className="mute" data-testid="kumpara">
+              Nearby, the same dish at {d.kumpara.stalls} other stalls averages {d.kumpara.score.toFixed(1)}.
+              {d.private.score !== null && <> Yours is {d.private.score >= d.kumpara.score ? "at or above" : "below"} that.</>}
+            </p>
+          )}
           <div className="row" style={{ flexWrap: "wrap" }}>
             {d.private.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
             {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />Pansin</span>}

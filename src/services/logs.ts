@@ -15,7 +15,7 @@ const count = (n: unknown) => typeof n === "number" && Number.isInteger(n) && n 
  * Logging the same dish and day again replaces the earlier entry. Returns null if the stall is not
  * this owner's, an entry is invalid, sold exceeds cooked, or a dish is not in this stall.
  */
-export async function saveDay(db: Db, ownerId: string, stallId: string, entries: LogEntry[], now = new Date()) {
+export async function saveDay(db: Db, ownerId: string, stallId: string, entries: LogEntry[], now = new Date(), dayInput?: unknown) {
   if (!(await ownedStall(db, ownerId, stallId))) return null;
   if (!Array.isArray(entries) || entries.length === 0 || entries.length > 100) return null;
   const rows: { dishId: string; cooked: number; sold: number }[] = [];
@@ -26,7 +26,13 @@ export async function saveDay(db: Db, ownerId: string, stallId: string, entries:
   const mine = await db.select({ id: dishes.id }).from(dishes).where(and(eq(dishes.stallId, stallId), inArray(dishes.id, rows.map((r) => r.dishId))));
   if (mine.length !== new Set(rows.map((r) => r.dishId)).size) return null;
 
-  const day = manilaDay(now);
+  // A phone that was offline names the day it logged; accept only today or the last 3 days.
+  let day = manilaDay(now);
+  if (dayInput !== undefined) {
+    const oldest = manilaDay(new Date(now.getTime() - 3 * 86_400_000));
+    if (typeof dayInput !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(dayInput) || dayInput > day || dayInput < oldest) return null;
+    day = dayInput;
+  }
   for (const r of rows) {
     const values = { stallId, dishId: r.dishId, day, cooked: r.cooked, sold: r.sold, leftover: r.cooked - r.sold };
     await db.insert(dailyLogs).values(values).onConflictDoUpdate({

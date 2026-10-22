@@ -4,7 +4,7 @@ import { SignIn } from "./SignIn";
 
 export default function Home() {
   return (
-    <main className="wrap stack" style={{ paddingTop: 16 }}>
+    <main id="main" className="wrap stack" style={{ paddingTop: 16 }}>
       <div className="hero">
         <Capybara mood="happy" size={88} />
         <div>

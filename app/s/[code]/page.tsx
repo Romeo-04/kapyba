@@ -8,7 +8,7 @@ async function Stall({ params }: { params: PageProps<"/s/[code]">["params"] }) {
 
 export default function StallPage(props: PageProps<"/s/[code]">) {
   return (
-    <main className="wrap">
+    <main id="main" className="wrap">
       <Suspense fallback={<p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>}>
         <Stall params={props.params} />
       </Suspense>

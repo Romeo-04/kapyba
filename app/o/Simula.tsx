@@ -1145,141 +1145,28 @@ export function Simula({
               </span>
             </div>
 
-            <span className="qr-status-pill">
-              Counter QR · {state.stall.code}
-            </span>
-          </div>
-
-          {/* Customer 3-step explanation card */}
-          <div className="qr-flow-card no-print">
-            <p className="qr-flow-title">For customers · after eating</p>
-
-            <div className="qr-flow-steps">
-              <div className="qr-flow-step">
-                <span className="qr-flow-ico" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10"
-                      stroke="currentColor"
-                      strokeWidth="1.9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="qr-flow-label">Scan</span>
-              </div>
-
-              <span className="qr-flow-arrow" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3.5 8H12.5M8.5 4L12.5 8L8.5 12"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-
-              <div className="qr-flow-step">
-                <span className="qr-flow-ico" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M7 3v7a3 3 0 0 0 3 3v8M7 3v7M10 3v7M4 3v4a3 3 0 0 0 3 3M17 3v18M17 3c-2.5 0-4 2.5-4 6v3h4"
-                      stroke="currentColor"
-                      strokeWidth="1.9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="qr-flow-label">Pick ulam</span>
-              </div>
-
-              <span className="qr-flow-arrow" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3.5 8H12.5M8.5 4L12.5 8L8.5 12"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-
-              <div className="qr-flow-step">
-                <span className="qr-flow-ico" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-4 3v-3H6a2 2 0 0 1-2-2V6z"
-                      stroke="currentColor"
-                      strokeWidth="1.9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 13.3s-2.8-1.8-2.8-3.6a1.6 1.6 0 0 1 2.8-1 1.6 1.6 0 0 1 2.8 1c0 1.8-2.8 3.6-2.8 3.6z"
-                      stroke="currentColor"
-                      strokeWidth="1.7"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="qr-flow-label">Rate / review</span>
-              </div>
-            </div>
-
-            <p className="qr-flow-sub">No install or login needed</p>
-          </div>
-
-          {/* Privacy & Control Callout */}
-          <div className="qr-privacy no-print">
-            <span className="qr-privacy-ico" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 3l7 3v5.5c0 4.6-3 7.7-7 9-4-1.3-7-4.4-7-9V6l7-3z"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M9 12.2l2.1 2.1L15.2 10"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <div className="qr-privacy-copy">
-              <strong className="qr-privacy-title">Feedback: private first</strong>
-              <span className="qr-privacy-sub">You are in control.</span>
-            </div>
+            <p className="qr-code-text">{state.stall.code}</p>
           </div>
 
           {/* Footer Action Row */}
           <div className="simula-footer qr-footer no-print">
             <div className="qr-actions">
-              <button
-                type="button"
-                className="btn soft qr-print-btn"
-                onClick={() => window.print()}
+              <a
+                className="btn soft qr-download-btn"
+                href={`/api/stalls/${state.stall.id}/qr`}
+                download={`kapyba-${state.stall.code}.svg`}
+                aria-label="Download QR"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
-                    d="M7 8V4h10v4M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v6H7v-6z"
+                    d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"
                     stroke="currentColor"
-                    strokeWidth="1.9"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>Print</span>
-              </button>
+              </a>
 
               <button
                 type="button"
@@ -1298,17 +1185,6 @@ export function Simula({
                 </svg>
               </button>
             </div>
-
-            <p className="ulam-hint qr-save-note">
-              Saved ·{" "}
-              <a
-                className="qr-download-link"
-                href={`/api/stalls/${state.stall.id}/qr`}
-                download={`kapyba-${state.stall.code}.svg`}
-              >
-                Download QR
-              </a>
-            </p>
           </div>
         </div>
       )}

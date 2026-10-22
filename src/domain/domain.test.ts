@@ -97,3 +97,23 @@ describe("alok validation", () => {
     expect(isActive({ ...base, closedAt: now }, now)).toBe(false);
   });
 });
+
+import { improving } from "./scoring";
+
+describe("improving (Gumaganda)", () => {
+  const rows = (recent: number[], earlier: number[]) => [
+    ...recent.map((score) => ({ score, day: "2026-10-20" })),
+    ...earlier.map((score) => ({ score, day: "2026-10-01" })),
+  ];
+  it("is true when the recent half is 0.3 better", () => {
+    expect(improving(rows([4, 4, 4], [3.7, 3.7, 3.7]), "2026-10-22")).toBe(true);
+  });
+  it("is false below 0.3, when worse, or with too few ratings per half", () => {
+    expect(improving(rows([4, 4, 4], [3.8, 3.8, 3.8]), "2026-10-22")).toBe(false);
+    expect(improving(rows([3, 3, 3], [4, 4, 4]), "2026-10-22")).toBe(false);
+    expect(improving(rows([5, 5], [1, 1, 1]), "2026-10-22")).toBe(false);
+  });
+  it("ignores ratings outside the 30-day window", () => {
+    expect(improving([...rows([4, 4, 4], []), ...[1, 1, 1].map((score) => ({ score, day: "2026-08-01" }))], "2026-10-22")).toBe(false);
+  });
+});

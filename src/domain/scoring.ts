@@ -36,3 +36,22 @@ export function tagShares(rows: Pick<RatingRow, "tags">[]): Record<Tag, number> 
 
 export const distinctBuyers = (rows: Pick<RatingRow, "deviceId">[]) =>
   new Set(rows.map((r) => r.deviceId)).size;
+
+/** Gumaganda: the recent half of the window is clearly better than the earlier half. Needs 3+ ratings in each half. */
+export const IMPROVING_BY = 0.3;
+export const MIN_PER_HALF = 3;
+
+export function improving(rows: { score: number; day: string }[], today: string, windowDays = 30): boolean {
+  const t = Date.parse(today);
+  const half = windowDays / 2;
+  const recent: number[] = [];
+  const earlier: number[] = [];
+  for (const r of rows) {
+    const age = (t - Date.parse(r.day)) / 86_400_000;
+    if (age < 0 || age >= windowDays) continue;
+    (age < half ? recent : earlier).push(r.score);
+  }
+  if (recent.length < MIN_PER_HALF || earlier.length < MIN_PER_HALF) return false;
+  const avg = (a: number[]) => a.reduce((s, x) => s + x, 0) / a.length;
+  return Math.round((avg(recent) - avg(earlier)) * 100) / 100 >= IMPROVING_BY; // rounded so 4.0 - 3.7 counts as 0.3
+}

@@ -11,7 +11,7 @@ async function Gate() {
 
 export default function OwnerPage() {
   return (
-    <main className="wrap">
+    <main id="main" className="wrap">
       <Suspense fallback={<p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>}>
         <Gate />
       </Suspense>

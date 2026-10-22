@@ -19,6 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fil" className={geist.variable}>
       <body>
+        <a className="skip" href="#main">Lumaktaw sa nilalaman</a>
         <RegisterSW />
         <TopBar />
         {children}

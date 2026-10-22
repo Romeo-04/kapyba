@@ -48,31 +48,19 @@ const LANDMARKS = [
 const PRESET_DISHES: { name: string; icon: IconName; price: number; defaultOn?: boolean }[] = [
   { name: "Adobo", icon: "meat", price: 70, defaultOn: true },
   { name: "Sinigang", icon: "bowl", price: 70, defaultOn: true },
+  { name: "Monggo", icon: "bean", price: 50, defaultOn: true },
   { name: "Tinola", icon: "bowl", price: 65, defaultOn: true },
   { name: "Galunggong", icon: "fish", price: 60, defaultOn: true },
-  { name: "Monggo", icon: "leaf", price: 50, defaultOn: true },
-  { name: "Menudo", icon: "meat", price: 65, defaultOn: true },
-  { name: "Bistek", icon: "meat", price: 70 },
-  { name: "Caldereta", icon: "meat", price: 75 },
-  { name: "Afritada", icon: "meat", price: 65 },
-  { name: "Kare-Kare", icon: "bowl", price: 80 },
-  { name: "Nilaga", icon: "bowl", price: 75 },
-  { name: "Pinakbet", icon: "leaf", price: 55 },
-  { name: "Laing", icon: "leaf", price: 55 },
-  { name: "Ginataang Gulay", icon: "leaf", price: 50 },
-  { name: "Chopsuey", icon: "leaf", price: 60 },
-  { name: "Tilapia", icon: "fish", price: 65 },
-  { name: "Bangus", icon: "fish", price: 70 },
-  { name: "Paksiw na Isda", icon: "fish", price: 60 },
-  { name: "Sisig", icon: "meat", price: 75 },
-  { name: "Tortang Talong", icon: "leaf", price: 45 },
+  { name: "Menudo", icon: "pot", price: 65, defaultOn: true },
+  { name: "Afritada", icon: "pot", price: 65 },
+  { name: "Pinakbet", icon: "carrot", price: 55 },
 ];
 
-const CUSTOM_ICONS: IconName[] = ["bowl", "meat", "fish", "leaf"];
+const CUSTOM_ICONS: IconName[] = ["bowl", "meat", "pot", "fish", "leaf", "carrot", "steak", "egg"];
 
 const STEP_META: Record<number, { title: string; subtitle: string }> = {
   1: { title: "Simula", subtitle: "What’s the name of your store?" },
-  2: { title: "Ulam", subtitle: "Which ulam do you cook?" },
+  2: { title: "Ulam", subtitle: "What do you usually cook?" },
   3: { title: "Presyo", subtitle: "How much is each plate?" },
   4: { title: "Karaniwan", subtitle: "How many plates do you usually sell?" },
   5: { title: "Paborito", subtitle: "Pick up to 3 signature dishes" },
@@ -163,14 +151,29 @@ export function loadSimulaState(
     }
 
     const base = defaultState(existingStall);
-    const mergedDishes = { ...base.dishes, ...(parsed.dishes ?? {}) };
+    const mergedDishes: Record<string, DishConfig> = { ...base.dishes };
+    for (const [k, v] of Object.entries(parsed.dishes ?? {})) {
+      if (base.dishes[k]) {
+        mergedDishes[k] = {
+          ...base.dishes[k],
+          price: typeof v.price === "number" ? v.price : base.dishes[k].price,
+          baseServings: typeof v.baseServings === "number" ? v.baseServings : base.dishes[k].baseServings,
+          paborito: Boolean(v.paborito),
+        };
+      } else if (v && v.custom) {
+        mergedDishes[k] = v;
+      }
+    }
+    const validSelected = Array.isArray(parsed.selected)
+      ? parsed.selected.filter((name) => Boolean(mergedDishes[name]))
+      : [];
     return applyExisting({
       step: typeof parsed.step === "number" && parsed.step >= 1 && parsed.step <= 6 ? parsed.step : base.step,
       stallName: typeof parsed.stallName === "string" ? parsed.stallName : base.stallName,
       area: typeof parsed.area === "string" ? parsed.area : base.area,
       landmarks: Array.isArray(parsed.landmarks) ? parsed.landmarks : base.landmarks,
       stall: existingStall ?? parsed.stall ?? null,
-      selected: Array.isArray(parsed.selected) && parsed.selected.length > 0 ? parsed.selected : base.selected,
+      selected: validSelected.length > 0 ? validSelected : base.selected,
       dishes: mergedDishes,
       savedDishIds: parsed.savedDishIds ?? {},
       completed: Boolean(parsed.completed),
@@ -219,6 +222,18 @@ export function Simula({
       if (holdTimer.current) clearInterval(holdTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!showCustom) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setErr("");
+        setShowCustom(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showCustom]);
 
   const stopHold = () => {
     if (holdTimer.current) {
@@ -504,7 +519,10 @@ export function Simula({
     (state.area.trim().length > 0 || state.landmarks.length > 0);
 
   return (
-    <div className="simula stack" data-testid="simula-wizard">
+    <div
+      className={`simula stack ${state.step === 2 ? "simula-ulam" : ""}`}
+      data-testid="simula-wizard"
+    >
       {/* Top Bar: Back button (Steps 2-6 only), 6 progress dots, Skip */}
       <div className="simula-hdr no-print">
         {state.step > 1 ? (
@@ -555,6 +573,11 @@ export function Simula({
       <div className="simula-heading">
         <div className="simula-title-row">
           <h1>{meta.title}</h1>
+          {state.step === 2 && (
+            <span className="ulam-count-pill" data-testid="ulam-selected-count">
+              {state.selected.length} selected
+            </span>
+          )}
         </div>
         <p className="simula-subtitle">{meta.subtitle}</p>
       </div>
@@ -670,79 +693,161 @@ export function Simula({
       {/* STEP 2: ULAM */}
       {state.step === 2 && (
         <div className="simula-body stack">
-          <div className="grid3">
-            {allDishNames.map((name) => {
-              const d = state.dishes[name];
-              const on = state.selected.includes(name);
-              return (
-                <button
-                  key={name}
-                  type="button"
-                  className={`tile ${on ? "on" : ""}`}
-                  aria-pressed={on}
-                  onClick={() => toggleDish(name)}
-                >
-                  <span className="tile-ico">
-                    <Icon name={d.icon} />
-                  </span>
-                  <span className="tile-name">{d.name}</span>
-                </button>
-              );
-            })}
+          <div className="ulam-scroll stack">
+            <div className="grid3">
+              {allDishNames.map((name) => {
+                const d = state.dishes[name];
+                const on = state.selected.includes(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`tile ${on ? "on" : ""}`}
+                    aria-pressed={on}
+                    onClick={() => toggleDish(name)}
+                  >
+                    {on && (
+                      <span className="tile-check" aria-hidden="true">
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                          <path
+                            d="M2.5 6.2L5 8.7L9.5 3.5"
+                            stroke="currentColor"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                    )}
+                    <span className="tile-ico">
+                      <Icon name={d.icon} />
+                    </span>
+                    <span className="tile-name">{d.name}</span>
+                  </button>
+                );
+              })}
 
-            <button
-              type="button"
-              className={`tile custom-tile ${showCustom ? "on" : ""}`}
-              aria-expanded={showCustom}
-              onClick={() => setShowCustom((v) => !v)}
-            >
-              <span className="tile-ico">
-                <Icon name="plus" />
-              </span>
-              <span className="tile-name">Custom</span>
-            </button>
+              <button
+                type="button"
+                className={`tile custom-tile ${showCustom ? "on" : ""}`}
+                aria-expanded={showCustom}
+                aria-haspopup="dialog"
+                onClick={() => {
+                  setErr("");
+                  setShowCustom(true);
+                }}
+              >
+                <span className="tile-ico">
+                  <Icon name="plus" />
+                </span>
+                <span className="tile-name">Custom</span>
+              </button>
+            </div>
+
+            <p className="ulam-hint">Pick any now, you can add more later.</p>
+
+            {err && !showCustom && (
+              <p className="err" role="alert">
+                {err}
+              </p>
+            )}
           </div>
 
           {showCustom && (
-            <div className="card stack">
-              <div>
-                <label htmlFor="custom-dish-name">Custom dish</label>
-                <div className="field-box">
-                  <input
-                    id="custom-dish-name"
-                    type="text"
-                    maxLength={80}
-                    placeholder="e.g. Igado"
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="chips" role="group" aria-label="Dish icon">
-                {CUSTOM_ICONS.map((ic) => (
+            <div
+              className="modal-backdrop"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="custom-dish-modal-title"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setErr("");
+                  setShowCustom(false);
+                }
+              }}
+            >
+              <form
+                className="modal-card stack"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  addCustomDish();
+                }}
+              >
+                <div className="modal-hdr">
+                  <h2 id="custom-dish-modal-title">Add custom ulam</h2>
                   <button
-                    key={ic}
                     type="button"
-                    className={`chip ${customIcon === ic ? "on" : ""}`}
-                    aria-label={ic}
-                    aria-pressed={customIcon === ic}
-                    onClick={() => setCustomIcon(ic)}
+                    className="modal-close"
+                    aria-label="Close"
+                    onClick={() => {
+                      setErr("");
+                      setShowCustom(false);
+                    }}
                   >
-                    <Icon name={ic} />
-                    {ic}
+                    <Icon name="x" />
                   </button>
-                ))}
-              </div>
-              <button type="button" className="btn soft block" onClick={addCustomDish}>
-                <Icon name="plus" /> Add dish
-              </button>
-            </div>
-          )}
+                </div>
 
-          {err && (
-            <p className="err" role="alert">
-              {err}
-            </p>
+                <div className="simula-field">
+                  <label htmlFor="custom-dish-name">Custom dish</label>
+                  <div className="field-box">
+                    <span className="field-ico" aria-hidden="true">
+                      <Icon name={customIcon} />
+                    </span>
+                    <input
+                      id="custom-dish-name"
+                      type="text"
+                      maxLength={80}
+                      placeholder="e.g. Igado"
+                      autoFocus
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label>Dish icon</label>
+                  <div className="chips" role="group" aria-label="Dish icon">
+                    {CUSTOM_ICONS.map((ic) => (
+                      <button
+                        key={ic}
+                        type="button"
+                        className={`chip ${customIcon === ic ? "on" : ""}`}
+                        aria-label={ic}
+                        aria-pressed={customIcon === ic}
+                        onClick={() => setCustomIcon(ic)}
+                      >
+                        <Icon name={ic} />
+                        {ic}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {err && (
+                  <p className="err" role="alert">
+                    {err}
+                  </p>
+                )}
+
+                <div className="row" style={{ marginTop: 4 }}>
+                  <button
+                    type="button"
+                    className="btn soft grow"
+                    onClick={() => {
+                      setErr("");
+                      setShowCustom(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn grow">
+                    <Icon name="plus" /> Add dish
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
 
           <div className="simula-footer">

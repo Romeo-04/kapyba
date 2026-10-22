@@ -3,7 +3,7 @@ import type { Db } from "@/src/db";
 import { dishes, ratings, stalls } from "@/src/db/schema";
 import { publicGate, type Gate } from "@/src/domain/gate";
 import { mainComplaint, mismatch, recsFor, type Rec } from "@/src/domain/recommend";
-import { distinctBuyers, improving, meanScore, tagShares, tone, type Tag, type Tone } from "@/src/domain/scoring";
+import { distinctBuyers, improving, meanScore, tagShares, tone, weeklyTrend, type Tag, type Tone } from "@/src/domain/scoring";
 import { dishKey, neighbourhood, type Kumpara } from "@/src/domain/kumpara";
 import { activeAlokByDish } from "./alok";
 import { manilaDay } from "./ratings";
@@ -55,7 +55,7 @@ export type OwnerDish = {
   id: string; name: string; icon: string; price: number; baseServings: number;
   published: boolean; paborito: boolean;
   /** Everything the owner can see, including ratings under review. */
-  private: { count: number; buyers: number; score: number | null; tone: Tone | null; tagShares: Record<Tag, number>; improving: boolean };
+  private: { count: number; buyers: number; score: number | null; tone: Tone | null; tagShares: Record<Tag, number>; improving: boolean; trend: (number | null)[] };
   /** What the public would see: removed and under-review ratings excluded. */
   gate: Gate;
   /** Same dish at 3+ other qualifying stalls in this area; null otherwise. */
@@ -83,7 +83,7 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
     return {
       id: d.id, name: d.name, icon: d.icon, price: d.price, baseServings: d.baseServings,
       published: d.published, paborito: d.paborito,
-      private: { count: all.length, buyers: distinctBuyers(all), score, tone: score === null ? null : tone(score), tagShares: shares, improving: improving(all, today) },
+      private: { count: all.length, buyers: distinctBuyers(all), score, tone: score === null ? null : tone(score), tagShares: shares, improving: improving(all, today), trend: weeklyTrend(all, today) },
       gate: publicGate(clean.length, distinctBuyers(clean), d.published),
       kumpara: neighbourhood(peers.get(dishKey(d.name)) ?? []),
       flagged: all.length - clean.length,

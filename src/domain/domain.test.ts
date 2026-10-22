@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isActive, remaining, validateAlok } from "./alok";
 import { mainComplaint, mismatch, recsFor, type DishView } from "./recommend";
-import { arc, distinctBuyers, meanScore, packTags, tagShares, tone, unpackTags } from "./scoring";
+import { arc, distinctBuyers, meanScore, packTags, tagShares, tone, unpackTags, weeklyTrend } from "./scoring";
 
 describe("tone and arc", () => {
   it("switches at 4.0 and 3.4", () => {
@@ -115,5 +115,16 @@ describe("improving (Gumaganda)", () => {
   });
   it("ignores ratings outside the 30-day window", () => {
     expect(improving([...rows([4, 4, 4], []), ...[1, 1, 1].map((score) => ({ score, day: "2026-08-01" }))], "2026-10-22")).toBe(false);
+  });
+});
+
+describe("weekly trend", () => {
+  it("averages the last four weeks, oldest first, with null for an empty week", () => {
+    const rows = [
+      { score: 3, day: "2026-10-01" }, { score: 4, day: "2026-10-02" }, // 21 and 20 days ago: the two oldest weeks
+      { score: 5, day: "2026-10-21" }, // 1 day ago: newest week
+      { score: 1, day: "2026-08-01" }, // too old
+    ];
+    expect(weeklyTrend(rows, "2026-10-22")).toEqual([3, 4, null, 5]);
   });
 });

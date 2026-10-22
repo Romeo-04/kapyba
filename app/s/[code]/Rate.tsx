@@ -4,6 +4,8 @@ import { Face } from "@/src/ui/Face";
 import { Icon } from "@/src/ui/Icon";
 import { ICONS, type IconName } from "@/src/ui/icons";
 import type { Tag, Tone } from "@/src/domain/scoring";
+import { enqueue } from "@/src/offline/queue";
+import { useOutbox } from "@/src/offline/useOutbox";
 
 type Dish = { id: string; name: string; icon: string; price: number };
 type Scan = { stall: { name: string; area: string }; dishes: Dish[]; scanToken: string };
@@ -24,7 +26,8 @@ export function Rate({ code }: { code: string }) {
   const [tone, setTone] = useState<Tone | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
   const [key, setKey] = useState("");
-  const [result, setResult] = useState<"sending" | "done" | "already" | "error" | null>(null);
+  const [result, setResult] = useState<"sending" | "done" | "already" | "queued" | "error" | null>(null);
+  const outbox = useOutbox();
 
   useEffect(() => {
     fetch(`/api/s/${code}`)
@@ -45,28 +48,31 @@ export function Rate({ code }: { code: string }) {
     // The same key is reused on a retry, so a slow network never counts a rating twice.
     const k = key || crypto.randomUUID();
     setKey(k);
+    const body = { code, scanToken: scan.scanToken, dishId: dish.id, score: SCORE[t], tags: t === "happy" ? [] : tags, idempotencyKey: k };
     try {
-      const res = await fetch("/api/ratings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, scanToken: scan.scanToken, dishId: dish.id, score: SCORE[t], tags: t === "happy" ? [] : tags, idempotencyKey: k }),
-      });
+      const res = await fetch("/api/ratings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       setResult(res.status === 409 ? "already" : res.ok ? "done" : "error");
       if (res.ok || res.status === 409) setKey("");
     } catch {
-      setResult("error");
+      // No signal: keep the tap and send it when the phone is back online.
+      enqueue(localStorage, { id: k, url: "/api/ratings", body });
+      outbox.refresh();
+      setKey("");
+      setResult("queued");
     }
   }
 
   if (scan === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
   if (scan === "missing") return <p className="err center" style={{ paddingTop: 48 }} role="alert">Hindi mahanap ang stall na ito.</p>;
 
-  if (result === "done" || result === "already") {
+  if (result === "done" || result === "already" || result === "queued") {
     return (
       <div className="stack center" style={{ paddingTop: 64, alignItems: "center" }} role="status">
-        <Face tone={result === "done" ? "happy" : "neutral"} size={96} />
-        <h1>{result === "done" ? "Salamat!" : "Nai-rate mo na ito ngayong araw"}</h1>
-        <p className="mute">{result === "done" ? "Your rating helps the owner cook better." : "One rating per dish per day. Try another dish or come back tomorrow."}</p>
+        <Face tone={result === "already" ? "neutral" : "happy"} size={96} />
+        <h1>{result === "done" ? "Salamat!" : result === "queued" ? "Naka-save ang rating mo" : "Nai-rate mo na ito ngayong araw"}</h1>
+        <p className="mute">
+          {result === "done" ? "Your rating helps the owner cook better." : result === "queued" ? "No signal right now. We will send it when you are back online." : "One rating per dish per day. Try another dish or come back tomorrow."}
+        </p>
         <button className="btn block" onClick={reset}>Rate another dish</button>
       </div>
     );

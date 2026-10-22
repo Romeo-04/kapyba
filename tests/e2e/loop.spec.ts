@@ -44,9 +44,22 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await buyer.getByRole("button", { name: "Masarap", exact: true }).click();
   await expect(buyer.getByText("Nai-rate mo na ito ngayong araw")).toBeVisible();
 
-  // The owner sees exactly one rating.
-  await owner.reload();
-  await expect(owner.getByText("1 ratings · 1 buyers")).toBeVisible();
+  // A third phone loses signal after opening the page: the tap is saved, then sent once when it is back online.
+  const offCtx = await browser.newContext({ baseURL });
+  const off = await offCtx.newPage();
+  await off.goto(`/s/${code}`);
+  await expect(off.getByRole("button", { name: /Adobo/ })).toBeVisible();
+  await offCtx.setOffline(true);
+  await off.getByRole("button", { name: /Adobo/ }).click();
+  await off.getByRole("button", { name: "Masarap", exact: true }).click();
+  await expect(off.getByRole("heading", { name: "Naka-save ang rating mo" })).toBeVisible();
+  await offCtx.setOffline(false);
+  await off.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(async () => {
+    await owner.reload();
+    await expect(owner.getByText("2 ratings · 2 buyers")).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  await offCtx.close();
 
   // End-of-day log: 12 cooked, 9 sold at ₱70 leaves 3 portions, about ₱210.
   await owner.getByLabel("Adobo cooked").fill("12");
@@ -87,7 +100,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
   await owner.getByLabel("What looked wrong?").fill("Looks odd");
   await owner.getByRole("button", { name: "Send report" }).click();
-  await expect(owner.getByText("1 under review").first()).toBeVisible();
+  await expect(owner.getByText("2 ratings are under review").first()).toBeVisible();
 
   // The sign-in link may land on another host than baseURL; keep the session's origin.
   await owner.goto(new URL("/review", owner.url()).href);

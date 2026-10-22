@@ -103,3 +103,10 @@ label { font-size: 13px; font-weight: 700; color: var(--mute); display: block; m
 .skip { position: absolute; left: 8px; top: -60px; z-index: 100; background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 12px; font-weight: 800; }
 .skip:focus { top: 8px; }
 button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
+
+/* Print only the QR card on the last Simula step */
+@media print {
+  body * { visibility: hidden; }
+  .qr-print, .qr-print * { visibility: visible; }
+  .qr-print { position: absolute; inset: 0 auto auto 0; width: 100%; box-shadow: none; }
+}

@@ -11,7 +11,7 @@ import { DishEdit } from "./DishEdit";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
-import { Setup } from "./Setup";
+import { Setup, setupKey } from "./Setup";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
@@ -50,16 +50,16 @@ export function Owner() {
       if (!r.ok) return;
       const list: Summary[] = (await r.json()).dishes;
       setDishes(list);
-      setInSetup((cur) => cur ?? list.length === 0);
+      setInSetup((cur) => cur ?? (list.length === 0 || localStorage.getItem(setupKey(stallId)) !== null));
     });
   }, [stallId, tick]);
 
   if (stalls === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
 
   // A new owner, or one who left before adding any dish, is walked through Simula.
-  if (!stall) return <Setup stall={null} onStall={reload} onDone={reload} />;
+  if (!stall) return <Setup stall={null} dishes={[]} step={1} onStall={reload} onDone={reload} />;
   if (inSetup === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
-  if (inSetup) return <Setup stall={stall} onStall={reload} onDone={() => { setInSetup(false); reload(); }} />;
+  if (inSetup) return <Setup stall={stall} dishes={dishes} step={Math.max(2, Number(localStorage.getItem(setupKey(stall.id))) || 2)} onStall={reload} onDone={() => { setInSetup(false); reload(); }} />;
 
   return (
     <div className="stack">
@@ -80,6 +80,12 @@ export function Owner() {
       )}
 
       {dishes.length === 0 && <p className="mute">Add your first dish below.</p>}
+      {dishes.length > 0 && dishes.every((d) => d.private.count === 0) && (
+        <div className="card stack" data-testid="waiting">
+          <strong>Naghihintay ng unang rating</strong>
+          <p className="mute">Print your QR (it is at the bottom of this page) and put it where customers pay. The first rating shows up here, privately, within seconds.</p>
+        </div>
+      )}
       {dishes.map((d) => (
         <div key={d.id} className="card stack">
           <div className="row">

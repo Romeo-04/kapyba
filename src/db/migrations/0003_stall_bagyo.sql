@@ -1,0 +1,1 @@
+ALTER TABLE "stalls" ADD COLUMN "bagyo_until" timestamp with time zone;

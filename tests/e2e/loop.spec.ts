@@ -78,6 +78,17 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(guest.getByText("Alok", { exact: false })).toHaveCount(0);
   await guestCtx.close();
 
+  // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
+  await owner.getByLabel("What looked wrong?").fill("Looks odd");
+  await owner.getByRole("button", { name: "Send report" }).click();
+  await expect(owner.getByText("1 under review").first()).toBeVisible();
+
+  // The sign-in link may land on another host than baseURL; keep the session's origin.
+  await owner.goto(new URL("/review", owner.url()).href);
+  await expect(owner.getByTestId("review-row")).toContainText("Adobo");
+  await owner.getByRole("button", { name: "Reject" }).click();
+  await expect(owner.getByTestId("review-empty")).toBeVisible();
+
   await ownerCtx.close();
   await buyerCtx.close();
 });

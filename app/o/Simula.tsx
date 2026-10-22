@@ -55,23 +55,29 @@ export const DISH_CATEGORIES: { icon: IconName; label: string }[] = [
 
 const CUSTOM_ICONS: IconName[] = DISH_CATEGORIES.map((c) => c.icon);
 
-const PRESET_DISHES: { name: string; icon: IconName; price: number; defaultOn?: boolean }[] = [
-  { name: "Adobo", icon: "meat", price: 70, defaultOn: true },
-  { name: "Sinigang", icon: "bowl", price: 70, defaultOn: true },
-  { name: "Monggo", icon: "leaf", price: 50, defaultOn: true },
-  { name: "Tinola", icon: "bowl", price: 65, defaultOn: true },
-  { name: "Galunggong", icon: "fish", price: 60, defaultOn: true },
-  { name: "Menudo", icon: "meat", price: 65, defaultOn: true },
-  { name: "Afritada", icon: "meat", price: 65 },
-  { name: "Pinakbet", icon: "leaf", price: 55 },
+const PRESET_DISHES: {
+  name: string;
+  icon: IconName;
+  price: number;
+  baseServings: number;
+  defaultOn?: boolean;
+}[] = [
+  { name: "Adobo", icon: "meat", price: 70, baseServings: 30, defaultOn: true },
+  { name: "Sinigang", icon: "bowl", price: 70, baseServings: 25, defaultOn: true },
+  { name: "Monggo", icon: "leaf", price: 50, baseServings: 20, defaultOn: true },
+  { name: "Tinola", icon: "bowl", price: 65, baseServings: 20, defaultOn: true },
+  { name: "Galunggong", icon: "fish", price: 60, baseServings: 25, defaultOn: true },
+  { name: "Menudo", icon: "meat", price: 65, baseServings: 20, defaultOn: true },
+  { name: "Afritada", icon: "meat", price: 65, baseServings: 20 },
+  { name: "Pinakbet", icon: "leaf", price: 55, baseServings: 15 },
 ];
 
 const STEP_META: Record<number, { title: string; subtitle: string }> = {
   1: { title: "Simula", subtitle: "What’s the name of your store?" },
   2: { title: "Ulam", subtitle: "What do you usually cook?" },
   3: { title: "Presyo", subtitle: "How much is each serving?" },
-  4: { title: "Karaniwan", subtitle: "How many plates do you usually sell?" },
-  5: { title: "Paborito", subtitle: "Pick up to 3 signature dishes" },
+  4: { title: "Karaniwan", subtitle: "How many servings do you sell in a day?" },
+  5: { title: "Paborito", subtitle: "What are your top 3 dishes?" },
   6: { title: "QR", subtitle: "Print and post your QR at the counter" },
 };
 
@@ -82,7 +88,7 @@ function defaultDishesMap(): Record<string, DishConfig> {
       name: p.name,
       icon: p.icon,
       price: p.price,
-      baseServings: 20,
+      baseServings: p.baseServings,
       paborito: false,
     };
   }
@@ -384,7 +390,7 @@ export function Simula({
     setState((prev) => {
       const d = prev.dishes[name];
       if (!d) return prev;
-      const clamped = Math.max(1, Math.min(500, Math.round(servings)));
+      const clamped = Math.max(0, Math.min(500, Math.round(servings)));
       return {
         ...prev,
         dishes: { ...prev.dishes, [name]: { ...d, baseServings: clamped } },
@@ -531,7 +537,17 @@ export function Simula({
 
   return (
     <div
-      className={`simula stack ${state.step === 2 ? "simula-ulam" : ""}`}
+      className={`simula stack ${
+        state.step === 2
+          ? "simula-ulam"
+          : state.step === 3
+            ? "simula-presyo"
+            : state.step === 4
+              ? "simula-karaniwan"
+              : state.step === 5
+                ? "simula-paborito"
+                : ""
+      }`}
       data-testid="simula-wizard"
     >
       {/* Top Bar: Back button (Steps 2-6 only), 6 progress dots, Skip */}
@@ -587,6 +603,16 @@ export function Simula({
           {state.step === 2 && (
             <span className="ulam-count-pill" data-testid="ulam-selected-count">
               {state.selected.length} selected
+            </span>
+          )}
+          {state.step === 5 && (
+            <span className="ulam-count-pill" data-testid="paborito-selected-count">
+              {paboritoCount} / 3
+            </span>
+          )}
+          {state.step === 6 && (
+            <span className="ulam-count-pill" data-testid="qr-step-count">
+              6 / 6
             </span>
           )}
         </div>
@@ -973,44 +999,42 @@ export function Simula({
       {/* STEP 4: KARANIWAN */}
       {state.step === 4 && (
         <div className="simula-body stack">
-          <div className="stack">
-            {selectedDishes.map((d) => (
-              <div key={d.name} className="card stack">
-                <div className="row">
-                  <span className="ico-plate">
-                    <Icon name={d.icon} />
-                  </span>
-                  <strong className="grow">{d.name}</strong>
-                  <span className="price">{d.baseServings} plates</span>
-                </div>
-                <div className="row">
-                  <Icon name="plate" />
-                  <input
-                    type="range"
-                    className="servings-slider grow"
-                    aria-label={`${d.name} servings`}
-                    min={5}
-                    max={60}
-                    step={5}
-                    value={d.baseServings}
-                    onChange={(e) => setServings(d.name, Number(e.target.value))}
-                  />
-                </div>
-                <div className="chips">
-                  {[10, 15, 20, 30, 40].map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      className={`chip chip-sm ${d.baseServings === preset ? "on" : ""}`}
-                      onClick={() => setServings(d.name, preset)}
-                    >
-                      {preset}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
+          <div className="presyo-meta">
+            <span className="presyo-count">Rough estimate</span>
+            <span className="presyo-unit">Servings / day</span>
           </div>
+
+          <div className="karaniwan-list">
+            {selectedDishes.map((d) => {
+              const pct = Math.min(100, Math.max(0, (d.baseServings / 50) * 100));
+              return (
+                <div key={d.name} className="karaniwan-row">
+                  <div className="karaniwan-top">
+                    <strong className="presyo-name">{d.name}</strong>
+                    <span className="karaniwan-val">{d.baseServings} servings / day</span>
+                  </div>
+                  <div className="karaniwan-slider-row">
+                    <span className="karaniwan-ico" aria-hidden="true">
+                      <Icon name="utensils" />
+                    </span>
+                    <input
+                      type="range"
+                      className="karaniwan-slider grow"
+                      aria-label={`${d.name} servings`}
+                      min={0}
+                      max={50}
+                      step={5}
+                      value={d.baseServings}
+                      style={{ "--pct": `${pct}%` } as React.CSSProperties}
+                      onChange={(e) => setServings(d.name, Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="ulam-hint">Just an estimate, you can edit this later.</p>
 
           <div className="simula-footer">
             <button
@@ -1037,38 +1061,42 @@ export function Simula({
       {/* STEP 5: PABORITO */}
       {state.step === 5 && (
         <div className="simula-body stack">
-          <p className="mute">{paboritoCount} / 3 selected</p>
-          <div className="grid3">
-            {selectedDishes.map((d) => {
-              const disabled = !d.paborito && paboritoCount >= 3;
-              return (
-                <button
-                  key={d.name}
-                  type="button"
-                  className={`tile paborito-tile ${d.paborito ? "on" : ""}`}
-                  aria-pressed={d.paborito}
-                  disabled={disabled}
-                  onClick={() => togglePaborito(d.name)}
-                >
-                  {d.paborito && (
-                    <span className="tile-badge" aria-hidden="true">
+          <div className="ulam-scroll stack">
+            <div className="paborito-list">
+              {selectedDishes.map((d) => {
+                const disabled = !d.paborito && paboritoCount >= 3;
+                return (
+                  <button
+                    key={d.name}
+                    type="button"
+                    className={`paborito-row ${d.paborito ? "on" : ""}`}
+                    aria-pressed={d.paborito}
+                    disabled={disabled}
+                    onClick={() => togglePaborito(d.name)}
+                  >
+                    <span className="paborito-ico" aria-hidden="true">
+                      <Icon name={d.icon} />
+                    </span>
+                    <strong className="paborito-name">{d.name}</strong>
+                    <span className="paborito-heart" aria-hidden="true">
                       <Icon name="heart" />
                     </span>
-                  )}
-                  <span className="tile-ico">
-                    <Icon name={d.icon} />
-                  </span>
-                  <span className="tile-name">{d.name}</span>
-                </button>
-              );
-            })}
-          </div>
+                  </button>
+                );
+              })}
+            </div>
 
-          {err && (
-            <p className="err center" role="alert">
-              {err}
+            <p className="ulam-hint paborito-hint">
+              <Icon name="heart" />
+              <span>Your signature picks, not customer ratings.</span>
             </p>
-          )}
+
+            {err && (
+              <p className="err center" role="alert">
+                {err}
+              </p>
+            )}
+          </div>
 
           <div className="simula-footer">
             <button
@@ -1095,47 +1123,192 @@ export function Simula({
 
       {/* STEP 6: QR */}
       {state.step === 6 && state.stall && (
-        <div className="simula-body stack center">
-          <div className="card qr-card stack center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/stalls/${state.stall.id}/qr`}
-              alt="Stall QR code"
-              width={240}
-              height={240}
-              className="qr-img"
-            />
-            <strong>{state.stall.name}</strong>
-            <p className="mute">
-              {state.stall.area} · {state.stall.code}
+        <div className="simula-body qr-step stack">
+          {/* Printable QR Poster Card */}
+          <div className="card qr-card">
+            <div className="qr-card-hdr">
+              <h2 className="qr-stall-name">{state.stall.name}</h2>
+              <p className="qr-stall-area">{state.stall.area}</p>
+            </div>
+
+            <div className="qr-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/stalls/${state.stall.id}/qr`}
+                alt="Stall QR code"
+                width={204}
+                height={204}
+                className="qr-img"
+              />
+              <span className="qr-mascot-badge" aria-hidden="true">
+                <Mascot mood="calm" size={44} />
+              </span>
+            </div>
+
+            <span className="qr-status-pill">
+              Counter QR · {state.stall.code}
+            </span>
+          </div>
+
+          {/* Customer 3-step explanation card */}
+          <div className="qr-flow-card no-print">
+            <p className="qr-flow-title">For customers · after eating</p>
+
+            <div className="qr-flow-steps">
+              <div className="qr-flow-step">
+                <span className="qr-flow-ico" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span className="qr-flow-label">Scan</span>
+              </div>
+
+              <span className="qr-flow-arrow" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3.5 8H12.5M8.5 4L12.5 8L8.5 12"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+
+              <div className="qr-flow-step">
+                <span className="qr-flow-ico" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M7 3v7a3 3 0 0 0 3 3v8M7 3v7M10 3v7M4 3v4a3 3 0 0 0 3 3M17 3v18M17 3c-2.5 0-4 2.5-4 6v3h4"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span className="qr-flow-label">Pick ulam</span>
+              </div>
+
+              <span className="qr-flow-arrow" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3.5 8H12.5M8.5 4L12.5 8L8.5 12"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+
+              <div className="qr-flow-step">
+                <span className="qr-flow-ico" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-4 3v-3H6a2 2 0 0 1-2-2V6z"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M12 13.3s-2.8-1.8-2.8-3.6a1.6 1.6 0 0 1 2.8-1 1.6 1.6 0 0 1 2.8 1c0 1.8-2.8 3.6-2.8 3.6z"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span className="qr-flow-label">Rate / review</span>
+              </div>
+            </div>
+
+            <p className="qr-flow-sub">No install or login needed</p>
+          </div>
+
+          {/* Privacy & Control Callout */}
+          <div className="qr-privacy no-print">
+            <span className="qr-privacy-ico" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3l7 3v5.5c0 4.6-3 7.7-7 9-4-1.3-7-4.4-7-9V6l7-3z"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M9 12.2l2.1 2.1L15.2 10"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <div className="qr-privacy-copy">
+              <strong className="qr-privacy-title">Feedback: private first</strong>
+              <span className="qr-privacy-sub">You are in control.</span>
+            </div>
+          </div>
+
+          {/* Footer Action Row */}
+          <div className="simula-footer qr-footer no-print">
+            <div className="qr-actions">
+              <button
+                type="button"
+                className="btn soft qr-print-btn"
+                onClick={() => window.print()}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M7 8V4h10v4M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v6H7v-6z"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Print</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn primary-cta qr-finish-btn"
+                onClick={handleComplete}
+              >
+                <span>Finish</span>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path
+                    d="M3.5 9.5L7.2 13.2L14.5 5.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <p className="ulam-hint qr-save-note">
+              Saved ·{" "}
+              <a
+                className="qr-download-link"
+                href={`/api/stalls/${state.stall.id}/qr`}
+                download={`kapyba-${state.stall.code}.svg`}
+              >
+                Download QR
+              </a>
             </p>
-          </div>
-
-          <div className="row no-print">
-            <button
-              type="button"
-              className="btn soft grow"
-              onClick={() => window.print()}
-            >
-              <Icon name="qr" /> Print
-            </button>
-            <a
-              className="btn soft grow"
-              href={`/api/stalls/${state.stall.id}/qr`}
-              download={`kapyba-${state.stall.code}.svg`}
-            >
-              Download
-            </a>
-          </div>
-
-          <div className="simula-footer no-print">
-            <button
-              type="button"
-              className="btn block primary-cta"
-              onClick={handleComplete}
-            >
-              <Icon name="check" /> Finish
-            </button>
           </div>
         </div>
       )}

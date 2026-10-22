@@ -12,6 +12,6 @@ export async function GET(req: Request, ctx: RouteContext<"/api/stalls/[id]/qr">
   const stall = await ownedStall(await getDb(), owner, id);
   if (!stall) return NextResponse.json({ error: "not found" }, { status: 404 });
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin;
-  const svg = await QRCode.toString(`${origin}/s/${stall.code}`, { type: "svg", margin: 2, errorCorrectionLevel: "M" });
+  const svg = await QRCode.toString(`${origin}/s/${stall.code}`, { type: "svg", margin: 2, errorCorrectionLevel: "H" });
   return new NextResponse(svg, { headers: { "Content-Type": "image/svg+xml", "Cache-Control": "private, max-age=3600" } });
 }

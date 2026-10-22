@@ -21,6 +21,8 @@ test("the Ulam board loads with an empty state and a budget filter", async ({ pa
 test("a write from another site is refused and pages carry security headers", async ({ request, baseURL }) => {
   const evil = await request.post("/api/auth/request", { headers: { Origin: "https://evil.example" }, data: { email: "a@b.co" } });
   expect(evil.status()).toBe(403);
+  const opaque = await request.post("/api/auth/request", { headers: { Origin: "null" }, data: { email: "a@b.co" } });
+  expect(opaque.status()).toBe(403);
   const home = await request.get("/");
   expect(home.headers()["x-content-type-options"]).toBe("nosniff");
   expect(home.headers()["x-frame-options"]).toBe("DENY");
@@ -46,5 +48,5 @@ test("the app is installable: manifest, icons and service worker are served", as
   for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
   const sw = await request.get("/sw.js");
   expect(sw.status()).toBe(200);
-  expect(await sw.text()).toContain("kb-v1");
+  expect(await sw.text()).toContain("kb-v2");
 });

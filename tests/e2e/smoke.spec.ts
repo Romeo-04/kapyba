@@ -39,3 +39,12 @@ test("the privacy notice shows once, links to the privacy page and stays dismiss
   await expect(page.getByRole("heading", { name: "Privacy" })).toBeVisible();
   await expect(page.getByText("no money is held or paid out")).toBeVisible();
 });
+
+test("the app is installable: manifest, icons and service worker are served", async ({ request }) => {
+  const m = await (await request.get("/manifest.webmanifest")).json();
+  expect(m.display).toBe("standalone");
+  for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
+  const sw = await request.get("/sw.js");
+  expect(sw.status()).toBe(200);
+  expect(await sw.text()).toContain("kb-v1");
+});

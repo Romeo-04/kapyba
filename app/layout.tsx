@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import { Suspense } from "react";
+import { BottomNav, TopBar } from "@/src/ui/Chrome";
 import "./globals.css";
 
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -14,7 +16,13 @@ export const viewport: Viewport = { themeColor: "#7b5544", width: "device-width"
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fil" className={geist.variable}>
-      <body>{children}</body>
+      <body>
+        <TopBar />
+        {children}
+        <Suspense fallback={null}>
+          <BottomNav />
+        </Suspense>
+      </body>
     </html>
   );
 }

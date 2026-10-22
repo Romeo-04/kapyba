@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Capybara } from "@/src/ui/Capybara";
 import { Face } from "@/src/ui/Face";
 import { Icon } from "@/src/ui/Icon";
 import { ICONS, type IconName } from "@/src/ui/icons";
@@ -68,7 +69,7 @@ export function Rate({ code }: { code: string }) {
   if (result === "done" || result === "already" || result === "queued") {
     return (
       <div className="stack center" style={{ paddingTop: 64, alignItems: "center" }} role="status">
-        <Face tone={result === "already" ? "neutral" : "happy"} size={96} />
+        <Capybara mood={result === "already" ? "calm" : "happy"} size={120} />
         <h1>{result === "done" ? "Salamat!" : result === "queued" ? "Naka-save ang rating mo" : "Nai-rate mo na ito ngayong araw"}</h1>
         <p className="mute">
           {result === "done" ? "Your rating helps the owner cook better." : result === "queued" ? "No signal right now. We will send it when you are back online." : "One rating per dish per day. Try another dish or come back tomorrow."}

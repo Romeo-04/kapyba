@@ -15,6 +15,13 @@
       "when": 1792659078982,
       "tag": "0001_large_plazm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792662264488,
+      "tag": "0002_alok_claim_unique",
+      "breakpoints": true
     }
   ]
 }

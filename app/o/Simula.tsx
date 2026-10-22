@@ -610,11 +610,6 @@ export function Simula({
               {paboritoCount} / 3
             </span>
           )}
-          {state.step === 6 && (
-            <span className="ulam-count-pill" data-testid="qr-step-count">
-              6 / 6
-            </span>
-          )}
         </div>
         <p className="simula-subtitle">{meta.subtitle}</p>
       </div>
@@ -685,9 +680,6 @@ export function Simula({
               })}
             </div>
           </div>
-
-          <p className="ulam-hint">You can edit your store details anytime.</p>
-
           {err && (
             <p className="err" role="alert">
               {err}
@@ -769,9 +761,6 @@ export function Simula({
                 <span className="tile-name">Custom</span>
               </button>
             </div>
-
-            <p className="ulam-hint">Pick any now, you can add more later.</p>
-
             {err && !showCustom && (
               <p className="err" role="alert">
                 {err}
@@ -971,9 +960,6 @@ export function Simula({
               </div>
             ))}
           </div>
-
-          <p className="ulam-hint">Set your prices now, you can edit them later.</p>
-
           <div className="simula-footer">
             <button
               type="button"
@@ -1033,9 +1019,6 @@ export function Simula({
               );
             })}
           </div>
-
-          <p className="ulam-hint">Just an estimate, you can edit this later.</p>
-
           <div className="simula-footer">
             <button
               type="button"
@@ -1085,12 +1068,6 @@ export function Simula({
                 );
               })}
             </div>
-
-            <p className="ulam-hint paborito-hint">
-              <Icon name="heart" />
-              <span>Your signature picks, not customer ratings.</span>
-            </p>
-
             {err && (
               <p className="err center" role="alert">
                 {err}

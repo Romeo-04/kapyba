@@ -8,6 +8,7 @@ import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { Alok } from "./Alok";
 import { DishEdit } from "./DishEdit";
+import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
@@ -17,7 +18,7 @@ import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
-  id: string; name: string; icon: string; price: number; baseServings: number; published: boolean; paborito: boolean;
+  id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean;
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
@@ -140,6 +141,10 @@ export function Owner() {
               setMsg(r.ok ? "" : "You can pick up to three Paborito dishes.");
               reload();
             }}><Icon name="heart" />Paborito</button>
+            <button className="btn soft" aria-pressed={d.soldOut} onClick={async () => { await post(`/api/dishes/${d.id}`, { soldOut: !d.soldOut }, "PATCH"); reload(); }}>
+              <Icon name="alert" />Naubos
+            </button>
+            <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
             <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} onDone={reload} />
           </div>
         </div>

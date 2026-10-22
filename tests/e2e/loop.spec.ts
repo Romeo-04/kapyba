@@ -128,6 +128,17 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(guest.getByText("Alok", { exact: false })).toHaveCount(0);
   await guestCtx.close();
 
+  // Naubos and Sale: the owner marks Adobo gone and discounts it; the board shows both.
+  await owner.getByRole("button", { name: "Naubos", exact: true }).click();
+  await owner.getByRole("button", { name: "Sale", exact: true }).click();
+  await owner.getByLabel("Sale price today (₱)").fill("50");
+  await owner.getByRole("button", { name: "Start" }).click();
+  await expect(owner.getByRole("button", { name: /Sale ₱50/ })).toBeVisible();
+  const board = await (await browser.newContext({ baseURL })).newPage();
+  await board.goto("/ulam");
+  await expect(board.getByText("Naubos")).toBeVisible();
+  await board.close();
+
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
   await owner.getByLabel("What looked wrong?").fill("Looks odd");
   await owner.getByRole("button", { name: "Send report" }).click();

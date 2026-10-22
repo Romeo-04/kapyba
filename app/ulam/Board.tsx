@@ -9,6 +9,7 @@ type Item = {
   kind: "scored" | "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number;
   score?: number; count?: number; sulit?: boolean; improving?: boolean;
   alok: { id: string; kind: string; remaining: number; endsAt: string | null } | null;
+  soldOut: boolean; salePrice: number | null;
 };
 
 const BUDGETS = [0, 60, 80, 100];
@@ -56,16 +57,18 @@ export function Board() {
       )}
       <div className="grid">
       {items?.map((d) => (
-        <div key={d.dishId} className="vcard" data-testid="board-card">
+        <div key={d.dishId} className="vcard" data-testid="board-card" style={d.soldOut ? { opacity: 0.55 } : undefined}>
           <div className="photo">
             <Icon name={iconFor(d.icon)} />
             {d.sulit && <span className="ribbon">Sulit</span>}
             <span className="rating"><Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} size={44} /></span>
           </div>
           <div className="body">
-            <div className="title"><strong>{d.name}</strong><span className="price">₱{d.price}</span></div>
+            <div className="title"><strong>{d.name}</strong><span className="price">{d.salePrice !== null ? <><s className="mute">₱{d.price}</s> ₱{d.salePrice}</> : <>₱{d.price}</>}</span></div>
             <div className="mute">{d.stallName} · {d.area}</div>
             <div className="row" style={{ flexWrap: "wrap", marginTop: 2 }}>
+              {d.soldOut && <span className="pill r"><Icon name="alert" />Naubos</span>}
+              {d.salePrice !== null && !d.soldOut && <span className="pill a"><Icon name="tag" />Sale · huling plato</span>}
               {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
               {d.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
               {d.alok && <span className="pill" style={{ background: "#dbe9f6", color: "#2b5d8a" }}><Icon name="tag" />Alok · {d.alok.remaining} left</span>}

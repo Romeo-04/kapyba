@@ -36,6 +36,13 @@
       "when": 1792673175274,
       "tag": "0004_rate_hits",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792678228719,
+      "tag": "0005_dish_naubos_sale",
+      "breakpoints": true
     }
   ]
 }

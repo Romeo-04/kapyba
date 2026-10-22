@@ -7,6 +7,7 @@ import { distinctBuyers, improving, meanScore, tagShares, tone, weeklyTrend, typ
 import { dishKey, neighbourhood, type Kumpara } from "@/src/domain/kumpara";
 import { activeAlokByDish } from "./alok";
 import { manilaDay } from "./ratings";
+import { todayState } from "./stalls";
 
 export const WINDOW_DAYS = 30;
 
@@ -54,6 +55,7 @@ async function peerDishes(db: Db, area: string, exceptStallId: string, now: Date
 export type OwnerDish = {
   id: string; name: string; icon: string; price: number; baseServings: number;
   published: boolean; paborito: boolean;
+  soldOut: boolean; salePrice: number | null;
   /** Everything the owner can see, including ratings under review. */
   private: { count: number; buyers: number; score: number | null; tone: Tone | null; tagShares: Record<Tag, number>; improving: boolean; trend: (number | null)[] };
   /** What the public would see: removed and under-review ratings excluded. */
@@ -82,7 +84,7 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
     const view = { score: score ?? 0, count: all.length, baseServings: d.baseServings, tagShares: shares, bad: mainComplaint(shares) };
     return {
       id: d.id, name: d.name, icon: d.icon, price: d.price, baseServings: d.baseServings,
-      published: d.published, paborito: d.paborito,
+      published: d.published, paborito: d.paborito, ...todayState(d, now),
       private: { count: all.length, buyers: distinctBuyers(all), score, tone: score === null ? null : tone(score), tagShares: shares, improving: improving(all, today), trend: weeklyTrend(all, today) },
       gate: publicGate(clean.length, distinctBuyers(clean), d.published),
       kumpara: neighbourhood(peers.get(dishKey(d.name)) ?? []),
@@ -96,8 +98,8 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
 export type AlokRibbon = { id: string; kind: string; remaining: number; endsAt: string | null };
 
 export type BoardItem =
-  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null }
-  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null };
+  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null }
+  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null };
 
 /**
  * The public Ulam board. Only published dishes that pass the gate show a score; a Paborito
@@ -108,7 +110,7 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
   const conds = [isNull(dishes.archivedAt)];
   if (opts.area) conds.push(eq(stalls.area, opts.area));
   const list = await db
-    .select({ id: dishes.id, name: dishes.name, icon: dishes.icon, price: dishes.price, published: dishes.published, paborito: dishes.paborito, stallName: stalls.name, area: stalls.area })
+    .select({ id: dishes.id, name: dishes.name, icon: dishes.icon, price: dishes.price, published: dishes.published, paborito: dishes.paborito, soldOutDay: dishes.soldOutDay, saleDay: dishes.saleDay, salePrice: dishes.salePrice, stallName: stalls.name, area: stalls.area })
     .from(dishes)
     .innerJoin(stalls, eq(stalls.id, dishes.stallId))
     .where(and(...conds));
@@ -124,9 +126,9 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
     const gate = publicGate(rows.length, distinctBuyers(rows), d.published);
     if (gate.state === "public") {
       const score = meanScore(rows)!;
-      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null });
+      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null, ...todayState(d, now) });
     } else if (d.paborito) {
-      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null });
+      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null, ...todayState(d, now) });
     }
   }
   const prices = scored.map((s) => s.price).sort((a, b) => a - b);

@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Capybara } from "@/src/ui/Capybara";
 import { Icon } from "@/src/ui/Icon";
@@ -6,14 +7,16 @@ import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
 import { Alok } from "./Alok";
+import { DishEdit } from "./DishEdit";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
+import { Setup } from "./Setup";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
-  id: string; name: string; icon: string; price: number; published: boolean; paborito: boolean;
+  id: string; name: string; icon: string; price: number; baseServings: number; published: boolean; paborito: boolean;
   private: { count: number; buyers: number; score: number | null; improving: boolean };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
@@ -25,8 +28,10 @@ const post = (url: string, body: unknown, method = "POST") =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export function Owner() {
+  const router = useRouter();
   const [stalls, setStalls] = useState<Stall[] | null>(null);
   const [dishes, setDishes] = useState<Summary[]>([]);
+  const [inSetup, setInSetup] = useState<boolean | null>(null); // decided once, when the first dish list arrives
   const [msg, setMsg] = useState("");
 
   const [tick, setTick] = useState(0);
@@ -42,29 +47,19 @@ export function Owner() {
   useEffect(() => {
     if (!stallId) return;
     fetch(`/api/stalls/${stallId}/summary`).then(async (r) => {
-      if (r.ok) setDishes((await r.json()).dishes);
+      if (!r.ok) return;
+      const list: Summary[] = (await r.json()).dishes;
+      setDishes(list);
+      setInSetup((cur) => cur ?? list.length === 0);
     });
   }, [stallId, tick]);
 
   if (stalls === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
 
-  if (!stall) {
-    return (
-      <form className="stack" style={{ paddingTop: 24 }} onSubmit={async (e) => {
-        e.preventDefault();
-        const f = new FormData(e.currentTarget);
-        const r = await post("/api/stalls", { name: f.get("name"), area: f.get("area") });
-        if (r.ok) reload(); else setMsg("Add a name and an area.");
-      }}>
-        <h1>Simula</h1>
-        <p className="mute">Set up your stall. Takes about two minutes.</p>
-        <div><label htmlFor="name">Stall name</label><input id="name" name="name" required maxLength={80} placeholder="Karinderya ni Aling Rosa" /></div>
-        <div><label htmlFor="area">Area or school nearby</label><input id="area" name="area" required maxLength={80} placeholder="UST" /></div>
-        {msg && <p className="err" role="alert">{msg}</p>}
-        <button className="btn block">Next</button>
-      </form>
-    );
-  }
+  // A new owner, or one who left before adding any dish, is walked through Simula.
+  if (!stall) return <Setup stall={null} onStall={reload} onDone={reload} />;
+  if (inSetup === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  if (inSetup) return <Setup stall={stall} onStall={reload} onDone={() => { setInSetup(false); reload(); }} />;
 
   return (
     <div className="stack">
@@ -74,6 +69,7 @@ export function Owner() {
           <h1>Ngayon</h1>
           <p>{stall.name} · {stall.area}</p>
         </div>
+        <button className="btn soft" style={{ marginLeft: "auto" }} onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/"); router.refresh(); }}>Sign out</button>
       </div>
       {dishes.length > 0 && (
         <div className="stats">
@@ -111,7 +107,7 @@ export function Owner() {
               <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>
             ))}
           </div>
-          <div className="row">
+          <div className="row" style={{ flexWrap: "wrap" }}>
             <button className="btn soft" aria-pressed={d.published} onClick={async () => { await post(`/api/dishes/${d.id}`, { published: !d.published }, "PATCH"); reload(); }}>
               <Icon name={d.published ? "eye" : "eyeoff"} />{d.published ? "Public" : "Private"}
             </button>
@@ -120,6 +116,7 @@ export function Owner() {
               setMsg(r.ok ? "" : "You can pick up to three Paborito dishes.");
               reload();
             }}><Icon name="heart" />Paborito</button>
+            <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} onDone={reload} />
           </div>
         </div>
       ))}

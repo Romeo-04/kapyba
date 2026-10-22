@@ -1,0 +1,16 @@
+# Local agent workflow kit, never committed
+agent-workflow/
+
+# Dependencies and build output
+node_modules/
+dist/
+.expo/
+web-build/
+
+# Secrets
+.env
+.env.*
+
+# OS and editor
+.DS_Store
+Thumbs.db

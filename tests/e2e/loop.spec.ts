@@ -49,6 +49,10 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   const off = await offCtx.newPage();
   await off.goto(`/s/${code}`);
   await expect(off.getByRole("button", { name: /Adobo/ })).toBeVisible();
+  // Once the service worker is active, a second visit is cached.
+  await off.evaluate(() => navigator.serviceWorker.ready);
+  await off.reload();
+  await expect(off.getByRole("button", { name: /Adobo/ })).toBeVisible();
   await offCtx.setOffline(true);
   await off.getByRole("button", { name: /Adobo/ }).click();
   await off.getByRole("button", { name: "Masarap", exact: true }).click();
@@ -59,6 +63,11 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
     await owner.reload();
     await expect(owner.getByText("2 ratings · 2 buyers")).toBeVisible({ timeout: 1000 });
   }).toPass();
+  // Reopening the page with no signal still shows the dishes from the cached copy.
+  await offCtx.setOffline(true);
+  await off.reload();
+  await expect(off.getByRole("button", { name: /Adobo/ })).toBeVisible();
+  await offCtx.setOffline(false);
   await offCtx.close();
 
   // End-of-day log: 12 cooked, 9 sold at ₱70 leaves 3 portions, about ₱210.

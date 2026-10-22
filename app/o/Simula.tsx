@@ -45,18 +45,26 @@ const LANDMARKS = [
   "UE"
 ] as const;
 
+export const DISH_CATEGORIES: { icon: IconName; label: string }[] = [
+  { icon: "meat", label: "Karne" },
+  { icon: "fish", label: "Isda" },
+  { icon: "bowl", label: "Sabaw" },
+  { icon: "leaf", label: "Gulay" },
+  { icon: "plate", label: "Iba pa" },
+];
+
+const CUSTOM_ICONS: IconName[] = DISH_CATEGORIES.map((c) => c.icon);
+
 const PRESET_DISHES: { name: string; icon: IconName; price: number; defaultOn?: boolean }[] = [
   { name: "Adobo", icon: "meat", price: 70, defaultOn: true },
   { name: "Sinigang", icon: "bowl", price: 70, defaultOn: true },
-  { name: "Monggo", icon: "bean", price: 50, defaultOn: true },
+  { name: "Monggo", icon: "leaf", price: 50, defaultOn: true },
   { name: "Tinola", icon: "bowl", price: 65, defaultOn: true },
   { name: "Galunggong", icon: "fish", price: 60, defaultOn: true },
-  { name: "Menudo", icon: "pot", price: 65, defaultOn: true },
-  { name: "Afritada", icon: "pot", price: 65 },
-  { name: "Pinakbet", icon: "carrot", price: 55 },
+  { name: "Menudo", icon: "meat", price: 65, defaultOn: true },
+  { name: "Afritada", icon: "meat", price: 65 },
+  { name: "Pinakbet", icon: "leaf", price: 55 },
 ];
-
-const CUSTOM_ICONS: IconName[] = ["bowl", "meat", "pot", "fish", "leaf", "carrot", "steak", "egg"];
 
 const STEP_META: Record<number, { title: string; subtitle: string }> = {
   1: { title: "Simula", subtitle: "What’s the name of your store?" },
@@ -161,7 +169,10 @@ export function loadSimulaState(
           paborito: Boolean(v.paborito),
         };
       } else if (v && v.custom) {
-        mergedDishes[k] = v;
+        mergedDishes[k] = {
+          ...v,
+          icon: CUSTOM_ICONS.includes(v.icon) ? v.icon : "plate",
+        };
       }
     }
     const validSelected = Array.isArray(parsed.selected)
@@ -205,7 +216,7 @@ export function Simula({
   const [err, setErr] = useState("");
   const [showCustom, setShowCustom] = useState(false);
   const [customName, setCustomName] = useState("");
-  const [customIcon, setCustomIcon] = useState<IconName>("bowl");
+  const [customIcon, setCustomIcon] = useState<IconName>("meat");
   const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const holdTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -807,19 +818,19 @@ export function Simula({
                 </div>
 
                 <div>
-                  <label>Dish icon</label>
-                  <div className="chips" role="group" aria-label="Dish icon">
-                    {CUSTOM_ICONS.map((ic) => (
+                  <label>Category</label>
+                  <div className="chips" role="group" aria-label="Dish category">
+                    {DISH_CATEGORIES.map(({ icon, label }) => (
                       <button
-                        key={ic}
+                        key={icon}
                         type="button"
-                        className={`chip ${customIcon === ic ? "on" : ""}`}
-                        aria-label={ic}
-                        aria-pressed={customIcon === ic}
-                        onClick={() => setCustomIcon(ic)}
+                        className={`chip ${customIcon === icon ? "on" : ""}`}
+                        aria-label={label}
+                        aria-pressed={customIcon === icon}
+                        onClick={() => setCustomIcon(icon)}
                       >
-                        <Icon name={ic} />
-                        {ic}
+                        <Icon name={icon} />
+                        {label}
                       </button>
                     ))}
                   </div>
@@ -876,16 +887,24 @@ export function Simula({
       {/* STEP 3: PRESYO */}
       {state.step === 3 && (
         <div className="simula-body stack">
-          <div className="stack">
+          <div className="presyo-meta">
+            <span className="presyo-count" data-testid="presyo-dish-count">
+              {selectedDishes.length} ulam
+            </span>
+            <span className="presyo-unit">₱ / plate</span>
+          </div>
+
+          <div className="presyo-list">
             {selectedDishes.map((d) => (
-              <div key={d.name} className="card row">
-                <span className="ico-plate">
+              <div key={d.name} className="presyo-row">
+                <span className="presyo-ico" aria-hidden="true">
                   <Icon name={d.icon} />
                 </span>
-                <strong className="grow">{d.name}</strong>
-                <div className="stepper">
+                <strong className="presyo-name grow">{d.name}</strong>
+                <div className="presyo-stepper">
                   <button
                     type="button"
+                    className="presyo-step-btn minus"
                     aria-label={`Decrease ${d.name} price`}
                     onClick={() => adjustPrice(d.name, -5)}
                     onPointerDown={() => {
@@ -897,15 +916,23 @@ export function Simula({
                   >
                     <Icon name="minus" />
                   </button>
-                  <div className="price-input-wrap">
-                    <span className="peso-prefix">₱</span>
+                  <div className="presyo-price-wrap">
+                    <span className="presyo-peso" aria-hidden="true">
+                      ₱
+                    </span>
                     <input
                       type="number"
                       inputMode="numeric"
                       aria-label={`${d.name} price`}
-                      className="price-input"
+                      className="presyo-input"
                       min={1}
                       max={10000}
+                      style={{
+                        width: `${Math.max(
+                          2,
+                          String(d.name in priceDrafts ? priceDrafts[d.name] : d.price).length,
+                        )}ch`,
+                      }}
                       value={d.name in priceDrafts ? priceDrafts[d.name] : d.price}
                       onChange={(e) => handlePriceChange(d.name, e.target.value)}
                       onBlur={() => handlePriceBlur(d.name)}
@@ -913,6 +940,7 @@ export function Simula({
                   </div>
                   <button
                     type="button"
+                    className="presyo-step-btn plus"
                     aria-label={`Increase ${d.name} price`}
                     onClick={() => adjustPrice(d.name, 5)}
                     onPointerDown={() => {
@@ -928,6 +956,8 @@ export function Simula({
               </div>
             ))}
           </div>
+
+          <p className="ulam-hint">Your prices · you can edit later</p>
 
           <div className="simula-footer">
             <button

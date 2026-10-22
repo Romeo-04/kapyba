@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Icon } from "@/src/ui/Icon";
-import type { IconName } from "@/src/ui/icons";
 import { Mascot } from "@/src/ui/Mascot";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
@@ -9,7 +8,7 @@ import { Alok } from "./Alok";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
-import { loadSimulaState, Simula } from "./Simula";
+import { DISH_CATEGORIES, loadSimulaState, Simula } from "./Simula";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
@@ -20,7 +19,6 @@ type Summary = {
   flagged: number; pansin: number; recs: { icon: string; dir: "up" | "down"; word: string }[];
 };
 
-const DISH_ICONS: IconName[] = ["bowl", "meat", "fish", "leaf", "plate"];
 const post = (url: string, body: unknown, method = "POST") =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
@@ -154,8 +152,8 @@ export function Owner() {
           <div className="grow"><label htmlFor="dprice">Price (₱)</label><input id="dprice" name="price" type="number" inputMode="numeric" min={1} max={10000} required /></div>
           <div className="grow"><label htmlFor="dserv">Servings a day</label><input id="dserv" name="servings" type="number" inputMode="numeric" min={0} max={1000} /></div>
         </div>
-        <div><label htmlFor="dicon">Icon</label>
-          <select id="dicon" name="icon">{DISH_ICONS.map((i) => <option key={i} value={i}>{i}</option>)}</select>
+        <div><label htmlFor="dicon">Category</label>
+          <select id="dicon" name="icon">{DISH_CATEGORIES.map((c) => <option key={c.icon} value={c.icon}>{c.label}</option>)}</select>
         </div>
         <button className="btn block"><Icon name="plus" />Add</button>
       </form>

@@ -66,3 +66,18 @@ describe("daily log", () => {
     expect(await bukasPlan(db, other, stallId, NOW)).toBeNull();
   });
 });
+
+describe("daily log for an earlier day", () => {
+  it("accepts today or the last 3 days and rejects the future, old or malformed days", async () => {
+    const db = await testDb();
+    const owner = (await consumeLink(db, (await requestLink(db, "a@x.co"))!))!;
+    const stallId = (await createStall(db, owner, { name: "Rosa", area: "UST" }))!.id;
+    const dishId = (await addDish(db, owner, stallId, { name: "Adobo", icon: "adobo", price: 70 }))!.id;
+    const e = [{ dishId, cooked: 5, sold: 4 }];
+    expect(await saveDay(db, owner, stallId, e, NOW, "2026-10-21")).toEqual({ day: "2026-10-21" });
+    expect(await saveDay(db, owner, stallId, e, NOW, "2026-10-19")).toEqual({ day: "2026-10-19" });
+    expect(await saveDay(db, owner, stallId, e, NOW, "2026-10-18")).toBeNull();
+    expect(await saveDay(db, owner, stallId, e, NOW, "2026-10-23")).toBeNull();
+    expect(await saveDay(db, owner, stallId, e, NOW, "yesterday")).toBeNull();
+  });
+});

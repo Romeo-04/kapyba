@@ -62,6 +62,22 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("palengke-total")).toContainText("likely total");
   await expect(owner.getByRole("note")).toContainText("placeholder estimate");
 
+  // Alok: the owner picks Adobo as Paborito (so it shows on the board) and posts a one-plate deal.
+  await owner.getByRole("button", { name: "Paborito" }).click();
+  await owner.getByLabel("Limit").fill("1");
+  await owner.getByRole("button", { name: "Post deal" }).click();
+  await expect(owner.getByTestId("alok-row")).toContainText("1 of 1 left");
+
+  // A phone that never scanned the QR opens the board, sees the ribbon and reserves the deal.
+  const guestCtx = await browser.newContext({ baseURL });
+  const guest = await guestCtx.newPage();
+  await guest.goto("/ulam");
+  await expect(guest.getByText("Alok · 1 left")).toBeVisible();
+  await guest.getByRole("button", { name: "Kunin ang deal" }).click();
+  await expect(guest.getByRole("status")).toContainText("Reserved");
+  await expect(guest.getByText("Alok", { exact: false })).toHaveCount(0);
+  await guestCtx.close();
+
   await ownerCtx.close();
   await buyerCtx.close();
 });

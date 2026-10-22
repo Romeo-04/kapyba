@@ -1,8 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Baloo_2, Fredoka, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const baloo = Baloo_2({
+  variable: "--font-baloo",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "KapyBa",
@@ -13,7 +29,7 @@ export const viewport: Viewport = { themeColor: "#7b5544", width: "device-width"
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fil" className={geist.variable}>
+    <html lang="fil" className={`${baloo.variable} ${fredoka.variable} ${plusJakartaSans.variable}`}>
       <body>{children}</body>
     </html>
   );

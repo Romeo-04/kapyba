@@ -10,7 +10,18 @@ web-build/
 # Secrets
 .env
 .env.*
+!.env.example
 
 # OS and editor
 .DS_Store
 Thumbs.db
+
+# Next.js and tests
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.vercel
+.playwright-mcp/

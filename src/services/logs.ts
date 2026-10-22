@@ -2,6 +2,7 @@ import { and, eq, gte, inArray } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { dailyLogs, dishes } from "@/src/db/schema";
 import { suggest } from "@/src/domain/bukas";
+import { simulatedFund } from "@/src/domain/weather";
 import { ownerSummary } from "./aggregates";
 import { manilaDay } from "./ratings";
 import { ownedStall } from "./stalls";
@@ -76,4 +77,18 @@ export async function bukasPlan(db: Db, ownerId: string, stallId: string, now = 
       plan: suggest({ baseServings: d.baseServings, logs: mine, score: d.private.score, count: d.private.count }, factor),
     };
   });
+}
+
+/** Simulated Bagyo Fund figure from the last 7 logged days of sales (sold times usual price). Null if nothing was logged. */
+export async function fundSimulation(db: Db, ownerId: string, stallId: string, now = new Date()) {
+  if (!(await ownedStall(db, ownerId, stallId))) return null;
+  const since = manilaDay(new Date(now.getTime() - 6 * 86_400_000));
+  const rows = await db
+    .select({ day: dailyLogs.day, sold: dailyLogs.sold, price: dishes.price })
+    .from(dailyLogs)
+    .innerJoin(dishes, eq(dishes.id, dailyLogs.dishId))
+    .where(and(eq(dailyLogs.stallId, stallId), gte(dailyLogs.day, since)));
+  const byDay = new Map<string, number>();
+  for (const r of rows) byDay.set(r.day, (byDay.get(r.day) ?? 0) + r.sold * r.price);
+  return { pesos: simulatedFund([...byDay.values()]), days: byDay.size };
 }

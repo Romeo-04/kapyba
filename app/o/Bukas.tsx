@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Icon } from "@/src/ui/Icon";
 
 type Weather = { rainChance: number | null; bagyo: boolean; factor: number };
 type Row = { dishId: string; name: string; plan: { servings: number; yesterday: number | null; reasons: string[] } | null };
@@ -11,6 +12,7 @@ const WHY: Record<string, string> = {
 export function Bukas({ stallId, refresh }: { stallId: string; refresh: number }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [weather, setWeather] = useState<Weather | null>(null);
+  const [fund, setFund] = useState<{ pesos: number | null; days: number } | null>(null);
   const [tick, setTick] = useState(0);
   useEffect(() => {
     fetch(`/api/stalls/${stallId}/bukas`).then(async (r) => {
@@ -18,6 +20,7 @@ export function Bukas({ stallId, refresh }: { stallId: string; refresh: number }
       const j = await r.json();
       setRows(j.dishes);
       setWeather(j.weather);
+      setFund(j.fund);
     });
   }, [stallId, refresh, tick]);
 
@@ -41,6 +44,17 @@ export function Bukas({ stallId, refresh }: { stallId: string; refresh: number }
           <button type="button" className="btn soft" aria-pressed={weather.bagyo} onClick={toggleBagyo}>
             {weather.bagyo ? "Turn off Bagyo" : "Bagyo mode"}
           </button>
+        </div>
+      )}
+      {fund && (
+        <div className="card row" style={{ background: "#dbe9f6", alignItems: "center" }} data-testid="fund-card">
+          <span style={{ color: "#2b5d8a" }}><Icon name="shield" className="lg" /></span>
+          <div className="grow">
+            <span className="pill" style={{ background: "#fff", color: "#2b5d8a" }}>Simulasyon</span>
+            {fund.pesos !== null
+              ? <p><strong>₱{fund.pesos}</strong> <span className="mute">is half of your average daily sales over {fund.days} logged {fund.days === 1 ? "day" : "days"}. Just an example of what a storm-day fund could look like. No money is held or paid out. The half is our assumption.</span></p>
+              : <p className="mute">Log a day of sales in Natira to see an example. No money is held or paid out.</p>}
+          </div>
         </div>
       )}
       {rows.map((r) => (

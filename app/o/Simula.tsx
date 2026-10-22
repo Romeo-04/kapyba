@@ -402,7 +402,11 @@ export function Simula({
     try {
       const r = await post("/api/stalls", { name, area });
       if (!r.ok) {
-        setErr("Please enter your store name and location.");
+        if (r.status === 401) {
+          setErr("Your session expired. Please sign in again.");
+        } else {
+          setErr("Could not save your store right now. Please try again.");
+        }
         return;
       }
       const data = await r.json();

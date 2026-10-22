@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import type { Db } from "@/src/db";
-import { dishes, stalls } from "@/src/db/schema";
+import { dishes, owners, stalls } from "@/src/db/schema";
 
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no look-alikes (i, l, o, 0, 1)
 
@@ -17,6 +17,7 @@ export async function createStall(db: Db, ownerId: string, input: { name: unknow
   const name = clean(input.name, 80);
   const area = clean(input.area, 80);
   if (!name || !area) return null;
+  await db.insert(owners).values({ id: ownerId, email: `${ownerId}@session.local` }).onConflictDoNothing();
   const [row] = await db.insert(stalls).values({ ownerId, name, area, code: newStallCode() }).returning();
   return row;
 }

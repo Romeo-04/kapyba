@@ -6,15 +6,15 @@ import * as schema from "./schema";
 // Services take this type so tests can pass an in-process Postgres (PGlite) and production passes Neon.
 export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 
-let cached: Promise<Db> | undefined;
+const globalForDb = globalThis as unknown as { __kapybaDb?: Promise<Db> };
 
 /**
  * DATABASE_URL is a Neon connection string. For local development and CI only, the value
  * "pglite:memory" runs a throwaway in-process Postgres with every migration applied.
  */
 export function getDb(): Promise<Db> {
-  cached ??= open();
-  return cached;
+  globalForDb.__kapybaDb ??= open();
+  return globalForDb.__kapybaDb;
 }
 
 async function open(): Promise<Db> {

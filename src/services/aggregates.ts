@@ -1,9 +1,10 @@
-import { and, eq, gte, inArray, isNull } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, ne } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { dishes, ratings, stalls } from "@/src/db/schema";
 import { publicGate, type Gate } from "@/src/domain/gate";
 import { mainComplaint, mismatch, recsFor, type Rec } from "@/src/domain/recommend";
 import { distinctBuyers, improving, meanScore, tagShares, tone, type Tag, type Tone } from "@/src/domain/scoring";
+import { dishKey, neighbourhood, type Kumpara } from "@/src/domain/kumpara";
 import { activeAlokByDish } from "./alok";
 import { manilaDay } from "./ratings";
 
@@ -23,6 +24,33 @@ async function windowRows(db: Db, dishIds: string[], now: Date, statuses: string
   return out;
 }
 
+/**
+ * Other stalls' published dishes in the same area that pass the public gate on clean ratings,
+ * grouped by dish name. One entry per stall (its strongest matching dish), so a stall cannot count twice.
+ */
+async function peerDishes(db: Db, area: string, exceptStallId: string, now: Date) {
+  const rows = await db
+    .select({ id: dishes.id, name: dishes.name, stallId: dishes.stallId })
+    .from(dishes)
+    .innerJoin(stalls, eq(stalls.id, dishes.stallId))
+    .where(and(eq(stalls.area, area), ne(stalls.id, exceptStallId), eq(dishes.published, true), isNull(dishes.archivedAt)));
+  const byDish = await windowRows(db, rows.map((r) => r.id), now, ["ok"]);
+  const best = new Map<string, { count: number; score: number; tagShares: ReturnType<typeof tagShares> }>(); // key: dish name + stall
+  const out = new Map<string, { score: number; tagShares: ReturnType<typeof tagShares> }[]>();
+  for (const r of rows) {
+    const rs = byDish.get(r.id) ?? [];
+    if (publicGate(rs.length, distinctBuyers(rs), true).state !== "public") continue;
+    const k = `${dishKey(r.name)}|${r.stallId}`;
+    if (best.has(k) && best.get(k)!.count >= rs.length) continue;
+    best.set(k, { count: rs.length, score: meanScore(rs)!, tagShares: tagShares(rs) });
+  }
+  for (const [k, v] of best) {
+    const name = k.slice(0, k.lastIndexOf("|"));
+    (out.get(name) ?? out.set(name, []).get(name)!).push({ score: v.score, tagShares: v.tagShares });
+  }
+  return out;
+}
+
 export type OwnerDish = {
   id: string; name: string; icon: string; price: number; baseServings: number;
   published: boolean; paborito: boolean;
@@ -30,6 +58,8 @@ export type OwnerDish = {
   private: { count: number; buyers: number; score: number | null; tone: Tone | null; tagShares: Record<Tag, number>; improving: boolean };
   /** What the public would see: removed and under-review ratings excluded. */
   gate: Gate;
+  /** Same dish at 3+ other qualifying stalls in this area; null otherwise. */
+  kumpara: Kumpara | null;
   flagged: number;
   pansin: -1 | 0 | 1;
   recs: Rec[];
@@ -37,11 +67,12 @@ export type OwnerDish = {
 
 /** The owner's private view of one stall (UX O1 and O2). Returns null if the stall is not theirs. */
 export async function ownerSummary(db: Db, ownerId: string, stallId: string, now = new Date()): Promise<OwnerDish[] | null> {
-  const [stall] = await db.select({ id: stalls.id }).from(stalls).where(and(eq(stalls.id, stallId), eq(stalls.ownerId, ownerId)));
+  const [stall] = await db.select({ id: stalls.id, area: stalls.area }).from(stalls).where(and(eq(stalls.id, stallId), eq(stalls.ownerId, ownerId)));
   if (!stall) return null;
   const list = await db.select().from(dishes).where(and(eq(dishes.stallId, stallId), isNull(dishes.archivedAt)));
   const byDish = await windowRows(db, list.map((d) => d.id), now, ["ok", "flagged"]);
   const today = manilaDay(now);
+  const peers = await peerDishes(db, stall.area, stallId, now);
 
   return list.map((d) => {
     const all = byDish.get(d.id) ?? [];
@@ -54,6 +85,7 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
       published: d.published, paborito: d.paborito,
       private: { count: all.length, buyers: distinctBuyers(all), score, tone: score === null ? null : tone(score), tagShares: shares, improving: improving(all, today) },
       gate: publicGate(clean.length, distinctBuyers(clean), d.published),
+      kumpara: neighbourhood(peers.get(dishKey(d.name)) ?? []),
       flagged: all.length - clean.length,
       pansin: score === null ? 0 : mismatch(view),
       recs: score === null ? [] : recsFor(view),

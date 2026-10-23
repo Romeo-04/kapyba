@@ -14,7 +14,7 @@ import type { Item } from "./Board";
 type Testimony = { text: string; score: number; at: string };
 
 /** The card that opens when an ulam is tapped: photo, what is in it, what customers said. */
-export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserved: boolean; onReserve: () => void; onClose: () => void }) {
+export function DishSheet({ d, reserved, onReserve, onClose, fromStall = false }: { d: Item; reserved: boolean; onReserve: () => void; onClose: () => void; fromStall?: boolean }) {
   const [notes, setNotes] = useState<Testimony[] | null>(null);
   const [now] = useState(() => Date.now());
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -50,7 +50,7 @@ export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserv
             <div className="grow">
               <h2>{d.name}</h2>
               <div className="mute">{d.stallName} · {d.area}</div>
-              <a href={`/ulam/stall/${d.stallId}`}>About this karinderya</a>
+              {!fromStall && <a href={`/ulam/stall/${d.stallId}`}>About this karinderya</a>}
             </div>
             <span className="price">{d.salePrice !== null ? <><s className="mute">₱{d.price}</s> ₱{d.salePrice}</> : <>₱{d.price}</>}</span>
           </div>

@@ -31,7 +31,7 @@ test("a write from another site is refused and pages carry security headers", as
 });
 
 test("the privacy notice shows once, links to the privacy page and stays dismissed", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/owner");
   await expect(page.getByTestId("privacy-note")).toBeVisible();
   await page.getByTestId("privacy-note").getByRole("button", { name: "OK" }).click();
   await expect(page.getByTestId("privacy-note")).toHaveCount(0);
@@ -49,4 +49,15 @@ test("the app is installable: manifest, icons and service worker are served", as
   const sw = await request.get("/sw.js");
   expect(sw.status()).toBe(200);
   expect(await sw.text()).toContain("kb-v2");
+});
+
+test("the front door is the Ulam board; first-time buyers see a short guide that stays dismissed", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Ulam", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Owner" })).toBeVisible();
+  await expect(page.getByTestId("board-intro")).toContainText("Scan the stall's QR code");
+  await page.getByTestId("board-intro").getByRole("button", { name: "Got it" }).click();
+  await expect(page.getByTestId("board-intro")).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("board-intro")).toHaveCount(0);
 });

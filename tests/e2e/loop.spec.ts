@@ -9,7 +9,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Owner signs in with the emailed link.
   const ownerCtx = await browser.newContext({ baseURL });
   const owner = await ownerCtx.newPage();
-  await owner.goto("/");
+  await owner.goto("/owner");
   await owner.getByLabel("Owner sign-in").fill("rosa@example.com");
   await owner.getByRole("button", { name: "Send link" }).click();
   await expect(owner.getByText("Check your email")).toBeVisible();
@@ -142,7 +142,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // Home shows the stall's numbers as charts: ratings, leftover pesos and tomorrow's servings.
   const home = await owner.context().newPage();
-  await home.goto(new URL("/", owner.url()).href);
+  await home.goto(new URL("/owner", owner.url()).href);
   await expect(home.getByTestId("home-dash")).toContainText("ratings");
   await expect(home.getByTestId("home-dash")).toContainText("₱225");
   await expect(home.getByTestId("home-tomorrow")).toContainText("servings");
@@ -246,7 +246,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByRole("button", { name: "Sign out" }).click();
   await expect(owner.getByRole("button", { name: "Send link" })).toBeVisible();
   await owner.goto(new URL("/o", owner.url()).href);
-  await expect(owner).toHaveURL(/\/$/);
+  await expect(owner).toHaveURL(/\/owner$/);
 
   await ownerCtx.close();
   await buyerCtx.close();
@@ -254,7 +254,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
 test("signed-out visitors cannot open the owner page", async ({ page }) => {
   await page.goto("/o");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/owner$/);
 });
 
 test("an unknown stall code shows a not-found message", async ({ page }) => {
@@ -267,7 +267,7 @@ test("two devices that sign in with different emails get separate accounts", asy
   const signIn = async (email: string) => {
     const ctx = await browser.newContext({ baseURL });
     const page = await ctx.newPage();
-    await page.goto("/");
+    await page.goto("/owner");
     await page.getByLabel("Owner sign-in").fill(email);
     await page.getByRole("button", { name: "Send link" }).click();
     await expect(page.getByText("Check your email")).toBeVisible();

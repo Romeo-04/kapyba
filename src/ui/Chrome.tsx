@@ -22,9 +22,9 @@ export function TopBar() {
 }
 
 const TABS: { href: string; icon: IconName; label: string; match: (p: string) => boolean }[] = [
-  { href: "/ulam", icon: "board", label: "Ulam", match: (p) => p.startsWith("/ulam") },
+  { href: "/", icon: "board", label: "Ulam", match: (p) => p === "/" || p.startsWith("/ulam") },
   { href: "/o", icon: "store", label: "My stall", match: (p) => p === "/o" || p.startsWith("/o/") || p.startsWith("/review") },
-  { href: "/", icon: "home", label: "Home", match: (p) => p === "/" },
+  { href: "/owner", icon: "home", label: "Owner", match: (p) => p === "/owner" },
 ];
 
 /** Bottom tab bar. Hidden on the rating page, where the buyer has one job. */
@@ -36,7 +36,7 @@ export function BottomNav() {
       {TABS.map((t) => (
         <Link key={t.href} href={t.href} aria-current={t.match(path) ? "page" : undefined}>
           <Icon name={t.icon} />
-          <span>{t.label}</span>
+          <span>{t.href === "/owner" && path.startsWith("/ulam/stall") ? "Home" : t.label}</span>
         </Link>
       ))}
     </nav>

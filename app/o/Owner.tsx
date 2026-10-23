@@ -254,7 +254,7 @@ export function Owner() {
         <img src={`/api/stalls/${stall.id}/qr`} alt="Stall QR code" width={220} height={220} />
         <a className="btn soft" href={`/api/stalls/${stall.id}/qr`} download={`kapyba-${stall.code}.svg`}>Download</a>
       </div>
-      <button className="btn soft block" onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/"); router.refresh(); }}>Sign out</button>
+      <button className="btn soft block" onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/owner"); router.refresh(); }}>Sign out</button>
       </>}
       </div>
     </div>

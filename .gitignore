@@ -26,3 +26,7 @@ playwright-report/
 .vercel
 .playwright-mcp/
 .neon
+
+# Local pitch deck
+docs/KapyBa-pitch.pptx
+docs/~$*.pptx

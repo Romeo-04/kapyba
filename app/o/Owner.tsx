@@ -146,7 +146,7 @@ export function Owner() {
       <div className="stack" id="owner-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} key={tab}>
       {tab === "ngayon" && <>
       {dishes.length > 0 && (
-        <div className="stats">
+        <div className="stats two">
           <div className="stat"><strong>{dishes.reduce((s, d) => s + d.private.count, 0)}</strong><span>ratings</span></div>
           <div className="stat"><strong>{dishes.filter((d) => d.gate.state === "public").length}/{dishes.length}</strong><span>dishes scored</span></div>
         </div>

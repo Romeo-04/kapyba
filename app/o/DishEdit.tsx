@@ -28,7 +28,7 @@ export function DishEdit({ id, name, price, servings, main, ingredients, allerge
       <div><label htmlFor={`m-${id}`}>Main ingredient</label>
         <select id={`m-${id}`} name="main" defaultValue={main ?? ""}><option value="">None</option>{MAINS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}</select>
       </div>
-      <div><label htmlFor={`i-${id}`}>Ingredients (optional)</label><input id={`i-${id}`} name="ingredients" defaultValue={ingredients ?? ""} maxLength={200} placeholder="Manok, toyo, suka, bawang" /></div>
+      <div><label htmlFor={`i-${id}`}>Ingredients (optional)</label><input id={`i-${id}`} name="ingredients" defaultValue={ingredients ?? ""} maxLength={200} placeholder="Chicken, soy sauce, vinegar, garlic" /></div>
       <AllergenPick prefix={`al-${id}`} value={allergens} />
       {err && <p className="err" role="alert">{err}</p>}
       <div className="row">

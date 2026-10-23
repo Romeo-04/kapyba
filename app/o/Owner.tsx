@@ -249,7 +249,7 @@ export function Owner() {
         <div><label htmlFor="dmain">Main ingredient (optional)</label>
           <select id="dmain" name="main"><option value="">None</option>{MAINS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}</select>
         </div>
-        <div><label htmlFor="dingr">Ingredients (optional)</label><input id="dingr" name="ingredients" maxLength={200} placeholder="Manok, toyo, suka, bawang" /></div>
+        <div><label htmlFor="dingr">Ingredients (optional)</label><input id="dingr" name="ingredients" maxLength={200} placeholder="Chicken, soy sauce, vinegar, garlic" /></div>
         <AllergenPick prefix="dall" />
         <div><label htmlFor="dicon">Icon</label>
           <select id="dicon" name="icon">{DISH_ICONS.map((i) => <option key={i} value={i}>{i}</option>)}</select>

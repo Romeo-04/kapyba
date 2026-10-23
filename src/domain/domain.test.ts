@@ -52,16 +52,16 @@ describe("mismatch and recommendations", () => {
     expect(recsFor(view({ count: 9, bad: "salt" }))).toEqual([]);
   });
   it("maps the main complaint to a card", () => {
-    expect(recsFor(view({ bad: "salt" }))[0]).toEqual({ icon: "salt", dir: "down", word: "Bawasan" });
-    expect(recsFor(view({ bad: "plate" }))[0].word).toBe("Dagdagan");
-    expect(recsFor(view({ bad: "flame" }))[0].word).toBe("Painitin");
+    expect(recsFor(view({ bad: "salt" }))[0]).toEqual({ icon: "salt", dir: "down", word: "Less salt" });
+    expect(recsFor(view({ bad: "plate" }))[0].word).toBe("Bigger serving");
+    expect(recsFor(view({ bad: "flame" }))[0].word).toBe("Serve hotter");
   });
-  it("adds Konti, Dagdag and Taasan and caps at three", () => {
-    expect(recsFor(view({ score: 3, baseServings: 12 })).map((r) => r.word)).toContain("Konti");
-    expect(recsFor(view({ score: 4.5, baseServings: 5 })).map((r) => r.word)).toContain("Dagdag");
+  it("adds Cook less, Cook more and Raise price and caps at three", () => {
+    expect(recsFor(view({ score: 3, baseServings: 12 })).map((r) => r.word)).toContain("Cook less");
+    expect(recsFor(view({ score: 4.5, baseServings: 5 })).map((r) => r.word)).toContain("Cook more");
     const all = recsFor(view({ score: 4.5, baseServings: 5, bad: "salt", tagShares: { salt: 0.4, plate: 0, flame: 0, coin: 0.9, leaf: 0, alert: 0, chili: 0, clock: 0 } }));
     expect(all.length).toBeLessThanOrEqual(3);
-    expect(all.map((r) => r.word)).toContain("Taasan");
+    expect(all.map((r) => r.word)).toContain("Raise price");
   });
   it("picks the strongest complaint above 30%", () => {
     expect(mainComplaint({ salt: 0.29, plate: 0.1, flame: 0, coin: 0, leaf: 0, alert: 0, chili: 0, clock: 0 })).toBeNull();

@@ -34,16 +34,16 @@ export type Rec = { icon: Tag; dir: "up" | "down"; word: string };
 export function recsFor(d: DishView): Rec[] {
   if (d.count < MIN_RATINGS) return [];
   const r: Rec[] = [];
-  if (d.bad === "salt") r.push({ icon: "salt", dir: "down", word: "Bawasan" });
-  if (d.bad === "plate") r.push({ icon: "plate", dir: "up", word: "Dagdagan" });
-  if (d.bad === "flame") r.push({ icon: "flame", dir: "up", word: "Painitin" });
-  if (d.bad === "leaf") r.push({ icon: "leaf", dir: "up", word: "Sariwain" });
-  if (d.bad === "alert") r.push({ icon: "alert", dir: "down", word: "Lambutin" });
-  if (d.bad === "chili") r.push({ icon: "chili", dir: "down", word: "Bawasan" });
-  if (d.bad === "clock") r.push({ icon: "clock", dir: "down", word: "Bilisan" });
+  if (d.bad === "salt") r.push({ icon: "salt", dir: "down", word: "Less salt" });
+  if (d.bad === "plate") r.push({ icon: "plate", dir: "up", word: "Bigger serving" });
+  if (d.bad === "flame") r.push({ icon: "flame", dir: "up", word: "Serve hotter" });
+  if (d.bad === "leaf") r.push({ icon: "leaf", dir: "up", word: "Fresher" });
+  if (d.bad === "alert") r.push({ icon: "alert", dir: "down", word: "Less overcooked" });
+  if (d.bad === "chili") r.push({ icon: "chili", dir: "down", word: "Less spicy" });
+  if (d.bad === "clock") r.push({ icon: "clock", dir: "down", word: "Faster" });
   const m = mismatch(d);
-  if (m < 0) r.push({ icon: "plate", dir: "down", word: "Konti" });
-  if (m > 0) r.push({ icon: "plate", dir: "up", word: "Dagdag" });
-  if (d.score >= 4.3 && d.tagShares.coin >= 0.8) r.push({ icon: "coin", dir: "up", word: "Taasan" });
+  if (m < 0) r.push({ icon: "plate", dir: "down", word: "Cook less" });
+  if (m > 0) r.push({ icon: "plate", dir: "up", word: "Cook more" });
+  if (d.score >= 4.3 && d.tagShares.coin >= 0.8) r.push({ icon: "coin", dir: "up", word: "Raise price" });
   return r.slice(0, 3);
 }

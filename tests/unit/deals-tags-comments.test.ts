@@ -26,7 +26,7 @@ describe("problem tags and comments", () => {
   });
   it("turns each new complaint into an action for the owner", () => {
     const view = (bad: "leaf" | "alert" | "chili" | "clock") => ({ score: 3, count: 20, baseServings: 5, bad, tagShares: { salt: 0, plate: 0, flame: 0, coin: 0, leaf: 0, alert: 0, chili: 0, clock: 0 } });
-    expect(recsFor(view("leaf"))[0]).toMatchObject({ icon: "leaf", word: "Sariwain" });
+    expect(recsFor(view("leaf"))[0]).toMatchObject({ icon: "leaf", word: "Fresher" });
     expect(recsFor(view("chili"))[0]).toMatchObject({ icon: "chili", dir: "down" });
   });
   it("keeps links, handles and phone numbers out of comments", () => {
@@ -47,18 +47,18 @@ describe("testimonies, deals and the board", () => {
     owner = (await consumeLink(db, (await requestLink(db, "a@x.co"))!))!;
     const s = (await createStall(db, owner, { name: "Rosa", area: "UST" }))!;
     stallId = s.id; code = s.code;
-    adobo = (await addDish(db, owner, stallId, { name: "Adobo", icon: "bowl", price: 70, main: "manok", ingredients: "Manok, toyo, suka", allergens: ["toyo"] }))!.id;
+    adobo = (await addDish(db, owner, stallId, { name: "Adobo", icon: "bowl", price: 70, main: "chicken", ingredients: "Chicken, soy sauce, vinegar", allergens: ["soy"] }))!.id;
     tinola = (await addDish(db, owner, stallId, { name: "Tinola", icon: "bowl", price: 65 }))!.id;
   });
 
   it("validates the main ingredient, ingredients and allergens, and lets the owner clear them", async () => {
     expect(await addDish(db, owner, stallId, { name: "X", icon: "bowl", price: 10, main: "unicorn" })).toBeNull();
     expect(await addDish(db, owner, stallId, { name: "X", icon: "bowl", price: 10, allergens: ["gold"] })).toBeNull();
-    expect(await updateDish(db, owner, adobo, { allergens: ["itlog", "mani", "itlog"], main: "" })).toBe(true);
+    expect(await updateDish(db, owner, adobo, { allergens: ["egg", "peanut", "egg"], main: "" })).toBe(true);
     const d = (await ownerSummary(db, owner, stallId, NOW))!.find((x) => x.id === adobo)!;
-    expect(d.allergens).toEqual(["itlog", "mani"]);
+    expect(d.allergens).toEqual(["egg", "peanut"]);
     expect(d.main).toBeNull();
-    expect(d.ingredients).toBe("Manok, toyo, suka");
+    expect(d.ingredients).toBe("Chicken, soy sauce, vinegar");
   });
 
   it("stores a comment with a rating and refuses one with a link", async () => {
@@ -103,7 +103,7 @@ describe("testimonies, deals and the board", () => {
     await setSale(db, owner, tinola, 50, NOW);
     expect((await publicBoard(db, {}, NOW)).map((i) => i.name)).toEqual(["Tinola", "Adobo"]);
     const board = await publicBoard(db, {}, NOW);
-    expect(board.find((i) => i.name === "Adobo")).toMatchObject({ main: "manok", allergens: ["toyo"] });
+    expect(board.find((i) => i.name === "Adobo")).toMatchObject({ main: "chicken", allergens: ["soy"] });
 
     const deal = await postAlok(db, owner, stallId, { dishId: adobo, kind: "combo", limit: 2 }, NOW);
     const id = (deal as { alok: { id: string } }).alok.id;

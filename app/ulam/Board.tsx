@@ -65,18 +65,18 @@ export function Board() {
         <Icon name="pin" />
         <input id="area" aria-label="Area or school" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area or school, like UST" maxLength={80} />
       </div>
-      <div className="chips" role="group" aria-label="Para sa iyo">
-        <button className="chip" aria-pressed={dealsOnly} onClick={() => setDealsOnly(!dealsOnly)}><Icon name="tag" />Deals para sa iyo{dealCount > 0 && ` · ${dealCount}`}</button>
+      <div className="chips" role="group" aria-label="For you">
+        <button className="chip" aria-pressed={dealsOnly} onClick={() => setDealsOnly(!dealsOnly)}><Icon name="tag" />Deals for you{dealCount > 0 && ` · ${dealCount}`}</button>
       </div>
       <div className="filters">
-        <div><label htmlFor="budget">Presyo</label>
+        <div><label htmlFor="budget">Price</label>
           <select id="budget" value={max} onChange={(e) => setMax(Number(e.target.value))}>
-            {BUDGETS.map((b) => <option key={b} value={b}>{b ? `₱${b} pababa` : "Any"}</option>)}
+            {BUDGETS.map((b) => <option key={b} value={b}>{b ? `₱${b} or less` : "Any"}</option>)}
           </select>
         </div>
-        <div><label htmlFor="kind">Sangkap</label>
+        <div><label htmlFor="kind">Main ingredient</label>
           <select id="kind" value={main} onChange={(e) => setMain(e.target.value)}>
-            <option value="">Lahat</option>
+            <option value="">All</option>
             {mains.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
           </select>
         </div>

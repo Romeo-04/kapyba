@@ -1,12 +1,12 @@
 // The main-ingredient tag on a dish, so a buyer sees at a glance what is in it (and what to avoid).
 export const MAINS = [
-  { id: "baboy", label: "Baboy" },
-  { id: "manok", label: "Manok" },
-  { id: "baka", label: "Baka" },
-  { id: "isda", label: "Isda" },
-  { id: "gulay", label: "Gulay" },
-  { id: "itlog", label: "Itlog" },
-  { id: "tokwa", label: "Tokwa" },
+  { id: "pork", label: "Pork" },
+  { id: "chicken", label: "Chicken" },
+  { id: "beef", label: "Beef" },
+  { id: "fish", label: "Fish" },
+  { id: "vegetables", label: "Vegetables" },
+  { id: "egg", label: "Egg" },
+  { id: "tofu", label: "Tofu" },
 ] as const;
 export type Main = (typeof MAINS)[number]["id"];
 export const isMain = (v: unknown): v is Main => MAINS.some((m) => m.id === v);

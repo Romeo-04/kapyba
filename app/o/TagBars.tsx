@@ -2,14 +2,14 @@ import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 
 const ROWS: { tag: string; icon: IconName; label: string }[] = [
-  { tag: "salt", icon: "salt", label: "Maalat o matabang" },
-  { tag: "plate", icon: "plate", label: "Maliit ang serving" },
-  { tag: "flame", icon: "flame", label: "Malamig" },
-  { tag: "coin", icon: "coin", label: "Mahal" },
-  { tag: "leaf", icon: "leaf", label: "Hindi sariwa" },
-  { tag: "alert", icon: "alert", label: "Matigas o sobrang luto" },
-  { tag: "chili", icon: "chili", label: "Sobrang anghang" },
-  { tag: "clock", icon: "clock", label: "Matagal ang serbisyo" },
+  { tag: "salt", icon: "salt", label: "Too salty or bland" },
+  { tag: "plate", icon: "plate", label: "Small serving" },
+  { tag: "flame", icon: "flame", label: "Served cold" },
+  { tag: "coin", icon: "coin", label: "Too expensive" },
+  { tag: "leaf", icon: "leaf", label: "Not fresh" },
+  { tag: "alert", icon: "alert", label: "Tough or overcooked" },
+  { tag: "chili", icon: "chili", label: "Too spicy" },
+  { tag: "clock", icon: "clock", label: "Slow service" },
 ];
 
 // How often buyers ticked each complaint. The tick marks the same share for this dish at nearby stalls, when there are enough.
@@ -21,7 +21,7 @@ export function TagBars({ shares, nearby, trend, comments }: { shares: Record<st
         <Trend values={trend} />
         {comments.length > 0 && (
           <div data-testid="owner-comments">
-            <strong>Mga comment</strong>
+            <strong>Comments</strong>
             {comments.map((c, i) => <p key={i} className="mute">&ldquo;{c.text}&rdquo; · {c.score >= 4 ? "Masarap" : c.score >= 3 ? "Okay lang" : "Hindi masarap"}</p>)}
           </div>
         )}

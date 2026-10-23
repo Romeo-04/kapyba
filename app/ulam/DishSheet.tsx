@@ -55,13 +55,13 @@ export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserv
           </div>
           <div className="row" style={{ flexWrap: "wrap" }}>
             <Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} size={44} />
-            <span className="mute">{d.kind === "scored" ? `${d.score!.toFixed(1)} · ${d.count} ratings` : "Hindi pa sapat ang rating para sa score"}</span>
+            <span className="mute">{d.kind === "scored" ? `${d.score!.toFixed(1)} · ${d.count} ratings` : "Not enough ratings for a score yet"}</span>
             {main && <span className="pill g">{main}</span>}
             {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
             {d.sulit && <span className="pill a">Sulit</span>}
           </div>
-          <section aria-label="Sangkap">
-            <strong>Sangkap</strong>
+          <section aria-label="Ingredients">
+            <strong>Ingredients</strong>
             {parts.length > 0
               ? <div className="row" style={{ flexWrap: "wrap", marginTop: 6 }}>{parts.map((p) => <span key={p} className="pill">{p}</span>)}</div>
               : <p className="mute">{main ? `Main ingredient: ${main}. The stall has not listed the rest yet.` : "The stall has not listed the ingredients yet."}</p>}
@@ -70,13 +70,13 @@ export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserv
             <section aria-label="Allergens">
               <strong>Allergens</strong>
               <div className="row" style={{ flexWrap: "wrap", marginTop: 6 }}>
-                {d.allergens.map((a) => { const x = ALLERGENS.find((y) => y.id === a)!; return <span key={a} className="pill a"><Icon name="alert" />{x.label} ({x.note})</span>; })}
+                {d.allergens.map((a) => { const x = ALLERGENS.find((y) => y.id === a)!; return <span key={a} className="pill a"><Icon name="alert" />{x.label}</span>; })}
               </div>
-              <p className="mute">Galing ito sa stall. Kung may allergy ka, magtanong muna sa stall.</p>
+              <p className="mute">Declared by the stall. If you have an allergy, ask the stall first.</p>
             </section>
           )}
-          <section aria-label="Sabi ng customers">
-            <strong>Sabi ng customers</strong>
+          <section aria-label="What customers say">
+            <strong>What customers say</strong>
             {notes === null && <p className="mute">Sandali...</p>}
             {notes?.length === 0 && <p className="mute" data-testid="no-testimonies">{d.kind === "scored" ? "No comments yet." : "Comments show after enough customers have rated."}</p>}
             {notes?.map((n, i) => (

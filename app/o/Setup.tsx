@@ -11,12 +11,12 @@ type Pick = { name: string; main?: string; icon: IconName; price: number; plates
 
 // Common Filipino dishes. Prices are never guessed: the owner sets her own.
 const COMMON: { name: string; main?: string; icon: IconName }[] = [
-  { name: "Adobo", main: "manok", icon: "meat" }, { name: "Sinigang", main: "baboy", icon: "bowl" }, { name: "Tinola", main: "manok", icon: "bowl" },
-  { name: "Pritong isda", main: "isda", icon: "fish" }, { name: "Pinakbet", main: "gulay", icon: "leaf" }, { name: "Kare-kare", main: "baka", icon: "meat" },
-  { name: "Menudo", main: "baboy", icon: "meat" }, { name: "Lechon kawali", main: "baboy", icon: "meat" }, { name: "Ginataang gulay", main: "gulay", icon: "leaf" },
-  { name: "Tortang talong", main: "itlog", icon: "leaf" }, { name: "Sisig", main: "baboy", icon: "meat" }, { name: "Nilaga", main: "baka", icon: "bowl" },
-  { name: "Afritada", main: "manok", icon: "meat" }, { name: "Pancit", icon: "plate" }, { name: "Lugaw", icon: "bowl" },
-  { name: "Dinuguan", main: "baboy", icon: "meat" }, { name: "Laing", main: "gulay", icon: "leaf" }, { name: "Paksiw na isda", main: "isda", icon: "fish" },
+  { name: "Adobo", main: "chicken", icon: "meat" }, { name: "Sinigang", main: "pork", icon: "bowl" }, { name: "Tinola", main: "chicken", icon: "bowl" },
+  { name: "Pritong isda", main: "isda", icon: "fish" }, { name: "Pinakbet", main: "gulay", icon: "leaf" }, { name: "Kare-kare", main: "beef", icon: "meat" },
+  { name: "Menudo", main: "pork", icon: "meat" }, { name: "Lechon kawali", main: "pork", icon: "meat" }, { name: "Ginataang gulay", main: "gulay", icon: "leaf" },
+  { name: "Tortang talong", main: "egg", icon: "leaf" }, { name: "Sisig", main: "pork", icon: "meat" }, { name: "Nilaga", main: "beef", icon: "bowl" },
+  { name: "Afritada", main: "chicken", icon: "meat" }, { name: "Pancit", icon: "plate" }, { name: "Lugaw", icon: "bowl" },
+  { name: "Dinuguan", main: "pork", icon: "meat" }, { name: "Laing", main: "gulay", icon: "leaf" }, { name: "Paksiw na isda", main: "isda", icon: "fish" },
 ];
 const STEPS = 6;
 export const setupKey = (stallId: string) => `kb_setup_${stallId}`;
@@ -97,7 +97,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
 
       {step === 3 && (
         <div className="stack">
-          <div className="row"><Kapy pose="think" size={72} anim="bob" /><h1 className="grow">Presyo</h1><span className="mute">3/6</span></div>
+          <div className="row"><Kapy pose="think" size={72} anim="bob" /><h1 className="grow">Price</h1><span className="mute">3/6</span></div>
           <p className="mute">Magkano bawat plato? Set the price you charge. You can change it later.</p>
           {picked.map((p) => (
             <div key={p.name} className="card row" style={{ alignItems: "center" }}>

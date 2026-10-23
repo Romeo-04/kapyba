@@ -15,14 +15,14 @@ type Scan = { stall: { name: string; area: string }; dishes: Dish[]; scanToken: 
 
 const SCORE: Record<Tone, number> = { sad: 1, neutral: 3, happy: 5 };
 const TAGS: { tag: Tag; icon: IconName; label: string }[] = [
-  { tag: "salt", icon: "salt", label: "Maalat o matabang" },
-  { tag: "plate", icon: "plate", label: "Maliit ang serving" },
-  { tag: "flame", icon: "flame", label: "Malamig" },
-  { tag: "coin", icon: "coin", label: "Mahal" },
-  { tag: "leaf", icon: "leaf", label: "Hindi sariwa" },
-  { tag: "alert", icon: "alert", label: "Matigas o sobrang luto" },
-  { tag: "chili", icon: "chili", label: "Sobrang anghang" },
-  { tag: "clock", icon: "clock", label: "Matagal ang serbisyo" },
+  { tag: "salt", icon: "salt", label: "Too salty or bland" },
+  { tag: "plate", icon: "plate", label: "Small serving" },
+  { tag: "flame", icon: "flame", label: "Served cold" },
+  { tag: "coin", icon: "coin", label: "Too expensive" },
+  { tag: "leaf", icon: "leaf", label: "Not fresh" },
+  { tag: "alert", icon: "alert", label: "Tough or overcooked" },
+  { tag: "chili", icon: "chili", label: "Too spicy" },
+  { tag: "clock", icon: "clock", label: "Slow service" },
 ];
 
 export const iconFor = (name: string): IconName => (name in ICONS ? (name as IconName) : "bowl");
@@ -100,17 +100,17 @@ export function Rate({ code }: { code: string }) {
           {result === "done" ? "Your rating helps the owner cook better." : result === "queued" ? "No signal right now. We will send it when you are back online." : "One rating per dish per day. Try another dish or come back tomorrow."}
         </p>
         {result === "done" && tone === "happy" && (
-          commented === "sent" ? <p className="mute">Salamat sa comment!</p> : (
+          commented === "sent" ? <p className="mute">Thanks for the comment!</p> : (
             <form className="stack block" onSubmit={async (e) => {
               e.preventDefault();
               const r = await fetch("/api/ratings/comment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idempotencyKey: lastKey, comment }) });
               setCommented(r.ok ? "sent" : "error");
             }}>
-              <label htmlFor="comment">Gusto mo bang mag-comment? (optional)</label>
-              <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="Ano ang nagustuhan mo?" />
-              <p className="mute">May chance na lumabas ang comment mo bilang testimonial sa Ulam board. Walang pangalan.</p>
+              <label htmlFor="comment">Want to leave a comment? (optional)</label>
+              <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="What did you like?" />
+              <p className="mute">Your comment may appear as a testimonial on the Ulam board. No name is shown.</p>
               {comment.trim() && commentProblem(comment.trim()) && <p className="err" role="alert">{commentProblem(comment.trim())}</p>}
-              {commented === "error" && <p className="err" role="alert">Hindi na-send ang comment.</p>}
+              {commented === "error" && <p className="err" role="alert">The comment could not be sent.</p>}
               <button className="btn soft" disabled={!comment.trim() || !!commentProblem(comment.trim())}>Send comment</button>
             </form>
           )
@@ -160,8 +160,8 @@ export function Rate({ code }: { code: string }) {
       </div>
       {tone && tone !== "happy" && (
         <>
-          <p className="mute">Ano ang problema? (optional)</p>
-          <div className="tags" role="group" aria-label="Problema">
+          <p className="mute">What was wrong? (optional)</p>
+          <div className="tags" role="group" aria-label="Problems">
             {TAGS.map((t) => (
               <button
                 key={t.tag}
@@ -175,8 +175,8 @@ export function Rate({ code }: { code: string }) {
             ))}
           </div>
           <label htmlFor="comment">Comment (optional)</label>
-          <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="Ano ang gusto mong sabihin sa may-ari?" />
-          <p className="mute">Para sa may-ari lang ito. Hindi ito ipapakita sa Ulam board.</p>
+          <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="What do you want to tell the owner?" />
+          <p className="mute">This is for the owner only. It will not show on the Ulam board.</p>
           {comment.trim() && commentProblem(comment.trim()) && <p className="err" role="alert">{commentProblem(comment.trim())}</p>}
           <button className="btn block" disabled={result === "sending" || !!(comment.trim() && commentProblem(comment.trim()))} onClick={() => send(tone)}><Icon name="check" /> Send</button>
         </>

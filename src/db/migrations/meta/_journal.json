@@ -43,6 +43,13 @@
       "when": 1792678228719,
       "tag": "0005_dish_naubos_sale",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792719759774,
+      "tag": "0006_dish_photos_notifications",
+      "breakpoints": true
     }
   ]
 }

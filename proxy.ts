@@ -5,7 +5,7 @@ import { log } from "@/src/log";
 // Defence in depth on top of SameSite=Lax cookies: a write to the API must come from this site.
 // Requests with no Origin header (curl, server to server) pass; a browser always sends one on a cross-site write.
 // Public data a shared cache may keep; every other API answer depends on who is asking.
-const SHARED = [/^\/api\/s\//, /^\/api\/board/, /^\/api\/health/];
+const SHARED = [/^\/api\/s\//, /^\/api\/board/, /^\/api\/health/, /^\/api\/dishes\/[^/]+\/image$/];
 
 export function proxy(req: NextRequest) {
   if (req.method === "GET" || req.method === "HEAD") {

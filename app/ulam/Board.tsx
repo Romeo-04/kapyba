@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import { Ring } from "@/src/ui/Ring";
+import { photoUrl } from "@/src/ui/PhotoPick";
 import { iconFor } from "../s/[code]/Rate";
 
 type Item = {
   kind: "scored" | "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number;
   score?: number; count?: number; sulit?: boolean; improving?: boolean;
   alok: { id: string; kind: string; remaining: number; endsAt: string | null } | null;
-  soldOut: boolean; salePrice: number | null;
+  soldOut: boolean; salePrice: number | null; imageV: number | null;
 };
 
 const BUDGETS = [0, 60, 80, 100];
@@ -62,7 +63,10 @@ export function Board() {
       {items?.map((d) => (
         <div key={d.dishId} className="vcard" data-testid="board-card" style={d.soldOut ? { opacity: 0.55 } : undefined}>
           <div className="photo">
-            <Icon name={iconFor(d.icon)} />
+            {d.imageV !== null
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img className="cover" src={photoUrl(d.dishId, d.imageV)} alt={d.name} loading="lazy" />
+              : <Icon name={iconFor(d.icon)} />}
             {d.sulit && <span className="ribbon">Sulit</span>}
             <span className="rating"><Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} size={44} /></span>
           </div>

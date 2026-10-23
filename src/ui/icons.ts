@@ -43,7 +43,9 @@ export const ICONS = {
   onion: `<path d="M12 7c4 0 7 4 7 8a7 7 0 0 1-14 0c0-4 3-8 7-8zM12 7V3"/>`,
   garlic: `<path d="M12 4c3 3 7 6 7 11a7 7 0 0 1-14 0c0-5 4-8 7-11z"/>`,
   tomato: `<circle cx="12" cy="13" r="7.5"/><path d="M9 6c1 1 2 1 3 0 1 1 2 1 3 0"/>`,
-  bin: `<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>`
+  bin: `<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>`,
+  camera: `<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/>`,
+  bell: `<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>`
 } as const;
 
 export type IconName = keyof typeof ICONS;

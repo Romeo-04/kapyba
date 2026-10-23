@@ -1,12 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
+import { PhotoPick, photoUrl } from "@/src/ui/PhotoPick";
 import { iconFor } from "../s/[code]/Rate";
+import type { Notice } from "@/src/services/notifications";
 import { Alok } from "./Alok";
+import { Balita } from "./Balita";
 import { DishEdit } from "./DishEdit";
 import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
@@ -18,15 +21,17 @@ import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
-  id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean;
+  id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null;
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
   flagged: number; pansin: number; recs: { icon: string; dir: "up" | "down"; word: string }[];
 };
 
-type Tab = "ngayon" | "natira" | "bukas" | "more";
+type Tab = "ngayon" | "natira" | "bukas" | "more" | "balita"; // Balita is opened from the bell, not the tab bar
 const TABS: { id: Tab; label: string }[] = [{ id: "ngayon", label: "Ngayon" }, { id: "natira", label: "Natira" }, { id: "bukas", label: "Bukas" }, { id: "more", label: "Higit pa" }];
+const TITLE: Record<Tab, string> = { ngayon: "Ngayon", natira: "Natira", bukas: "Bukas", more: "Higit pa", balita: "Balita" };
+const POLL_MS = 20_000;
 const DISH_ICONS: IconName[] = ["bowl", "meat", "fish", "leaf", "plate"];
 const post = (url: string, body: unknown, method = "POST") =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -46,6 +51,14 @@ export function Owner() {
   const [bukasTick, setBukasTick] = useState(0);
   const reload = () => setTick((t) => t + 1);
 
+  // Balita: a quiet poll while the page is open. A new rating raises the bell, refreshes the numbers and, if allowed, pings the phone.
+  const [notes, setNotes] = useState<{ unread: number; items: Notice[] }>({ unread: 0, items: [] });
+  const [fresh, setFresh] = useState<Set<string>>(new Set());
+  const [ring, setRing] = useState(0);
+  const [canAlert, setCanAlert] = useState(false);
+  const [clock, setClock] = useState(0);
+  const topSeen = useRef<string | null | undefined>(undefined);
+
   useEffect(() => {
     fetch("/api/stalls").then(async (r) => setStalls(r.ok ? (await r.json()).stalls : []));
   }, [tick]);
@@ -61,6 +74,41 @@ export function Owner() {
       setInSetup((cur) => cur ?? (list.length === 0 || localStorage.getItem(setupKey(stallId)) !== null));
     });
   }, [stallId, tick]);
+
+  const ready = stalls !== null && stalls.length > 0;
+  useEffect(() => {
+    if (!ready) return;
+    const check = async () => {
+      const r = await fetch("/api/notifications");
+      if (!r.ok) return;
+      const next: { unread: number; items: Notice[] } = await r.json();
+      const top = next.items[0]?.id ?? null;
+      if (topSeen.current !== undefined && top !== topSeen.current && next.unread > 0) {
+        setRing((n) => n + 1);
+        reload();
+        if (typeof Notification !== "undefined" && Notification.permission === "granted" && document.hidden) {
+          new Notification(`${next.items[0].dish} was rated`, { body: "Open KapyBa to see how it went.", tag: "kb-rated" });
+        }
+      }
+      topSeen.current = top;
+      setNotes(next);
+      setClock(Date.now());
+      setCanAlert(typeof Notification !== "undefined" && Notification.permission === "default");
+    };
+    void check();
+    const id = setInterval(check, POLL_MS);
+    return () => clearInterval(id);
+  }, [ready]);
+
+  const openBalita = () => {
+    if (tab === "balita") { setTab("ngayon"); return; }
+    setFresh(new Set(notes.items.slice(0, notes.unread).map((n) => n.id)));
+    setTab("balita");
+    if (notes.unread > 0) {
+      setNotes({ ...notes, unread: 0 });
+      void fetch("/api/notifications/seen", { method: "POST" });
+    }
+  };
 
   if (stalls === null) return <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>;
 
@@ -83,9 +131,12 @@ export function Owner() {
       <div className="hero">
         <Kapy pose={dishes.some((d) => d.pansin < 0 || d.private.score !== null && d.private.score < 3.4) ? "worry" : "wave"} size={92} anim="bob" />
         <div>
-          <h1>{TABS.find((t) => t.id === tab)!.label}</h1>
+          <h1>{TITLE[tab]}</h1>
           <p>{stall.name} · {stall.area}</p>
         </div>
+        <button type="button" key={ring} className={`bell${ring ? " ring" : ""}`} aria-pressed={tab === "balita"} aria-label={notes.unread > 0 ? `Balita, ${notes.unread} new` : "Balita"} onClick={openBalita}>
+          <Icon name="bell" />{notes.unread > 0 && <span className="badge" data-testid="bell-count">{notes.unread > 9 ? "9+" : notes.unread}</span>}
+        </button>
       </div>
       <div className="tabs" role="tablist" aria-label="My stall">
         {TABS.map((t) => (
@@ -127,7 +178,10 @@ export function Owner() {
                 {d.gate.state === "kulang" && d.private.count > 0 && <> · Kulang pa {Math.min(d.gate.have, d.gate.need)}/{d.gate.need}</>}
               </div>
             </div>
-            <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>
+            {d.imageV !== null
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img className="thumb" src={photoUrl(d.id, d.imageV)} alt={d.name} width={56} height={56} />
+              : <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>}
           </div>
           {d.kumpara && (
             <p className="mute" data-testid="kumpara">
@@ -158,6 +212,7 @@ export function Owner() {
             <button className="btn soft" aria-pressed={d.soldOut} onClick={async () => { await post(`/api/dishes/${d.id}`, { soldOut: !d.soldOut }, "PATCH"); reload(); }}>
               <Icon name="alert" />Naubos
             </button>
+            <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV} onDone={reload} />
             <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
             <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} onDone={reload} />
           </div>}
@@ -166,6 +221,7 @@ export function Owner() {
       {msg && <p className="err" role="alert">{msg}</p>}
 
       </>}
+      {tab === "balita" && <Balita items={notes.items} fresh={fresh} now={clock} canAlert={canAlert} onAlert={async () => { await Notification.requestPermission(); setCanAlert(Notification.permission === "default"); }} />}
       {tab === "natira" && (dishes.length > 0 ? <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} /> : <p className="mute">Add a dish first.</p>)}
       {tab === "bukas" && dishes.length > 0 && <>
         <Bukas stallId={stall.id} refresh={bukasTick} />

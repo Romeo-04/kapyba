@@ -6,6 +6,7 @@ import { mainComplaint, mismatch, recsFor, type Rec } from "@/src/domain/recomme
 import { distinctBuyers, improving, meanScore, tagShares, tone, weeklyTrend, type Tag, type Tone } from "@/src/domain/scoring";
 import { dishKey, neighbourhood, type Kumpara } from "@/src/domain/kumpara";
 import { activeAlokByDish } from "./alok";
+import { imageVersions } from "./photos";
 import { manilaDay } from "./ratings";
 import { todayState } from "./stalls";
 
@@ -56,6 +57,8 @@ export type OwnerDish = {
   id: string; name: string; icon: string; price: number; baseServings: number;
   published: boolean; paborito: boolean;
   soldOut: boolean; salePrice: number | null;
+  /** Version stamp of the dish photo (use in ?v=), or null when there is none. */
+  imageV: number | null;
   /** Everything the owner can see, including ratings under review. */
   private: { count: number; buyers: number; score: number | null; tone: Tone | null; tagShares: Record<Tag, number>; improving: boolean; trend: (number | null)[] };
   /** What the public would see: removed and under-review ratings excluded. */
@@ -75,6 +78,7 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
   const byDish = await windowRows(db, list.map((d) => d.id), now, ["ok", "flagged"]);
   const today = manilaDay(now);
   const peers = await peerDishes(db, stall.area, stallId, now);
+  const photos = await imageVersions(db, list.map((d) => d.id));
 
   return list.map((d) => {
     const all = byDish.get(d.id) ?? [];
@@ -84,7 +88,7 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
     const view = { score: score ?? 0, count: all.length, baseServings: d.baseServings, tagShares: shares, bad: mainComplaint(shares) };
     return {
       id: d.id, name: d.name, icon: d.icon, price: d.price, baseServings: d.baseServings,
-      published: d.published, paborito: d.paborito, ...todayState(d, now),
+      published: d.published, paborito: d.paborito, imageV: photos.get(d.id) ?? null, ...todayState(d, now),
       private: { count: all.length, buyers: distinctBuyers(all), score, tone: score === null ? null : tone(score), tagShares: shares, improving: improving(all, today), trend: weeklyTrend(all, today) },
       gate: publicGate(clean.length, distinctBuyers(clean), d.published),
       kumpara: neighbourhood(peers.get(dishKey(d.name)) ?? []),
@@ -98,8 +102,8 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
 export type AlokRibbon = { id: string; kind: string; remaining: number; endsAt: string | null };
 
 export type BoardItem =
-  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null }
-  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null };
+  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null }
+  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null };
 
 /**
  * The public Ulam board. Only published dishes that pass the gate show a score; a Paborito
@@ -117,6 +121,7 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
   const byDish = await windowRows(db, list.map((d) => d.id), now, ["ok"]);
   const today = manilaDay(now);
   const deals = await activeAlokByDish(db, now);
+  const photos = await imageVersions(db, list.map((d) => d.id));
 
   const scored: Extract<BoardItem, { kind: "scored" }>[] = [];
   const picks: Extract<BoardItem, { kind: "paborito" }>[] = [];
@@ -126,9 +131,9 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
     const gate = publicGate(rows.length, distinctBuyers(rows), d.published);
     if (gate.state === "public") {
       const score = meanScore(rows)!;
-      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null, ...todayState(d, now) });
+      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, ...todayState(d, now) });
     } else if (d.paborito) {
-      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null, ...todayState(d, now) });
+      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, ...todayState(d, now) });
     }
   }
   const prices = scored.map((s) => s.price).sort((a, b) => a - b);

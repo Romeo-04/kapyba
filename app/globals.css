@@ -379,3 +379,6 @@ a.attn .pill { white-space: nowrap; }
 .splash span { font-size: 17px; font-weight: 700; color: var(--peach); }
 @keyframes splash-out { to { opacity: 0; visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .splash { display: none; } }
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chips-wrap .chip { min-height: 40px; background: var(--paper); }
+.chips-wrap .chip[aria-pressed="true"] { background: var(--brand); color: #fff; box-shadow: none; }

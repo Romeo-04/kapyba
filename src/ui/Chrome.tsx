@@ -13,7 +13,7 @@ export function TopBar() {
         <Kapy pose="wave" size={40} anim="none" />
         <span>KapyBa</span>
       </Link>
-      <Link href="/ulam" className="locpill">
+      <Link href="/#near" className="locpill">
         <Icon name="pin" />
         <span>Ulam near you</span>
       </Link>
@@ -24,6 +24,7 @@ export function TopBar() {
 const TABS: { href: string; icon: IconName; label: string; match: (p: string) => boolean }[] = [
   { href: "/", icon: "board", label: "Ulam", match: (p) => p === "/" || p.startsWith("/ulam") },
   { href: "/o", icon: "store", label: "My stall", match: (p) => p === "/o" || p.startsWith("/o/") || p.startsWith("/review") },
+  { href: "/community", icon: "megaphone", label: "Community", match: (p) => p.startsWith("/community") },
   { href: "/owner", icon: "home", label: "Owner", match: (p) => p === "/owner" },
 ];
 

@@ -11,7 +11,7 @@ import { iconFor } from "../s/[code]/Rate";
 import { Ulat } from "./Ulat";
 import type { Summary } from "./Owner";
 
-const ROWS: { tag: string; icon: IconName; label: string }[] = [
+export const ROWS: { tag: string; icon: IconName; label: string }[] = [
   { tag: "salt", icon: "salt", label: "Too salty or bland" },
   { tag: "plate", icon: "plate", label: "Small serving" },
   { tag: "flame", icon: "flame", label: "Served cold" },

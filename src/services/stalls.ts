@@ -1,3 +1,4 @@
+import { roundCoord, validCoord } from "@/src/domain/geo";
 import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import type { Db } from "@/src/db";
@@ -52,6 +53,14 @@ export async function updateStallInfo(db: Db, ownerId: string, stallId: string, 
     set[key] = text || null;
   }
   if (Object.keys(set).length) await db.update(stalls).set(set).where(eq(stalls.id, stallId));
+  return true;
+}
+
+/** Saves where the stall is, rounded to about 100 m. It drives the nearest-first board and the weather forecast. */
+export async function setStallLocation(db: Db, ownerId: string, stallId: string, lat: unknown, lng: unknown) {
+  if (!validCoord(lat, lng)) return false;
+  if (!(await ownedStall(db, ownerId, stallId))) return false;
+  await db.update(stalls).set({ lat: String(roundCoord(lat)), lng: String(roundCoord(lng as number)) }).where(eq(stalls.id, stallId));
   return true;
 }
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Icon } from "@/src/ui/Icon";
 import { MAX_ABOUT, MAX_HOURS, infoProblem } from "@/src/domain/stallinfo";
 
-export type StallInfo = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null };
+export type StallInfo = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null; lat: string | null };
 
 /** The owner's profile: the numbers at a glance, what customers read about the karinderya, and every branch. */
 export function Profile({ stall, stalls, stats, onSwitch, onAdd, onSaved }: {
@@ -12,6 +12,7 @@ export function Profile({ stall, stalls, stats, onSwitch, onAdd, onSaved }: {
 }) {
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState("");
+  const [loc, setLoc] = useState("");
   const [about, setAbout] = useState("");
   const [hours, setHours] = useState("");
 
@@ -54,6 +55,15 @@ export function Profile({ stall, stalls, stats, onSwitch, onAdd, onSaved }: {
         <a className="round-ico plain" href="#stall-qr" aria-label="Show my QR code"><Icon name="qr" /></a>
         <button type="button" className="btn soft grow" aria-pressed={editing} onClick={() => { setAbout(stall.about ?? ""); setHours(stall.hours ?? ""); setEditing(!editing); }}><Icon name="edit" />Edit Profile</button>
       </div>
+      <button type="button" className="btn soft block" onClick={() => {
+        if (!navigator.geolocation) { setLoc("This phone cannot share its location."); return; }
+        navigator.geolocation.getCurrentPosition(async (p) => {
+          const r = await fetch(`/api/stalls/${stall.id}/location`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: p.coords.latitude, lng: p.coords.longitude }) });
+          setLoc(r.ok ? "Location saved. Nearby customers see you first." : "Could not save the location. Try again.");
+          if (r.ok) onSaved();
+        }, () => setLoc("Allow location to save where your karinderya is."), { timeout: 10000 });
+      }}><Icon name="pin" />{stall.lat ? "Update my location" : "Set my location here"}</button>
+      <p className="mute small" role="status">{loc || (stall.lat ? "Location is set. Saved to about 100 m." : "Stand at your stall and tap. It helps nearby customers find you, and your weather forecast uses this spot.")}</p>
       <a className="mute" href={`/ulam/stall/${stall.id}`}>See how customers view this page</a>
 
       <h2 className="sec">All Branches ({stalls.length})</h2>

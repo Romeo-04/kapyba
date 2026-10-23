@@ -69,3 +69,19 @@ test("Kapy greets the first open of a visit, not the rating page", async ({ page
   await page.reload();
   await expect(page.getByTestId("splash")).toHaveCount(0);
 });
+
+test("the Community page asks a signed-out visitor to sign in", async ({ page }) => {
+  await page.goto("/community");
+  await expect(page.getByText("Sign in to see your customers' feedback")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Owner sign-in" })).toBeVisible();
+});
+
+test("a buyer picks the foods they like and sees them marked on the board", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("board-intro").getByRole("button", { name: "Pork" }).click();
+  await page.getByTestId("board-intro").getByRole("button", { name: "Save" }).click();
+  await expect(page.getByTestId("board-intro")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /My tastes · 1/ })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: /My tastes · 1/ })).toBeVisible();
+});

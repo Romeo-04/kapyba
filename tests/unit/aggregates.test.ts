@@ -61,13 +61,13 @@ describe("aggregates", () => {
     await many(tinola, 10, 3, ["salt"]);
     const d = (await ownerSummary(db, owner, stallId, NOW))!.find((x) => x.id === tinola)!;
     expect(d.private.tagShares.salt).toBe(1);
-    expect(d.recs[0]).toEqual({ icon: "salt", dir: "down", word: "Bawasan" });
+    expect(d.recs[0]).toEqual({ icon: "salt", dir: "down", word: "Less salt" });
   });
   it("Pansin flags a dish cooked a lot but rated low", async () => {
     await many(adobo, 10, 3);
     const d = (await ownerSummary(db, owner, stallId, NOW))!.find((x) => x.id === adobo)!;
     expect(d.pansin).toBe(-1);
-    expect(d.recs.map((r) => r.word)).toContain("Konti");
+    expect(d.recs.map((r) => r.word)).toContain("Cook less");
   });
   it("flagged ratings stay in the owner view but leave the public gate; removed ones vanish", async () => {
     await many(adobo, 10, 4);

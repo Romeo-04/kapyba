@@ -71,14 +71,16 @@ describe("alok", () => {
     expect(await claimAlok(db, "dev-1", "not-a-uuid", NOW)).toBe("invalid");
   });
 
-  it("adds a ribbon to the board without changing its position", async () => {
+  it("lists a dish with a deal first, without touching its score", async () => {
     const tinola = (await addDish(db, owner, stallId, { name: "Tinola", icon: "tinola", price: 65 }))!.id;
     await setPaborito(db, owner, adobo, true);
     await setPaborito(db, owner, tinola, true);
-    const before = (await publicBoard(db, {}, NOW)).map((i) => i.dishId);
+    const before = await publicBoard(db, {}, NOW);
     await post({ dishId: tinola, limit: 4 });
     const after = await publicBoard(db, {}, NOW);
-    expect(after.map((i) => i.dishId)).toEqual(before);
+    expect(after[0].dishId).toBe(tinola); // deals are listed first
+    expect(after.map((i) => i.dishId).sort()).toEqual(before.map((i) => i.dishId).sort());
+    for (const i of after) expect("score" in i ? i.score : null).toEqual("score" in (before.find((b) => b.dishId === i.dishId)!) ? (before.find((b) => b.dishId === i.dishId) as { score: number }).score : null);
     expect(after.find((i) => i.dishId === tinola)!.alok).toMatchObject({ kind: "combo", remaining: 4 });
     expect(after.find((i) => i.dishId === adobo)!.alok).toBeNull();
   });

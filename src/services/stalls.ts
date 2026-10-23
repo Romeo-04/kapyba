@@ -2,6 +2,8 @@ import { randomBytes } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { dishes, stalls } from "@/src/db/schema";
+import { isAllergen } from "@/src/domain/allergens";
+import { MAX_INGREDIENTS, isMain } from "@/src/domain/mains";
 import { manilaDay } from "./ratings";
 
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no look-alikes (i, l, o, 0, 1)
@@ -32,7 +34,27 @@ export async function ownedStall(db: Db, ownerId: string, stallId: string) {
   return row ?? null;
 }
 
-export type DishInput = { name: unknown; icon: unknown; price: unknown; baseServings?: unknown };
+export type DishInput = { name: unknown; icon: unknown; price: unknown; baseServings?: unknown; main?: unknown; ingredients?: unknown; allergens?: unknown };
+
+/** Main ingredient tag: one of MAINS, or null for none. undefined = not given. false = invalid. */
+function cleanMain(v: unknown): string | null | undefined | false {
+  if (v === undefined) return undefined;
+  if (v === null || v === "") return null;
+  return isMain(v) ? v : false;
+}
+/** Declared allergens: a list of known ids, stored comma separated. */
+function cleanAllergens(v: unknown): string | null | undefined | false {
+  if (v === undefined) return undefined;
+  if (!Array.isArray(v) || v.length > 20 || !v.every(isAllergen)) return false;
+  return [...new Set(v)].join(",") || null;
+}
+function cleanIngredients(v: unknown): string | null | undefined | false {
+  if (v === undefined) return undefined;
+  if (v === null) return null;
+  if (typeof v !== "string") return false;
+  const t = v.replace(/\s+/g, " ").trim();
+  return t.length > MAX_INGREDIENTS ? false : t || null;
+}
 
 export async function addDish(db: Db, ownerId: string, stallId: string, input: DishInput) {
   if (!(await ownedStall(db, ownerId, stallId))) return null;
@@ -43,7 +65,11 @@ export async function addDish(db: Db, ownerId: string, stallId: string, input: D
   if (!name || !icon) return null;
   if (typeof price !== "number" || !Number.isInteger(price) || price < 1 || price > 10_000) return null;
   if (typeof base !== "number" || !Number.isInteger(base) || base < 0 || base > 1000) return null;
-  const [row] = await db.insert(dishes).values({ stallId, name, icon, price, baseServings: base }).returning();
+  const main = cleanMain(input.main);
+  const ingredients = cleanIngredients(input.ingredients);
+  const allergens = cleanAllergens(input.allergens);
+  if (main === false || ingredients === false || allergens === false) return null;
+  const [row] = await db.insert(dishes).values({ stallId, name, icon, price, baseServings: base, main: main ?? null, ingredients: ingredients ?? null, allergens: allergens ?? null }).returning();
   return row;
 }
 
@@ -67,6 +93,13 @@ export async function updateDish(db: Db, ownerId: string, dishId: string, input:
     if (typeof input.baseServings !== "number" || !Number.isInteger(input.baseServings) || input.baseServings < 0 || input.baseServings > 1000) return false;
     set.baseServings = input.baseServings;
   }
+  const main = cleanMain(input.main);
+  const ingredients = cleanIngredients(input.ingredients);
+  const allergens = cleanAllergens(input.allergens);
+  if (main === false || ingredients === false || allergens === false) return false;
+  if (main !== undefined) set.main = main;
+  if (ingredients !== undefined) set.ingredients = ingredients;
+  if (allergens !== undefined) set.allergens = allergens;
   if (Object.keys(set).length) await db.update(dishes).set(set).where(eq(dishes.id, dishId));
   return true;
 }

@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     dishId: String(body.dishId ?? ""),
     score: body.score,
     tags: body.tags,
+    comment: body.comment,
     idempotencyKey: body.idempotencyKey,
   });
   return NextResponse.json({ result }, { status: STATUS[result] });

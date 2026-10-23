@@ -9,19 +9,21 @@ import { PhotoPick, photoUrl } from "@/src/ui/PhotoPick";
 import { iconFor } from "../s/[code]/Rate";
 import type { Notice } from "@/src/services/notifications";
 import { Alok } from "./Alok";
+import { AllergenPick } from "./AllergenPick";
 import { Balita } from "./Balita";
 import { DishEdit } from "./DishEdit";
 import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { Palengke } from "./Palengke";
+import { MAINS } from "@/src/domain/mains";
 import { Setup, setupKey } from "./Setup";
 import { TagBars } from "./TagBars";
 import { Ulat } from "./Ulat";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Summary = {
-  id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null;
+  id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null; main: string | null; ingredients: string | null; allergens: string[]; comments: { score: number; text: string; at: string }[];
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
   kumpara: { stalls: number; score: number; tagShares: Record<string, number> } | null;
@@ -189,7 +191,7 @@ export function Owner() {
               {d.private.score !== null && <> Yours is {d.private.score >= d.kumpara.score ? "at or above" : "below"} that.</>}
             </p>
           )}
-          {d.private.count > 0 && <TagBars shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} />}
+          {d.private.count > 0 && <TagBars shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} comments={d.comments} />}
           <div className="row" style={{ flexWrap: "wrap" }}>
             {d.paborito && <span className="pill r"><Icon name="heart" />Paborito</span>}
             {d.private.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
@@ -214,7 +216,7 @@ export function Owner() {
             </button>
             <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV} onDone={reload} />
             <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
-            <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} onDone={reload} />
+            <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} main={d.main} ingredients={d.ingredients} allergens={d.allergens} onDone={reload} />
           </div>}
         </div>
       ))}
@@ -235,7 +237,7 @@ export function Owner() {
         e.preventDefault();
         const form = e.currentTarget;
         const f = new FormData(form);
-        const r = await post(`/api/stalls/${stall.id}/dishes`, { name: f.get("name"), icon: f.get("icon"), price: Number(f.get("price")), baseServings: Number(f.get("servings") || 0) });
+        const r = await post(`/api/stalls/${stall.id}/dishes`, { name: f.get("name"), icon: f.get("icon"), price: Number(f.get("price")), baseServings: Number(f.get("servings") || 0), main: f.get("main") || undefined, ingredients: f.get("ingredients") || undefined, allergens: f.getAll("allergens") });
         if (r.ok) { form.reset(); setMsg(""); reload(); } else setMsg("Check the dish name and price.");
       }}>
         <h2>Add a dish</h2>
@@ -244,6 +246,11 @@ export function Owner() {
           <div className="grow"><label htmlFor="dprice">Price (₱)</label><input id="dprice" name="price" type="number" inputMode="numeric" min={1} max={10000} required /></div>
           <div className="grow"><label htmlFor="dserv">Servings a day</label><input id="dserv" name="servings" type="number" inputMode="numeric" min={0} max={1000} /></div>
         </div>
+        <div><label htmlFor="dmain">Main ingredient (optional)</label>
+          <select id="dmain" name="main"><option value="">None</option>{MAINS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}</select>
+        </div>
+        <div><label htmlFor="dingr">Ingredients (optional)</label><input id="dingr" name="ingredients" maxLength={200} placeholder="Chicken, soy sauce, vinegar, garlic" /></div>
+        <AllergenPick prefix="dall" />
         <div><label htmlFor="dicon">Icon</label>
           <select id="dicon" name="icon">{DISH_ICONS.map((i) => <option key={i} value={i}>{i}</option>)}</select>
         </div>

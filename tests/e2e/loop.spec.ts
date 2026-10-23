@@ -52,6 +52,9 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Fix the price (Manage is still open from above).
   await owner.getByRole("button", { name: "Edit" }).click();
   await owner.getByLabel("Price (₱)").first().fill("75");
+  await owner.getByLabel("Main ingredient").selectOption("chicken");
+  await owner.getByLabel("Ingredients (optional)").fill("Chicken, soy sauce, vinegar");
+  await owner.getByLabel("Soy", { exact: true }).check();
   await owner.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(owner.getByText("₱75")).toBeVisible();
 
@@ -65,6 +68,9 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await buyer.getByRole("button", { name: /Adobo/ }).click();
   await buyer.getByRole("button", { name: "Masarap", exact: true }).click();
   await expect(buyer.getByRole("heading", { name: "Salamat!" })).toBeVisible();
+  await buyer.getByLabel("Want to leave a comment?").fill("Ang sarap ng sabaw!");
+  await buyer.getByRole("button", { name: "Send comment" }).click();
+  await expect(buyer.getByText("Thanks for the comment!")).toBeVisible();
 
   // The owner sees what customers ticked, as bars, without opening anything private to the public.
   await owner.reload();
@@ -75,7 +81,8 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("bell-count")).toHaveCount(0);
   await owner.getByRole("button", { name: "Balita" }).click(); // back to Ngayon
   await owner.getByText("Ano ang sinabi ng customers").click();
-  await expect(owner.getByRole("meter", { name: "Maalat o matabang" })).toBeVisible();
+  await expect(owner.getByTestId("owner-comments")).toContainText("Ang sarap ng sabaw!"); // private to the owner
+  await expect(owner.getByRole("meter", { name: "Too salty or bland" })).toBeVisible();
   await expect(owner.getByTestId("trend")).toContainText("Kulang pa ang datos");
 
   // The same buyer cannot rate the same dish twice in a day.
@@ -146,6 +153,21 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(guest.getByText("Alok · 1 left")).toBeVisible();
   await guest.getByRole("button", { name: "Kunin ang deal" }).click();
   await expect(guest.getByRole("status")).toContainText("Reserved");
+
+  // The status survives a refresh, the card carries the main ingredient and allergen tags, and a tap opens the dish card.
+  await guest.reload();
+  const card = guest.getByTestId("board-card").first();
+  await expect(card).toContainText("Reserved");
+  await expect(card).toContainText("Chicken");
+  await expect(card.getByTestId("allergens")).toContainText("Soy");
+  await guest.getByLabel("Main ingredient").selectOption("chicken");
+  await guest.getByRole("button", { name: /Adobo/ }).click();
+  const sheet = guest.getByRole("dialog", { name: "Adobo" });
+  await expect(sheet.getByText("vinegar")).toBeVisible();
+  await expect(sheet.getByText("Soy", { exact: true })).toBeVisible();
+  await expect(sheet.getByRole("heading", { name: "Adobo" })).toBeVisible();
+  await guest.keyboard.press("Escape");
+  await expect(sheet).toHaveCount(0);
   await expect(guest.getByText("Alok", { exact: false })).toHaveCount(0);
   await guestCtx.close();
 

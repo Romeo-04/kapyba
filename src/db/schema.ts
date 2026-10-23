@@ -40,6 +40,9 @@ export const dishes = pgTable("dishes", {
   soldOutDay: date("sold_out_day"),
   saleDay: date("sale_day"),
   salePrice: integer("sale_price"),
+  main: text("main"), // main ingredient tag, one of MAINS (src/domain/mains.ts)
+  ingredients: text("ingredients"), // the owner's own list, comma separated
+  allergens: text("allergens"), // declared allergens, comma separated ids from ALLERGENS
 }, (t) => [index("dishes_stall_idx").on(t.stallId)]);
 
 // One small photo per dish, already shrunk by the owner's phone. Base64 text keeps it in the same database, with no file store to set up.
@@ -61,7 +64,8 @@ export const ratings = pgTable("ratings", {
   dishId: uuid("dish_id").notNull().references(() => dishes.id, { onDelete: "cascade" }),
   deviceId: uuid("device_id").notNull().references(() => devices.id, { onDelete: "cascade" }),
   score: smallint("score").notNull(),
-  tags: smallint("tags").notNull().default(0), // bitmask: 1 salt, 2 plate, 4 flame, 8 coin
+  tags: smallint("tags").notNull().default(0), // bitmask, see TAGS in src/domain/scoring.ts
+  comment: text("comment"), // optional, 140 characters at most; only a happy, clean rating can ever be shown as a testimony
   day: date("day").notNull(),
   idempotencyKey: text("idempotency_key").notNull(),
   status: text("status").notNull().default("ok"), // ok | flagged | removed

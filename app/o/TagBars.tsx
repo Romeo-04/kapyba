@@ -2,19 +2,29 @@ import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 
 const ROWS: { tag: string; icon: IconName; label: string }[] = [
-  { tag: "salt", icon: "salt", label: "Maalat o matabang" },
-  { tag: "plate", icon: "plate", label: "Maliit ang serving" },
-  { tag: "flame", icon: "flame", label: "Malamig" },
-  { tag: "coin", icon: "coin", label: "Mahal" },
+  { tag: "salt", icon: "salt", label: "Too salty or bland" },
+  { tag: "plate", icon: "plate", label: "Small serving" },
+  { tag: "flame", icon: "flame", label: "Served cold" },
+  { tag: "coin", icon: "coin", label: "Too expensive" },
+  { tag: "leaf", icon: "leaf", label: "Not fresh" },
+  { tag: "alert", icon: "alert", label: "Tough or overcooked" },
+  { tag: "chili", icon: "chili", label: "Too spicy" },
+  { tag: "clock", icon: "clock", label: "Slow service" },
 ];
 
 // How often buyers ticked each complaint. The tick marks the same share for this dish at nearby stalls, when there are enough.
-export function TagBars({ shares, nearby, trend }: { shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[] }) {
+export function TagBars({ shares, nearby, trend, comments }: { shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[]; comments: { score: number; text: string; at: string }[] }) {
   return (
     <details data-testid="tagbars">
       <summary style={{ cursor: "pointer", fontWeight: 700 }}>Ano ang sinabi ng customers</summary>
       <div className="stack" style={{ paddingTop: 8 }}>
         <Trend values={trend} />
+        {comments.length > 0 && (
+          <div data-testid="owner-comments">
+            <strong>Comments</strong>
+            {comments.map((c, i) => <p key={i} className="mute">&ldquo;{c.text}&rdquo; · {c.score >= 4 ? "Masarap" : c.score >= 3 ? "Okay lang" : "Hindi masarap"}</p>)}
+          </div>
+        )}
         {ROWS.map((r) => {
           const pct = Math.round((shares[r.tag] ?? 0) * 100);
           const peer = nearby ? Math.round((nearby[r.tag] ?? 0) * 100) : null;

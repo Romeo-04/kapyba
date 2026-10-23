@@ -199,3 +199,25 @@ async function ownerComments(db: Db, dishIds: string[]) {
   }
   return out;
 }
+
+export type CommunityPost = { text: string; score: number; at: string; dish: string; stallId: string; stallName: string; area: string };
+
+/**
+ * The public Community feed: recent clean 4 and 5 comments on dishes that pass the public gate, each with the dish and
+ * the karinderya (name and area) it is about. Nothing says who wrote it.
+ */
+export async function communityFeed(db: Db, now = new Date()): Promise<CommunityPost[]> {
+  const scored = (await publicBoard(db, {}, now)).filter((i) => i.kind === "scored");
+  if (scored.length === 0) return [];
+  const byDish = new Map(scored.map((i) => [i.dishId, i]));
+  const found = await db
+    .select({ dishId: ratings.dishId, text: ratings.comment, score: ratings.score, at: ratings.createdAt })
+    .from(ratings)
+    .where(and(inArray(ratings.dishId, [...byDish.keys()]), eq(ratings.status, "ok"), isNotNull(ratings.comment), gte(ratings.score, TESTIMONY_MIN_SCORE)))
+    .orderBy(desc(ratings.createdAt))
+    .limit(40);
+  return found.map((r) => {
+    const d = byDish.get(r.dishId)!;
+    return { text: r.text!, score: r.score, at: r.at.toISOString(), dish: d.name, stallId: d.stallId, stallName: d.stallName, area: d.area };
+  });
+}

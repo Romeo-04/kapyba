@@ -5,10 +5,12 @@ import { Face } from "@/src/ui/Face";
 import { ago } from "@/src/ui/ago";
 import { tone } from "@/src/domain/scoring";
 import { ROWS } from "../o/ReviewsSheet";
+import { Icon } from "@/src/ui/Icon";
 import type { Summary } from "../o/Owner";
 
 type Stall = { id: string; name: string };
 type Dish = Summary;
+type Post = { text: string; score: number; at: string; dish: string; stallId: string; stallName: string; area: string };
 
 // One concrete thing to try for each complaint, in plain words.
 const TRY: Record<string, string> = {
@@ -25,6 +27,7 @@ const TRY: Record<string, string> = {
 /** Customer comments and taste feedback turned into a short to-do list for the owner. */
 export function Community() {
   const [view, setView] = useState<"load" | "out" | "ok">("load");
+  const [posts, setPosts] = useState<Post[] | null>(null);
   const [stall, setStall] = useState<Stall | null>(null);
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [now, setNow] = useState(0); // set after load: reading the clock during prerender is not allowed
@@ -32,6 +35,8 @@ export function Community() {
   useEffect(() => {
     let live = true;
     (async () => {
+      const f = await fetch("/api/board/community");
+      if (live && f.ok) { setNow(Date.now()); setPosts((await f.json()).posts); }
       const r = await fetch("/api/stalls");
       if (!r.ok) { if (live) setView("out"); return; }
       const first: Stall | undefined = (await r.json()).stalls?.[0];
@@ -47,12 +52,33 @@ export function Community() {
     return () => { live = false; };
   }, []);
 
-  if (view === "load") return <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>;
-  if (view === "out") {
+  const feed = (
+    <section className="stack" data-testid="community-feed">
+      <h2 className="sec">Recommended by customers</h2>
+      {posts === null ? <p className="mute">Sandali...</p> : posts.length === 0 ? (
+        <div className="card stack" style={{ alignItems: "center" }}>
+          <Kapy pose="sleepy" size={96} anim="sway" />
+          <strong>No recommendations yet</strong>
+          <p className="mute">Rate a dish and leave a short note. Happy ones show here with the place.</p>
+        </div>
+      ) : posts.map((c, i) => (
+        <article key={i} className="review">
+          <div className="row between"><span className="row" style={{ gap: 8 }}><Face tone={tone(c.score)} size={28} /><strong>{c.dish}</strong></span><span className="mute small">{ago(c.at, now)}</span></div>
+          <p>&ldquo;{c.text}&rdquo;</p>
+          <a className="row mute small" style={{ gap: 6 }} href={`/ulam/stall/${c.stallId}`}><Icon name="pin" />{c.stallName} · {c.area}</a>
+        </article>
+      ))}
+    </section>
+  );
+
+  if (view === "load" && posts === null) return <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>;
+  const hero = <div className="hero"><Kapy pose="think" size={104} anim="bob" /><div><h1>Community</h1><p>What customers recommend, and where to find it.</p></div></div>;
+  if (view !== "ok") {
     return (
       <div className="stack">
-        <div className="hero"><Kapy pose="think" size={104} anim="bob" /><div><h1>Community</h1><p>What customers say, turned into what to fix.</p></div></div>
-        <div className="card stack"><strong>Sign in to see your customers&apos; feedback</strong><p className="mute">The Community page reads the comments and taste ratings left for your karinderya.</p><a className="btn block" href="/owner">Owner sign-in</a></div>
+        {hero}
+        {feed}
+        {view === "out" && <div className="card stack"><strong>Own a karinderya?</strong><p className="mute">Sign in to also see private feedback from your own customers, with things to fix.</p><a className="btn block" href="/owner">Owner sign-in</a></div>}
       </div>
     );
   }
@@ -74,7 +100,9 @@ export function Community() {
 
   return (
     <div className="stack">
-      <div className="hero"><Kapy pose="think" size={104} anim="bob" /><div><h1>Community</h1><p>{stall?.name}: what customers say, turned into what to fix.</p></div></div>
+      {hero}
+      {feed}
+      <h2 className="sec">Only you can see this: {stall?.name}</h2>
 
       {total === 0 && (
         <div className="card stack" style={{ alignItems: "center" }}>
@@ -124,7 +152,7 @@ export function Community() {
           ))}
         </section>
       )}
-      <p className="mute small">Comments are anonymous and only you can see them here. Nothing is shown publicly except clean 4 and 5 scores on a dish that has enough ratings.</p>
+      <p className="mute small">Comments are anonymous. The public feed only shows clean 4 and 5 scores on a dish with enough ratings. Everything under your name above stays private.</p>
     </div>
   );
 }

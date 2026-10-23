@@ -22,7 +22,7 @@ export default function Home() {
         <Kapy pose="wave" size={108} anim="bob" />
         <div>
           <h1>KapyBa</h1>
-          <p>Alamin kung aling ulam ang bumebenta. Know which dishes customers love, and cook what sells.</p>
+          <p>Rate dishes in two taps. Cook what sells.</p>
         </div>
       </div>
       <Suspense fallback={null}>

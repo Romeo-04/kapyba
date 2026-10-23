@@ -3,6 +3,7 @@ import { readFileSync, rmSync } from "node:fs";
 import { MAIL_FILE } from "../../playwright.config";
 
 test("owner sets up a stall, a second phone rates, the owner sees it", async ({ browser, baseURL }) => {
+  test.setTimeout(60_000); // the whole owner loop in one test
   rmSync(MAIL_FILE, { force: true });
 
   // Owner signs in with the emailed link.
@@ -35,10 +36,13 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
   await expect(owner.getByTestId("waiting")).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
+  await owner.getByRole("button", { name: "Manage" }).click();
   await expect(owner.getByRole("button", { name: "Paborito" })).toHaveAttribute("aria-pressed", "true");
+  await owner.getByRole("tab", { name: "Higit pa" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
+  await owner.getByRole("tab", { name: "Ngayon" }).click();
 
-  // Fix the price.
+  // Fix the price (Manage is still open from above).
   await owner.getByRole("button", { name: "Edit" }).click();
   await owner.getByLabel("Price (₱)").first().fill("75");
   await owner.getByRole("button", { name: "Save", exact: true }).first().click();
@@ -94,12 +98,14 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await offCtx.close();
 
   // End-of-day log: 12 cooked, 9 sold at ₱75 (after the price fix) leaves 3 portions, about ₱225.
+  await owner.getByRole("tab", { name: "Natira" }).click();
   await owner.getByLabel("Adobo cooked").fill("12");
   await owner.getByLabel("Adobo sold").fill("9");
   await owner.getByRole("button", { name: "Save today" }).click();
   await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱225");
 
   // Bukas now suggests 9 (the average sold) for Adobo.
+  await owner.getByRole("tab", { name: "Bukas" }).click();
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
   // Palengke: 9 servings of Adobo need 1.4 kg chicken; the list shows a range and the placeholder notice.
@@ -115,6 +121,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
   // Alok: Adobo is already Paborito from setup (so it shows on the board); the owner posts a one-plate deal.
+  await owner.getByRole("tab", { name: "Higit pa" }).click();
   await owner.getByLabel("Limit").fill("1");
   await owner.getByRole("button", { name: "Post deal" }).click();
   await expect(owner.getByTestId("alok-row")).toContainText("1 of 1 left");
@@ -130,6 +137,8 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await guestCtx.close();
 
   // Naubos and Sale: the owner marks Adobo gone and discounts it; the board shows both.
+  await owner.getByRole("tab", { name: "Ngayon" }).click();
+  await owner.getByRole("button", { name: "Manage" }).click();
   await owner.getByRole("button", { name: "Naubos", exact: true }).click();
   await owner.getByRole("button", { name: "Sale", exact: true }).click();
   await owner.getByLabel("Sale price today (₱)").fill("50");
@@ -141,6 +150,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await board.close();
 
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
+  await owner.getByRole("tab", { name: "Higit pa" }).click();
   await owner.getByLabel("What looked wrong?").fill("Looks odd");
   await owner.getByRole("button", { name: "Send report" }).click();
   await expect(owner.getByText("2 ratings are under review").first()).toBeVisible();
@@ -164,6 +174,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // Signing out ends the session on this device.
   await owner.goto(new URL("/o", owner.url()).href);
+  await owner.getByRole("tab", { name: "Higit pa" }).click();
   await owner.getByRole("button", { name: "Sign out" }).click();
   await expect(owner.getByRole("button", { name: "Send link" })).toBeVisible();
   await owner.goto(new URL("/o", owner.url()).href);
@@ -181,4 +192,38 @@ test("signed-out visitors cannot open the owner page", async ({ page }) => {
 test("an unknown stall code shows a not-found message", async ({ page }) => {
   await page.goto("/s/doesnotexist");
   await expect(page.getByText("Hindi mahanap ang stall na ito.")).toBeVisible();
+});
+
+test("two devices that sign in with different emails get separate accounts", async ({ browser, baseURL }) => {
+  rmSync(MAIL_FILE, { force: true });
+  const signIn = async (email: string) => {
+    const ctx = await browser.newContext({ baseURL });
+    const page = await ctx.newPage();
+    await page.goto("/");
+    await page.getByLabel("Owner sign-in").fill(email);
+    await page.getByRole("button", { name: "Send link" }).click();
+    await expect(page.getByText("Check your email")).toBeVisible();
+    await page.goto(readFileSync(MAIL_FILE, "utf8").trim().split("\n").pop()!);
+    await expect(page.getByRole("heading", { name: "Simula" })).toBeVisible();
+    return { ctx, page };
+  };
+  const a = await signIn("ana@example.com");
+  await a.page.getByLabel("Stall name").fill("Tindahan ni Ana");
+  await a.page.getByLabel("Area or school nearby").fill("UST");
+  await a.page.getByRole("button", { name: "Next", exact: true }).click();
+  const b = await signIn("ben@example.com");
+
+  // Ben, on his own device, starts at Simula with no stall; Ana's stall is not his.
+  const stallsOf = (p: typeof a.page) => p.evaluate(async () => (await (await fetch("/api/stalls")).json()).stalls.map((s: { name: string }) => s.name) as string[]);
+  expect(await stallsOf(a.page)).toEqual(["Tindahan ni Ana"]);
+  expect(await stallsOf(b.page)).toEqual([]);
+
+  // A device that never signed in sees the sign-in form, not anyone's stall.
+  const anon = await browser.newContext({ baseURL });
+  const guest = await anon.newPage();
+  await guest.goto("/o");
+  await expect(guest.getByRole("button", { name: "Send link" })).toBeVisible();
+  await anon.close();
+  await a.ctx.close();
+  await b.ctx.close();
 });

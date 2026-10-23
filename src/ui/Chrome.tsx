@@ -1,16 +1,16 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Capybara } from "./Capybara";
+import { Kapy } from "./Kapy";
 import { Icon } from "./Icon";
 import type { IconName } from "./icons";
 
-/** Brown top bar with the wordmark, in the style of a food-delivery app header. */
+/** Light top bar with Kapy and the wordmark. */
 export function TopBar() {
   return (
     <header className="topbar">
       <Link href="/" className="brand" aria-label="KapyBa home">
-        <Capybara size={34} />
+        <Kapy pose="wave" size={40} anim="none" />
         <span>KapyBa</span>
       </Link>
       <Link href="/ulam" className="locpill">

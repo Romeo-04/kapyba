@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Capybara } from "@/src/ui/Capybara";
+import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 
@@ -51,7 +51,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
         {step > 1 && step < 5 ? <button className="btn soft" aria-label="Back" onClick={() => go(step - 1)}>←</button> : <span style={{ width: 48 }} />}
         <div className="row grow" role="img" aria-label={`Step ${step} of ${STEPS}`} style={{ justifyContent: "center", gap: 8 }}>
           {Array.from({ length: STEPS }, (_, i) => (
-            <span key={i} style={{ width: 10, height: 10, borderRadius: 99, background: i < step ? "var(--cocoa)" : "var(--ring)" }} />
+            <span key={i} style={{ width: 10, height: 10, borderRadius: 99, background: i < step ? "var(--brand)" : "var(--ring)", transition: "background-color 300ms var(--ease), transform 300ms var(--spring)", transform: i + 1 === step ? "scale(1.4)" : undefined }} />
           ))}
         </div>
         {stall && step < 6 ? <button className="btn soft" onClick={finish}>Laktaw</button> : <span style={{ width: 48 }} />}
@@ -64,7 +64,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
           const r = await post("/api/stalls", { name: f.get("name"), area: f.get("area") });
           if (r.ok) { setMsg(""); onStall((await r.json()).stall?.id); setStep(2); } else setMsg("Add a name and an area.");
         }}>
-          <div className="hero"><Capybara mood="happy" size={72} /><div><h1>Simula</h1><p>Anong pangalan ng tindahan mo? Takes about two minutes.</p></div></div>
+          <div className="hero"><Kapy pose="wave" size={110} anim="hop" /><div><h1>Simula</h1><p>Anong pangalan ng tindahan mo? Takes about two minutes.</p></div></div>
           <div><label htmlFor="name">Stall name</label><input id="name" name="name" required maxLength={80} placeholder="Karinderya ni Aling Rosa" /></div>
           <div><label htmlFor="area">Area or school nearby</label><input id="area" name="area" required maxLength={80} placeholder="UST" /></div>
           <p className="mute">Puwedeng baguhin mamaya.</p>
@@ -75,7 +75,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
 
       {step === 2 && (
         <div className="stack">
-          <div className="row"><h1 className="grow">Ulam</h1><span className="pill g">{picked.length} napili</span></div>
+          <div className="row"><Kapy pose="cook" size={72} anim="sway" /><h1 className="grow">Ulam</h1><span className="pill g">{picked.length} napili</span></div>
           <p className="mute">Ano ang madalas mong lutuin? Tap the dishes you cook.</p>
           <div className="chips" style={{ flexWrap: "wrap" }}>
             {shown.map((p) => (
@@ -96,7 +96,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
 
       {step === 3 && (
         <div className="stack">
-          <div className="row"><h1 className="grow">Presyo</h1><span className="mute">3/6</span></div>
+          <div className="row"><Kapy pose="think" size={72} anim="bob" /><h1 className="grow">Presyo</h1><span className="mute">3/6</span></div>
           <p className="mute">Magkano bawat plato? Set the price you charge. You can change it later.</p>
           {picked.map((p) => (
             <div key={p.name} className="card row" style={{ alignItems: "center" }}>
@@ -116,7 +116,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
 
       {step === 4 && stall && picked.length > 0 && dishes.length === 0 && (
         <div className="stack">
-          <div className="row"><h1 className="grow">Karaniwan</h1><span className="mute">4/6</span></div>
+          <div className="row"><Kapy pose="eat" size={72} anim="bob" /><h1 className="grow">Karaniwan</h1><span className="mute">4/6</span></div>
           <p className="mute">Ilang plato ang benta mo sa isang araw? Roughly how many plates you sell a day.</p>
           {picked.map((p) => (
             <div key={p.name} className="card stack">
@@ -139,7 +139,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
 
       {step === 5 && stall && (
         <div className="stack">
-          <div className="row"><h1 className="grow">Paborito</h1><span className="pill g">{fav.length}/3</span></div>
+          <div className="row"><Kapy pose="cheer" size={72} anim="hop" /><h1 className="grow">Paborito</h1><span className="pill g">{fav.length}/3</span></div>
           <p className="mute">Alin ang top 3 mong luto? Pick up to three. Paborito mo, hindi customer rating.</p>
           {dishes.map((d) => (
             <button key={d.id} type="button" className="card row" aria-pressed={fav.includes(d.id)} style={{ alignItems: "center", textAlign: "left", background: fav.includes(d.id) ? "var(--cream)" : undefined }} onClick={() => {
@@ -162,7 +162,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
       {step === 6 && stall && (
         <div className="stack">
           <div className="card stack center qr-print" style={{ alignItems: "center" }}>
-            <Capybara mood="happy" size={72} />
+            <Kapy pose="sign" size={96} anim="bob" />
             <h1>{stall.name}</h1>
             <p className="mute">{stall.area}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}

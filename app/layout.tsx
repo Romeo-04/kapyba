@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { BottomNav, TopBar } from "@/src/ui/Chrome";
+import { KapyBuddy } from "@/src/ui/KapyBuddy";
 import { RegisterSW } from "@/src/ui/RegisterSW";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const sans = Plus_Jakarta_Sans({ variable: "--font-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "KapyBa",
@@ -13,17 +14,18 @@ export const metadata: Metadata = {
   description: "Rate dishes in two taps. Cook what sells.",
 };
 
-export const viewport: Viewport = { themeColor: "#7b5544", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#fdfaf3", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fil" className={geist.variable}>
+    <html lang="fil" className={sans.variable}>
       <body>
         <a className="skip" href="#main">Lumaktaw sa nilalaman</a>
         <RegisterSW />
         <TopBar />
         {children}
         <Suspense fallback={null}>
+          <KapyBuddy />
           <BottomNav />
         </Suspense>
       </body>

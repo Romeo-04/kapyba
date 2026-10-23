@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Rate dishes in two taps. Cook what sells.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f5f0eb",
-    theme_color: "#7a4a30",
+    background_color: "#fdfaf3",
+    theme_color: "#d9502a",
     lang: "fil",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },

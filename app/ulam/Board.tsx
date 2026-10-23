@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Capybara } from "@/src/ui/Capybara";
+import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import { Ring } from "@/src/ui/Ring";
 import { iconFor } from "../s/[code]/Rate";
@@ -34,9 +34,12 @@ export function Board() {
 
   return (
     <div className="stack">
-      <div>
-        <h1>Ulam</h1>
-        <p className="mute">Which dishes are worth your money. Scores show only after enough customers have rated.</p>
+      <div className="hero">
+        <Kapy pose="point" size={104} anim="bob" />
+        <div>
+          <h1>Ulam</h1>
+          <p>Which dishes are worth your money. Scores show only after enough customers have rated.</p>
+        </div>
       </div>
       <div className="search">
         <Icon name="pin" />
@@ -48,10 +51,10 @@ export function Board() {
         ))}
       </div>
 
-      {items === null && <p className="mute center">Sandali...</p>}
+      {items === null && <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>}
       {items?.length === 0 && (
         <div className="stack center" style={{ alignItems: "center", padding: "24px 0" }}>
-          <Capybara mood="sleepy" size={96} />
+          <Kapy pose="sleepy" size={120} anim="sway" />
           <p className="mute" data-testid="board-empty">No dishes to show yet. Scan a stall QR and rate what you eat.</p>
         </div>
       )}

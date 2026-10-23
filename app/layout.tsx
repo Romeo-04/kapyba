@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import { BottomNav, TopBar } from "@/src/ui/Chrome";
 import { KapyBuddy } from "@/src/ui/KapyBuddy";
+import { Splash } from "@/src/ui/Splash";
 import { RegisterSW } from "@/src/ui/RegisterSW";
 import "./globals.css";
 
@@ -22,6 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <a className="skip" href="#main">Lumaktaw sa nilalaman</a>
         <RegisterSW />
+        <Suspense fallback={null}>
+          <Splash />
+        </Suspense>
         <TopBar />
         {children}
         <Suspense fallback={null}>

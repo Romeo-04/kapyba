@@ -6,19 +6,16 @@ import { AllergenPick } from "./AllergenPick";
 const patch = (id: string, body: unknown) =>
   fetch(`/api/dishes/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
-// Fix a name or price, or take a dish off the menu. Removing takes two taps so it is not done by accident.
-export function DishEdit({ id, name, price, servings, main, ingredients, allergens, onDone }: { id: string; name: string; price: number; servings: number; main: string | null; ingredients: string | null; allergens: string[]; onDone: () => void }) {
-  const [open, setOpen] = useState(false);
-  const [sure, setSure] = useState(false);
+// Fix a name, price, servings, main ingredient, ingredients and allergens. Opened from the Manage sheet.
+export function DishEdit({ id, name, price, servings, main, ingredients, allergens, onDone, onCancel }: { id: string; name: string; price: number; servings: number; main: string | null; ingredients: string | null; allergens: string[]; onDone: () => void; onCancel: () => void }) {
   const [err, setErr] = useState("");
 
-  if (!open) return <button className="btn soft" onClick={() => setOpen(true)}>Edit</button>;
   return (
     <form className="card stack" style={{ flexBasis: "100%" }} onSubmit={async (e) => {
       e.preventDefault();
       const f = new FormData(e.currentTarget);
       const r = await patch(id, { name: f.get("name"), price: Number(f.get("price")), baseServings: Number(f.get("servings") || 0), main: String(f.get("main") ?? ""), ingredients: String(f.get("ingredients") ?? "") || null, allergens: f.getAll("allergens") });
-      if (r.ok) { setOpen(false); setErr(""); onDone(); } else setErr("Check the name and price.");
+      if (r.ok) { setErr(""); onDone(); } else setErr("Check the name and price.");
     }}>
       <div><label htmlFor={`n-${id}`}>Dish</label><input id={`n-${id}`} name="name" defaultValue={name} required maxLength={80} /></div>
       <div className="row">
@@ -33,12 +30,7 @@ export function DishEdit({ id, name, price, servings, main, ingredients, allerge
       {err && <p className="err" role="alert">{err}</p>}
       <div className="row">
         <button className="btn">Save</button>
-        <button type="button" className="btn soft" onClick={() => { setOpen(false); setSure(false); }}>Cancel</button>
-        <button type="button" className="btn soft" onClick={async () => {
-          if (!sure) { setSure(true); return; }
-          await patch(id, { archived: true });
-          onDone();
-        }}>{sure ? "Sure? Tap to remove" : "Remove"}</button>
+        <button type="button" className="btn soft" onClick={onCancel}>Cancel</button>
       </div>
     </form>
   );

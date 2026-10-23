@@ -15,7 +15,7 @@ export function Ulat({ dishes, onFiled }: { dishes: Dish[]; onFiled: () => void 
   const [msg, setMsg] = useState("");
   return (
     <details className="report">
-    <summary className="btn soft block"><Icon name="alert" />Report odd ratings</summary>
+    <summary className="btn soft block"><Icon name="alert" />Report suspicious ratings</summary>
     <form className="card stack" onSubmit={async (e) => {
       e.preventDefault();
       const form = e.currentTarget;

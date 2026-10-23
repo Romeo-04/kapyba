@@ -58,7 +58,7 @@ export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserv
             <Ring score={d.kind === "scored" ? d.score! : null} locked={d.kind !== "scored"} size={44} />
             <span className="mute">{d.kind === "scored" ? `${d.score!.toFixed(1)} · ${d.count} ratings` : "Not enough ratings for a score yet"}</span>
             {main && <span className="pill g">{main}</span>}
-            {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
+            {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Favorite</span>}
             {d.sulit && <span className="pill a">Sulit</span>}
           </div>
           <section aria-label="Ingredients">

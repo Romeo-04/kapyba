@@ -237,6 +237,7 @@ button.branch .tile { width: 44px; height: 44px; border-radius: 12px; display: g
 button.branch.current .tile { background: var(--brand); color: #fff; }
 button.branch .thumb { border-radius: 12px; object-fit: cover; flex: none; }
 .pill.cur { background: #fff; color: var(--brand); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 
 .vcard .btn.soft { background: #fff; }
 

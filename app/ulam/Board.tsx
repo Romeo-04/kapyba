@@ -114,10 +114,10 @@ export function Board() {
               {d.main && <span className="pill g">{mainLabel(d.main)}</span>}
               {d.allergens.length > 0 && <span className="pill a" data-testid="allergens"><Icon name="alert" />Allergen: {d.allergens.map((a) => ALLERGENS.find((x) => x.id === a)?.label).join(", ")}</span>}
               {reserved && <span className="pill g"><Icon name="check" />Reserved</span>}
-              {d.soldOut && <span className="pill r"><Icon name="alert" />Naubos</span>}
+              {d.soldOut && <span className="pill r"><Icon name="alert" />Sold out</span>}
               {d.salePrice !== null && !d.soldOut && <span className="pill a"><Icon name="tag" />Sale · huling plato</span>}
-              {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Paborito</span>}
-              {d.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
+              {d.kind === "paborito" && <span className="pill a"><Icon name="heart" />Favorite</span>}
+              {d.improving && <span className="pill g"><Icon name="trend" />Improving</span>}
               {d.alok && <span className="pill" style={{ background: "#dbe9f6", color: "#2b5d8a" }}><Icon name="tag" />Alok · {d.alok.remaining} left</span>}
             </div>
             {(d.alok || claims[d.dishId]) && (

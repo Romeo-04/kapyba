@@ -55,7 +55,7 @@ export function StallProfile({ id }: { id: string }) {
               : <span className="tile"><Icon name={iconFor(d.icon)} /></span>}
             <span className="grow">
               <strong>{d.name}</strong>
-              <span className="mute small" style={{ display: "block" }}>₱{d.salePrice ?? d.price}{d.main ? ` · ${mainLabel(d.main)}` : ""}{d.soldOut ? " · Naubos" : ""}{d.alok && !d.soldOut ? " · Deal" : ""}</span>
+              <span className="mute small" style={{ display: "block" }}>₱{d.salePrice ?? d.price}{d.main ? ` · ${mainLabel(d.main)}` : ""}{d.soldOut ? " · Sold out" : ""}{d.alok && !d.soldOut ? " · Deal" : ""}</span>
             </span>
             <Ring score={d.kind === "scored" ? d.score ?? null : null} locked={d.kind !== "scored"} size={44} />
           </button>

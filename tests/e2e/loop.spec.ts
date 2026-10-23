@@ -37,7 +37,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("waiting")).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await owner.getByRole("button", { name: "Manage" }).click();
-  await expect(owner.getByRole("button", { name: "Paborito" })).toHaveAttribute("aria-pressed", "true");
+  await expect(owner.getByRole("button", { name: "Favorite" })).toHaveAttribute("aria-pressed", "true");
 
   // Photo is optional: the dish card shows one after the owner adds it under Manage, and the public board uses it.
   const dot = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGN4kaWDFTEMLQkAf/NfgaZ1GiMAAAAASUVORK5CYII=", "base64");
@@ -80,10 +80,10 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("notice")).toContainText("Adobo was rated");
   await expect(owner.getByTestId("bell-count")).toHaveCount(0);
   await owner.getByRole("button", { name: "Balita" }).click(); // back to Ngayon
-  await owner.getByText("Ano ang sinabi ng customers").click();
+  await owner.getByText("What customers said").click();
   await expect(owner.getByTestId("owner-comments")).toContainText("Ang sarap ng sabaw!"); // private to the owner
   await expect(owner.getByRole("meter", { name: "Too salty or bland" })).toBeVisible();
-  await expect(owner.getByTestId("trend")).toContainText("Kulang pa ang datos");
+  await expect(owner.getByTestId("trend")).toContainText("Not enough data yet");
 
   // The same buyer cannot rate the same dish twice in a day.
   await buyer.getByRole("button", { name: "Rate another dish" }).click();
@@ -108,7 +108,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await off.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(async () => {
     await owner.reload();
-    await expect(owner.getByText("2 ratings · 2 buyers")).toBeVisible({ timeout: 5000 });
+    await expect(owner.getByText("2 customers")).toBeVisible({ timeout: 5000 });
   }).toPass();
   // Reopening the page with no signal still shows the dishes from the cached copy.
   await offCtx.setOffline(true);
@@ -189,14 +189,14 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Naubos and Sale: the owner marks Adobo gone and discounts it; the board shows both.
   await owner.getByRole("tab", { name: "Now" }).click();
   await owner.getByRole("button", { name: "Manage" }).click();
-  await owner.getByRole("button", { name: "Naubos", exact: true }).click();
+  await owner.getByRole("button", { name: "Sold out", exact: true }).click();
   await owner.getByRole("button", { name: "Sale", exact: true }).click();
   await owner.getByLabel("Sale price today (₱)").fill("50");
   await owner.getByRole("button", { name: "Start" }).click();
   await expect(owner.getByRole("button", { name: /Sale ₱50/ })).toBeVisible();
   const board = await (await browser.newContext({ baseURL })).newPage();
   await board.goto("/ulam");
-  await expect(board.getByText("Naubos")).toBeVisible();
+  await expect(board.getByText("Sold out")).toBeVisible();
   await board.close();
 
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.

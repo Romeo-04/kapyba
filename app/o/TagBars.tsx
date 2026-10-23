@@ -16,13 +16,13 @@ const ROWS: { tag: string; icon: IconName; label: string }[] = [
 export function TagBars({ shares, nearby, trend, comments }: { shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[]; comments: { score: number; text: string; at: string }[] }) {
   return (
     <details data-testid="tagbars">
-      <summary style={{ cursor: "pointer", fontWeight: 700 }}>Ano ang sinabi ng customers</summary>
+      <summary style={{ cursor: "pointer", fontWeight: 700 }}>What customers said</summary>
       <div className="stack" style={{ paddingTop: 8 }}>
         <Trend values={trend} />
         {comments.length > 0 && (
           <div data-testid="owner-comments">
             <strong>Comments</strong>
-            {comments.map((c, i) => <p key={i} className="mute">&ldquo;{c.text}&rdquo; · {c.score >= 4 ? "Masarap" : c.score >= 3 ? "Okay lang" : "Hindi masarap"}</p>)}
+            {comments.map((c, i) => <p key={i} className="mute">&ldquo;{c.text}&rdquo; · {c.score >= 4 ? "Tasty" : c.score >= 3 ? "Okay" : "Not tasty"}</p>)}
           </div>
         )}
         {ROWS.map((r) => {
@@ -51,7 +51,7 @@ function Trend({ values }: { values: (number | null)[] }) {
   const label = values.map((v) => (v === null ? "no ratings" : v.toFixed(1))).join(", ");
   return (
     <div data-testid="trend">
-      <div className="row"><span className="grow">Huling 4 na linggo</span><span className="mute">{values.filter((v) => v !== null).length < 2 ? "Kulang pa ang datos" : ""}</span></div>
+      <div className="row"><span className="grow">Last 4 weeks</span><span className="mute">{values.filter((v) => v !== null).length < 2 ? "Not enough data yet" : ""}</span></div>
       <svg viewBox="0 0 190 56" width="100%" height="56" role="img" aria-label={`Average score by week, oldest first: ${label}`}>
         {line && <polyline points={line} fill="none" stroke="var(--cocoa)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
         {pts.map((p, i) => p && <circle key={i} cx={p.split(",")[0]} cy={p.split(",")[1]} r="4" fill="var(--cocoa)" />)}

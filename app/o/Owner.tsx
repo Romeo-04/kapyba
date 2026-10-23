@@ -160,7 +160,7 @@ export function Owner() {
       {dishes.length > 0 && dishes.every((d) => d.private.count === 0) && (
         <div className="card stack center" data-testid="waiting" style={{ alignItems: "center" }}>
           <Kapy pose="sleepy" size={110} anim="sway" />
-          <strong>Naghihintay ng unang rating</strong>
+          <strong>Waiting for the first rating</strong>
           <p className="mute">Print your QR (see Others) and put it where customers pay. The first rating shows up here, privately, within seconds.</p>
         </div>
       )}
@@ -170,10 +170,11 @@ export function Owner() {
             <Ring score={d.private.score} locked={d.private.score === null} />
             <div className="grow">
               <strong>{d.name}</strong> <span className="price">₱{d.price}</span>
-              <div className="mute">
-                {d.private.count} ratings · {d.private.buyers} buyers
-                {d.gate.state === "kulang" && d.private.count > 0 && <> · Kulang pa {Math.min(d.gate.have, d.gate.need)}/{d.gate.need}</>}
+              <div className="meta">
+                <span className="pill">{d.private.count} {d.private.count === 1 ? "rating" : "ratings"}</span>
+                <span className="pill">{d.private.buyers} {d.private.buyers === 1 ? "customer" : "customers"}</span>
               </div>
+              {d.gate.state === "kulang" && d.private.count > 0 && <div className="mute small">{Math.min(d.gate.have, d.gate.need)} of {d.gate.need} ratings to go public</div>}
             </div>
             {d.imageV !== null
               // eslint-disable-next-line @next/next/no-img-element
@@ -188,9 +189,9 @@ export function Owner() {
           )}
           {d.private.count > 0 && <TagBars shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} comments={d.comments} />}
           <div className="row" style={{ flexWrap: "wrap" }}>
-            {d.paborito && <span className="pill r"><Icon name="heart" />Paborito</span>}
-            {d.private.improving && <span className="pill g"><Icon name="trend" />Gumaganda</span>}
-            {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />Pansin</span>}
+            {d.paborito && <span className="pill r"><Icon name="heart" />Favorite</span>}
+            {d.private.improving && <span className="pill g"><Icon name="trend" />Improving</span>}
+            {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />{d.pansin < 0 ? "Needs attention" : "Standout"}</span>}
             {d.flagged > 0 && <span className="pill r"><Icon name="alert" />{d.flagged} under review</span>}
             {d.recs.map((r) => (
               <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>
@@ -203,11 +204,11 @@ export function Owner() {
             </button>
             <button className="btn soft" aria-pressed={d.paborito} onClick={async () => {
               const r = await post(`/api/dishes/${d.id}`, { paborito: !d.paborito }, "PATCH");
-              setMsg(r.ok ? "" : "You can pick up to three Paborito dishes.");
+              setMsg(r.ok ? "" : "You can pick up to three Favorite dishes.");
               reload();
-            }}><Icon name="heart" />Paborito</button>
+            }}><Icon name="heart" />Favorite</button>
             <button className="btn soft" aria-pressed={d.soldOut} onClick={async () => { await post(`/api/dishes/${d.id}`, { soldOut: !d.soldOut }, "PATCH"); reload(); }}>
-              <Icon name="alert" />Naubos
+              <Icon name="alert" />Sold out
             </button>
             <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV} onDone={reload} />
             <DishNatira stallId={stall.id} dishId={d.id} dishName={d.name} onSaved={() => setBukasTick((t) => t + 1)} />

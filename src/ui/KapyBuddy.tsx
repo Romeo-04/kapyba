@@ -19,7 +19,8 @@ export function KapyBuddy() {
 function Buddy({ path }: { path: string }) {
   const [n, setN] = useState(0);
   const [open, setOpen] = useState(false);
-  if (path.startsWith("/s/")) return null;
+  // Only on the calm pages; the owner and rating screens are busy enough.
+  if (path !== "/" && !path.startsWith("/ulam")) return null;
   const say = (LINES.find((l) => l.match(path)) ?? LINES[LINES.length - 1]).say;
   const tap = () => {
     setN((v) => v + 1);

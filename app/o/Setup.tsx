@@ -51,7 +51,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
         {step > 1 && step < 5 ? <button className="btn soft" aria-label="Back" onClick={() => go(step - 1)}>←</button> : <span style={{ width: 48 }} />}
         <div className="row grow" role="img" aria-label={`Step ${step} of ${STEPS}`} style={{ justifyContent: "center", gap: 8 }}>
           {Array.from({ length: STEPS }, (_, i) => (
-            <span key={i} style={{ width: 10, height: 10, borderRadius: 99, background: i < step ? "var(--brand)" : "var(--ring)", transition: "background-color 300ms var(--ease), transform 300ms var(--spring)", transform: i + 1 === step ? "scale(1.4)" : undefined }} />
+            <span key={i} style={{ width: 10, height: 10, borderRadius: 99, background: i < step ? "var(--brand)" : "var(--ring)", transition: "background-color 300ms var(--ease), transform 300ms var(--out)", transform: i + 1 === step ? "scale(1.4)" : undefined }} />
           ))}
         </div>
         {stall && step < 6 ? <button className="btn soft" onClick={finish}>Laktaw</button> : <span style={{ width: 48 }} />}

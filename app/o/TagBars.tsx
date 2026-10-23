@@ -27,7 +27,7 @@ export function TagBars({ dish, shares, nearby, trend, comments, onClose }: { di
 
   // In the body, like the dish sheet: the page's entrance animation would otherwise trap a fixed overlay.
   return createPortal(
-    <div className="sheet-back center" onClick={onClose}>
+    <div className="sheet-back mid" onClick={onClose}>
     <div className="sheet pop" role="dialog" aria-modal="true" aria-label={`What customers said about ${dish}`} data-testid="tagbars" onClick={(e) => e.stopPropagation()}>
       <div className="pop-head">
         <div className="grow"><span className="eyebrow">{dish}</span><h2>What customers said</h2></div>

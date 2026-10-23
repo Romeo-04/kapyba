@@ -165,7 +165,7 @@ export function Owner() {
         </div>
       )}
       {dishes.map((d) => (
-        <div key={d.id} className="card dish">
+        <div key={d.id} className="card dishcard">
           {d.imageV !== null
             // eslint-disable-next-line @next/next/no-img-element
             ? <img className="thumb dish-photo" src={photoUrl(d.id, d.imageV)} alt={d.name} width={400} height={250} />
@@ -173,13 +173,14 @@ export function Owner() {
           <div className="dish-body stack">
             <div className="dish-head">
               <div className="grow">
-                <strong>{d.name}</strong> <span className="price">₱{d.price}</span>
-                <div className="mute">{d.private.count} {d.private.count === 1 ? "rating" : "ratings"} · {d.private.buyers} {d.private.buyers === 1 ? "customer" : "customers"}</div>
+                <strong>{d.name}</strong>
+                <span className="price">₱{d.price}</span>
               </div>
               <div className="score" aria-label={d.private.score === null ? "No score yet" : `Score ${d.private.score.toFixed(1)} out of 5`}>
                 <strong>{d.private.score === null ? "–" : d.private.score.toFixed(1)}</strong><span>/5.0</span>
               </div>
             </div>
+            <p className="mute dish-stats">{d.private.count} {d.private.count === 1 ? "rating" : "ratings"} · {d.private.buyers} {d.private.buyers === 1 ? "customer" : "customers"}</p>
             {d.gate.state === "kulang" && d.private.count > 0 && <div className="mute small">{Math.min(d.gate.have, d.gate.need)} of {d.gate.need} ratings to go public</div>}
             {d.kumpara && (
               <p className="mute" data-testid="kumpara">

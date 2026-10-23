@@ -52,6 +52,9 @@ export function HomeDash() {
     const v = dishes.map((d) => d.private.trend[w]).filter((x): x is number => x !== null && x !== undefined);
     return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
   });
+  // Change since the week before: the latest week with ratings against the one before it. Under 0.05 counts as steady.
+  const seen = weeks.filter((w): w is number => w !== null);
+  const delta = seen.length >= 2 ? Math.round((seen[seen.length - 1] - seen[seen.length - 2]) * 10) / 10 : null;
   const maxPesos = Math.max(1, ...days.map((d) => d.pesos));
   const attention = dishes
     .filter((d) => d.private.count > 0 && ((d.private.score !== null && d.private.score < LOW) || d.pansin < 0 || d.flagged > 0))
@@ -62,15 +65,26 @@ export function HomeDash() {
     <div className="stack" data-testid="home-dash">
       <div className="stats">
         <div className="stat"><strong>{total}</strong><span>ratings</span></div>
-        <div className="stat"><strong>{avg === null ? "–" : avg.toFixed(1)}</strong><span>avg score</span></div>
+        <div className="stat" data-testid="home-avg">
+          <div className="row" style={{ gap: 8 }}>
+            <Ring score={avg} locked={avg === null} size={48} />
+            <strong>{avg === null ? "–" : avg.toFixed(1)}</strong>
+          </div>
+          {delta !== null && delta !== 0 && (
+            <em className={`delta ${delta > 0 ? "up" : "down"}`} data-testid="home-delta" aria-label={`${delta > 0 ? "Up" : "Down"} ${Math.abs(delta)} from last week`}>
+              <Icon name={delta > 0 ? "up" : "down"} />{Math.abs(delta)}
+            </em>
+          )}
+          <span>avg score</span>
+        </div>
         <div className="stat"><strong>{last ? `₱${last.pesos}` : "–"}</strong><span>left over</span></div>
       </div>
 
       <div className="card stack">
         <div className="eyebrow">Score by week</div>
-        <div className="bars" role="img" aria-label={`Average score by week: ${weeks.map((w) => (w === null ? "none" : w.toFixed(1))).join(", ")}`}>
+        <div className="cols" role="img" aria-label={`Average score by week: ${weeks.map((w) => (w === null ? "none" : w.toFixed(1))).join(", ")}`}>
           {weeks.map((w, i) => (
-            <div key={i} className="bar">
+            <div key={i} className="col">
               <span className="num">{w === null ? "–" : w.toFixed(1)}</span>
               <span className="fill" style={{ height: `${w === null ? 4 : Math.max(8, (w / 5) * 100)}%`, background: w !== null && w < LOW ? "var(--chili)" : "var(--leaf)" }} />
               <span className="lab">{i === 3 ? "now" : `-${3 - i}w`}</span>
@@ -82,9 +96,9 @@ export function HomeDash() {
       {days.length > 0 && (
         <div className="card stack">
           <div className="eyebrow">Leftover ₱ by day</div>
-          <div className="bars" role="img" aria-label={`Leftover pesos by day: ${days.map((d) => `${d.day} ${d.pesos}`).join(", ")}`}>
+          <div className="cols" role="img" aria-label={`Leftover pesos by day: ${days.map((d) => `${d.day} ${d.pesos}`).join(", ")}`}>
             {days.map((d) => (
-              <div key={d.day} className="bar">
+              <div key={d.day} className="col">
                 <span className="num">₱{d.pesos}</span>
                 <span className="fill" style={{ height: `${Math.max(6, (d.pesos / maxPesos) * 100)}%`, background: "var(--amber)" }} />
                 <span className="lab">{d.day.slice(8)}</span>

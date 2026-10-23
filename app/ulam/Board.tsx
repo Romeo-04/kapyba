@@ -8,6 +8,7 @@ import { MAINS, mainLabel } from "@/src/domain/mains";
 import { ALLERGENS } from "@/src/domain/allergens";
 import { DishSheet } from "./DishSheet";
 import { BoardIntro } from "./BoardIntro";
+import { useTastes } from "./tastes";
 import { iconFor } from "../s/[code]/Rate";
 
 export type Item = {
@@ -30,6 +31,27 @@ export function Board() {
   const [mine, setMine] = useState<string[]>([]); // dishes whose deal this phone has reserved, even if that was the last spot
   const [open, setOpen] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
+  const [dist, setDist] = useState<Record<string, number> | null>(null); // km from this phone to each stall that has a location
+  const [nearMsg, setNearMsg] = useState("");
+  const [intro, setIntro] = useState(false);
+  const tastes = useTastes();
+
+  // Asks for the phone's position only when the buyer taps Near me (or the Ulam near you pill). It is sent once, not stored.
+  const findNear = () => {
+    if (!navigator.geolocation) { setNearMsg("This phone cannot share its location."); return; }
+    navigator.geolocation.getCurrentPosition(async (p) => {
+      const r = await fetch(`/api/near?lat=${p.coords.latitude}&lng=${p.coords.longitude}`);
+      if (!r.ok) { setNearMsg("Could not find nearby karinderyas. Try again."); return; }
+      setDist((await r.json()).distances);
+      setNearMsg("");
+    }, () => setNearMsg("Allow location to see the nearest karinderyas."), { timeout: 10000, maximumAge: 300000 });
+  };
+  useEffect(() => {
+    const check = () => { if (location.hash === "#near") findNear(); };
+    check();
+    window.addEventListener("hashchange", check);
+    return () => window.removeEventListener("hashchange", check);
+  }, []);
 
   useEffect(() => {
     const q = new URLSearchParams();
@@ -50,7 +72,11 @@ export function Board() {
   };
   const dealCount = items?.filter(isDeal).length ?? 0;
   const mains = MAINS.filter((m) => items?.some((d) => d.main === m.id));
-  const shown = items?.filter((d) => (!dealsOnly || isDeal(d)) && (!main || d.main === main));
+  const filtered = items?.filter((d) => (!dealsOnly || isDeal(d)) && (!main || d.main === main));
+  // Nearest first when the phone shared its position; otherwise the dishes this buyer likes first. Both keep the board order within a group.
+  const shown = filtered && (dist
+    ? [...filtered].sort((a, b) => (dist[a.stallId] ?? Infinity) - (dist[b.stallId] ?? Infinity))
+    : tastes.length ? [...filtered.filter((d) => d.main && tastes.includes(d.main)), ...filtered.filter((d) => !(d.main && tastes.includes(d.main)))] : filtered);
   const sheet = items?.find((d) => d.dishId === open) ?? null;
 
   return (
@@ -62,14 +88,17 @@ export function Board() {
           <p>Worth your money, ranked.</p>
         </div>
       </div>
-      <BoardIntro />
+      <BoardIntro forced={intro} onClose={() => setIntro(false)} />
       <div className="search">
         <Icon name="pin" />
         <input id="area" aria-label="Area or school" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area or school, like UST" maxLength={80} />
       </div>
       <div className="chips" role="group" aria-label="For you">
         <button className="chip" aria-pressed={dealsOnly} onClick={() => setDealsOnly(!dealsOnly)}><Icon name="tag" />Deals for you{dealCount > 0 && ` · ${dealCount}`}</button>
+        <button className="chip" aria-pressed={dist !== null} onClick={() => (dist ? setDist(null) : findNear())}><Icon name="pin" />Near me</button>
+        <button className="chip" aria-pressed={tastes.length > 0} onClick={() => setIntro(!intro)}><Icon name="heart" />My tastes{tastes.length > 0 && ` · ${tastes.length}`}</button>
       </div>
+      {nearMsg && <p className="err" role="status">{nearMsg}</p>}
       <div className="filters">
         <div><label htmlFor="budget">Price</label>
           <select id="budget" value={max} onChange={(e) => setMax(Number(e.target.value))}>
@@ -107,13 +136,14 @@ export function Board() {
           </span>
           <span className="body">
             <span className="title"><strong>{d.name}</strong><span className="price">{d.salePrice !== null ? <><s className="mute">₱{d.price}</s> ₱{d.salePrice}</> : <>₱{d.price}</>}</span></span>
-            <span className="mute" style={{ display: "block" }}>{d.stallName} · {d.area}</span>
+            <span className="mute" style={{ display: "block" }}>{d.stallName} · {d.area}{dist?.[d.stallId] !== undefined && ` · ${dist[d.stallId]} km`}</span>
           </span>
           </button>
           <div className="body" style={{ paddingTop: 0 }}>
             <div className="row" style={{ flexWrap: "wrap", marginTop: 2 }}>
               <a className="pill" href={`/ulam/stall/${d.stallId}`}><Icon name="store" />Karinderya</a>
               {d.main && <span className="pill g">{mainLabel(d.main)}</span>}
+              {d.main && tastes.includes(d.main) && <span className="pill r"><Icon name="heart" />Your taste</span>}
               {d.allergens.length > 0 && <span className="pill a" data-testid="allergens"><Icon name="alert" />Allergen: {d.allergens.map((a) => ALLERGENS.find((x) => x.id === a)?.label).join(", ")}</span>}
               {reserved && <span className="pill g"><Icon name="check" />Reserved</span>}
               {d.soldOut && <span className="pill r"><Icon name="alert" />Sold out</span>}

@@ -18,7 +18,7 @@ import { Setup, setupKey } from "./Setup";
 import { ManageSheet } from "./ManageSheet";
 import { ReviewsSheet } from "./ReviewsSheet";
 
-type Stall = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null };
+type Stall = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null; lat: string | null };
 export type Summary = {
   id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null; main: string | null; ingredients: string | null; allergens: string[]; comments: { score: number; text: string; at: string }[];
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };

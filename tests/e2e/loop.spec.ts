@@ -140,6 +140,14 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("palengke-total")).toContainText("Your estimated total is");
   await expect(owner.getByRole("note")).toContainText("placeholder estimate");
 
+  // Home shows the stall's numbers as charts: ratings, leftover pesos and tomorrow's servings.
+  const home = await owner.context().newPage();
+  await home.goto(new URL("/", owner.url()).href);
+  await expect(home.getByTestId("home-dash")).toContainText("ratings");
+  await expect(home.getByTestId("home-dash")).toContainText("₱225");
+  await expect(home.getByTestId("home-tomorrow")).toContainText("servings");
+  await home.close();
+
   // Bagyo mode trims tomorrow's plan to 60% (9 becomes 5); turning it off restores it.
   await owner.getByRole("button", { name: "Bagyo mode" }).click();
   await expect(owner.getByTestId("fund-card")).toContainText("Simulasyon");

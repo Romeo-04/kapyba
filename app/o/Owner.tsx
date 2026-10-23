@@ -158,7 +158,6 @@ export function Owner() {
         <div className="stats">
           <div className="stat"><strong>{dishes.reduce((s, d) => s + d.private.count, 0)}</strong><span>ratings</span></div>
           <div className="stat"><strong>{dishes.filter((d) => d.gate.state === "public").length}/{dishes.length}</strong><span>dishes scored</span></div>
-          <div className="stat"><strong>{dishes.reduce((s, d) => s + d.flagged, 0)}</strong><span>under review</span></div>
         </div>
       )}
 

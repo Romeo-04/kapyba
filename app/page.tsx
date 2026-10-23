@@ -3,13 +3,14 @@ import { currentOwner } from "@/src/auth/current";
 import { Kapy } from "@/src/ui/Kapy";
 import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { SignIn } from "./SignIn";
+import { HomeDash } from "./HomeDash";
 
 // A signed-in owner gets a way back to the stall instead of the sign-in form.
 async function OwnerEntry() {
   if (!(await currentOwner())) return <SignIn />;
   return (
-    <div className="card stack">
-      <h2>Welcome back</h2>
+    <div className="stack">
+      <HomeDash />
       <a className="btn block" href="/o">Open my stall</a>
     </div>
   );

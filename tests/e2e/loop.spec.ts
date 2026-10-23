@@ -80,10 +80,12 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("notice")).toContainText("Adobo was rated");
   await expect(owner.getByTestId("bell-count")).toHaveCount(0);
   await owner.getByRole("button", { name: "Balita" }).click(); // back to Ngayon
-  await owner.getByText("What customers said").click();
+  await owner.getByRole("button", { name: "View Reviews" }).click();
   await expect(owner.getByTestId("owner-comments")).toContainText("Ang sarap ng sabaw!"); // private to the owner
   await expect(owner.getByRole("meter", { name: "Too salty or bland" })).toBeVisible();
   await expect(owner.getByTestId("trend")).toContainText("Not enough data yet");
+  await owner.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+  await expect(owner.getByRole("dialog")).toBeHidden();
 
   // The same buyer cannot rate the same dish twice in a day.
   await buyer.getByRole("button", { name: "Rate another dish" }).click();

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
-import { Ring } from "@/src/ui/Ring";
 import { PhotoPick, photoUrl } from "@/src/ui/PhotoPick";
 import { iconFor } from "../s/[code]/Rate";
 import type { Notice } from "@/src/services/notifications";
@@ -50,6 +49,7 @@ export function Owner() {
   const [adding, setAdding] = useState(false);
   const [tab, setTab] = useState<Tab>("ngayon");
   const [manageId, setManageId] = useState<string | null>(null);
+  const [reviewId, setReviewId] = useState<string | null>(null);
 
   const [tick, setTick] = useState(0);
   const [bukasTick, setBukasTick] = useState(0);
@@ -165,39 +165,42 @@ export function Owner() {
         </div>
       )}
       {dishes.map((d) => (
-        <div key={d.id} className="card stack">
-          <div className="row">
-            <Ring score={d.private.score} locked={d.private.score === null} />
-            <div className="grow">
-              <strong>{d.name}</strong> <span className="price">₱{d.price}</span>
-              <div className="meta">
-                <span className="pill">{d.private.count} {d.private.count === 1 ? "rating" : "ratings"}</span>
-                <span className="pill">{d.private.buyers} {d.private.buyers === 1 ? "customer" : "customers"}</span>
+        <div key={d.id} className="card dish">
+          {d.imageV !== null
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img className="thumb dish-photo" src={photoUrl(d.id, d.imageV)} alt={d.name} width={400} height={250} />
+            : <div className="dish-photo blank"><Icon name={iconFor(d.icon)} className="lg" /></div>}
+          <div className="dish-body stack">
+            <div className="dish-head">
+              <div className="grow">
+                <strong>{d.name}</strong> <span className="price">₱{d.price}</span>
+                <div className="mute">{d.private.count} {d.private.count === 1 ? "rating" : "ratings"} · {d.private.buyers} {d.private.buyers === 1 ? "customer" : "customers"}</div>
               </div>
-              {d.gate.state === "kulang" && d.private.count > 0 && <div className="mute small">{Math.min(d.gate.have, d.gate.need)} of {d.gate.need} ratings to go public</div>}
+              <div className="score" aria-label={d.private.score === null ? "No score yet" : `Score ${d.private.score.toFixed(1)} out of 5`}>
+                <strong>{d.private.score === null ? "–" : d.private.score.toFixed(1)}</strong><span>/5.0</span>
+              </div>
             </div>
-            {d.imageV !== null
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img className="thumb" src={photoUrl(d.id, d.imageV)} alt={d.name} width={56} height={56} />
-              : <span className="ico" style={{ color: "var(--cocoa)" }}><Icon name={iconFor(d.icon)} className="lg" /></span>}
-          </div>
-          {d.kumpara && (
-            <p className="mute" data-testid="kumpara">
-              Nearby, the same dish at {d.kumpara.stalls} other stalls averages {d.kumpara.score.toFixed(1)}.
-              {d.private.score !== null && <> Yours is {d.private.score >= d.kumpara.score ? "at or above" : "below"} that.</>}
-            </p>
-          )}
-          {d.private.count > 0 && <TagBars shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} comments={d.comments} />}
-          <div className="row" style={{ flexWrap: "wrap" }}>
-            {d.paborito && <span className="pill r"><Icon name="heart" />Favorite</span>}
-            {d.private.improving && <span className="pill g"><Icon name="trend" />Improving</span>}
-            {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />{d.pansin < 0 ? "Needs attention" : "Standout"}</span>}
-            {d.flagged > 0 && <span className="pill r"><Icon name="alert" />{d.flagged} under review</span>}
-            {d.recs.map((r) => (
-              <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>
-            ))}
-          </div>
-          <button className="btn soft" aria-expanded={manageId === d.id} onClick={() => setManageId(manageId === d.id ? null : d.id)}>{manageId === d.id ? "Close" : "Manage"}</button>
+            {d.gate.state === "kulang" && d.private.count > 0 && <div className="mute small">{Math.min(d.gate.have, d.gate.need)} of {d.gate.need} ratings to go public</div>}
+            {d.kumpara && (
+              <p className="mute" data-testid="kumpara">
+                Nearby, the same dish at {d.kumpara.stalls} other stalls averages {d.kumpara.score.toFixed(1)}.
+                {d.private.score !== null && <> Yours is {d.private.score >= d.kumpara.score ? "at or above" : "below"} that.</>}
+              </p>
+            )}
+            <div className="row" style={{ flexWrap: "wrap" }}>
+              {d.paborito && <span className="pill r"><Icon name="heart" />Favorite</span>}
+              {d.private.improving && <span className="pill g"><Icon name="trend" />Improving</span>}
+              {d.pansin !== 0 && <span className={`pill ${d.pansin < 0 ? "a" : "g"}`}><Icon name={d.pansin < 0 ? "alert" : "up"} />{d.pansin < 0 ? "Needs attention" : "Standout"}</span>}
+              {d.flagged > 0 && <span className="pill r"><Icon name="alert" />{d.flagged} under review</span>}
+              {d.recs.map((r) => (
+                <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>
+              ))}
+            </div>
+            <div className="row dish-actions">
+              <button className="btn soft grow" aria-expanded={manageId === d.id} onClick={() => setManageId(manageId === d.id ? null : d.id)}>{manageId === d.id ? "Close" : "Manage"}</button>
+              {d.private.count > 0 && <button className="btn soft rev grow" aria-haspopup="dialog" onClick={() => setReviewId(d.id)}>View Reviews</button>}
+            </div>
+            {reviewId === d.id && <TagBars dish={d.name} onClose={() => setReviewId(null)} shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} comments={d.comments} />}
           {manageId === d.id && <div className="manage">
             <button className="btn soft" aria-pressed={d.published} onClick={async () => { await post(`/api/dishes/${d.id}`, { published: !d.published }, "PATCH"); reload(); }}>
               <Icon name={d.published ? "eye" : "eyeoff"} />{d.published ? "Public" : "Private"}
@@ -215,6 +218,7 @@ export function Owner() {
             <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
             <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} main={d.main} ingredients={d.ingredients} allergens={d.allergens} onDone={reload} />
           </div>}
+          </div>
         </div>
       ))}
       {msg && <p className="err" role="alert">{msg}</p>}

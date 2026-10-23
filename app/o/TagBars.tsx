@@ -1,3 +1,6 @@
+"use client";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 
@@ -13,11 +16,24 @@ const ROWS: { tag: string; icon: IconName; label: string }[] = [
 ];
 
 // How often buyers ticked each complaint. The tick marks the same share for this dish at nearby stalls, when there are enough.
-export function TagBars({ shares, nearby, trend, comments }: { shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[]; comments: { score: number; text: string; at: string }[] }) {
-  return (
-    <details data-testid="tagbars">
-      <summary style={{ cursor: "pointer", fontWeight: 700 }}>What customers said</summary>
-      <div className="stack" style={{ paddingTop: 8 }}>
+export function TagBars({ dish, shares, nearby, trend, comments, onClose }: { dish: string; shares: Record<string, number>; nearby: Record<string, number> | null; trend: (number | null)[]; comments: { score: number; text: string; at: string }[]; onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [onClose]);
+
+  // In the body, like the dish sheet: the page's entrance animation would otherwise trap a fixed overlay.
+  return createPortal(
+    <div className="sheet-back center" onClick={onClose}>
+    <div className="sheet pop" role="dialog" aria-modal="true" aria-label={`What customers said about ${dish}`} data-testid="tagbars" onClick={(e) => e.stopPropagation()}>
+      <div className="pop-head">
+        <div className="grow"><span className="eyebrow">{dish}</span><h2>What customers said</h2></div>
+        <button ref={closeRef} type="button" className="btn soft round" aria-label="Close" onClick={onClose}><Icon name="x" /></button>
+      </div>
+      <div className="stack pop-body">
         <Trend values={trend} />
         {comments.length > 0 && (
           <div data-testid="owner-comments">
@@ -40,7 +56,9 @@ export function TagBars({ shares, nearby, trend, comments }: { shares: Record<st
           );
         })}
       </div>
-    </details>
+    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -61,7 +61,7 @@ export function StallProfile({ id }: { id: string }) {
           </button>
         ))}
       </div>
-      {sheet && <DishSheet d={sheet} reserved={mine.includes(sheet.dishId)} onReserve={() => reserve(sheet)} onClose={() => setOpen(null)} />}
+      {sheet && <DishSheet fromStall d={sheet} reserved={mine.includes(sheet.dishId)} onReserve={() => reserve(sheet)} onClose={() => setOpen(null)} />}
     </div>
   );
 }

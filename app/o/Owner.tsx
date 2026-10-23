@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Capybara } from "@/src/ui/Capybara";
+import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
 import { Ring } from "@/src/ui/Ring";
@@ -58,7 +58,7 @@ export function Owner() {
     });
   }, [stallId, tick]);
 
-  if (stalls === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  if (stalls === null) return <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>;
 
   // A new owner, or one who left before adding any dish, is walked through Simula.
   // inSetup is set at once so the same Setup stays mounted while the stall and dishes reload (a slow network would otherwise reset the picks).
@@ -71,13 +71,13 @@ export function Owner() {
       </div>
     );
   }
-  if (inSetup === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  if (inSetup === null) return <div className="wait" role="status"><Kapy pose="walk" size={100} anim="walk" /><p className="mute">Sandali...</p></div>;
   if (inSetup) return <Setup stall={stall} dishes={dishes} step={Math.max(2, Number(localStorage.getItem(setupKey(stall.id))) || 2)} onStall={reload} onDone={() => { setInSetup(false); reload(); }} />;
 
   return (
     <div className="stack">
       <div className="hero">
-        <Capybara mood={dishes.some((d) => d.pansin < 0 || d.private.score !== null && d.private.score < 3.4) ? "worry" : "calm"} size={72} />
+        <Kapy pose={dishes.some((d) => d.pansin < 0 || d.private.score !== null && d.private.score < 3.4) ? "worry" : "wave"} size={92} anim="bob" />
         <div>
           <h1>Ngayon</h1>
           <p>{stall.name} · {stall.area}</p>
@@ -100,7 +100,8 @@ export function Owner() {
 
       {dishes.length === 0 && <p className="mute">Add your first dish below.</p>}
       {dishes.length > 0 && dishes.every((d) => d.private.count === 0) && (
-        <div className="card stack" data-testid="waiting">
+        <div className="card stack center" data-testid="waiting" style={{ alignItems: "center" }}>
+          <Kapy pose="sleepy" size={110} anim="sway" />
           <strong>Naghihintay ng unang rating</strong>
           <p className="mute">Print your QR (it is at the bottom of this page) and put it where customers pay. The first rating shows up here, privately, within seconds.</p>
         </div>

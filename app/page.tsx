@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { currentOwner } from "@/src/auth/current";
-import { Capybara } from "@/src/ui/Capybara";
+import { Kapy } from "@/src/ui/Kapy";
 import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { SignIn } from "./SignIn";
 
@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <main id="main" className="wrap stack" style={{ paddingTop: 16 }}>
       <div className="hero">
-        <Capybara mood="happy" size={88} />
+        <Kapy pose="wave" size={108} anim="bob" />
         <div>
           <h1>KapyBa</h1>
           <p>Alamin kung aling ulam ang bumebenta. Know which dishes customers love, and cook what sells.</p>

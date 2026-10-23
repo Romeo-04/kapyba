@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Capybara } from "@/src/ui/Capybara";
+import { Kapy } from "@/src/ui/Kapy";
 import { Face } from "@/src/ui/Face";
 import { Icon } from "@/src/ui/Icon";
 import { ICONS, type IconName } from "@/src/ui/icons";
@@ -66,13 +66,13 @@ export function Rate({ code }: { code: string }) {
     }
   }
 
-  if (scan === null) return <p className="mute center" style={{ paddingTop: 48 }}>Sandali...</p>;
+  if (scan === null) return <div className="wait" role="status"><Kapy pose="walk" size={110} anim="walk" /><p className="mute">Sandali...</p></div>;
   if (scan === "missing") return <p className="err center" style={{ paddingTop: 48 }} role="alert">Hindi mahanap ang stall na ito.</p>;
 
   if (result === "expired") {
     return (
       <div className="stack center" style={{ paddingTop: 64, alignItems: "center" }}>
-        <Capybara mood="sleepy" size={120} />
+        <Kapy pose="sleepy" size={130} anim="sway" />
         <h1>Lumipas na ang scan</h1>
         <p className="mute" role="alert">This page is too old to send a rating. Scan the QR at the stall again.</p>
       </div>
@@ -82,7 +82,7 @@ export function Rate({ code }: { code: string }) {
   if (result === "done" || result === "already" || result === "queued") {
     return (
       <div className="stack center" style={{ paddingTop: 64, alignItems: "center" }} role="status">
-        <Capybara mood={result === "already" ? "calm" : "happy"} size={120} />
+        <div className="stage">{result === "already" ? <Kapy pose="think" size={140} anim="pop" /> : <><Kapy pose="cheer" size={150} anim="pop" />{["h1", "h2", "h3", "h4"].map((h) => <svg key={h} className={`heart ${h}`} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.3-9.2C1.5 8.4 3.4 5 6.6 5c2 0 3.5 1.1 5.4 3.2C13.9 6.1 15.4 5 17.4 5c3.2 0 5.1 3.400 3.900 6.800C19.500 16.400 12 21 12 21z" /></svg>)}</>}</div>
         <h1>{result === "done" ? "Salamat!" : result === "queued" ? "Naka-save ang rating mo" : "Nai-rate mo na ito ngayong araw"}</h1>
         <p className="mute">
           {result === "done" ? "Your rating helps the owner cook better." : result === "queued" ? "No signal right now. We will send it when you are back online." : "One rating per dish per day. Try another dish or come back tomorrow."}

@@ -11,7 +11,6 @@ import { Alok } from "./Alok";
 import { AllergenPick } from "./AllergenPick";
 import { Balita } from "./Balita";
 import { Bukas } from "./Bukas";
-import { Natira } from "./Natira";
 import { Profile } from "./Profile";
 import { Palengke } from "./Palengke";
 import { MAINS } from "@/src/domain/mains";
@@ -28,9 +27,9 @@ export type Summary = {
   flagged: number; pansin: number; recs: { icon: string; dir: "up" | "down"; word: string }[];
 };
 
-type Tab = "ngayon" | "natira" | "bukas" | "more" | "balita"; // Balita is opened from the bell, not the tab bar
-const TABS: { id: Tab; label: string }[] = [{ id: "ngayon", label: "Now" }, { id: "natira", label: "Leftovers" }, { id: "bukas", label: "Tomorrow" }, { id: "more", label: "Others" }];
-const TITLE: Record<Tab, string> = { ngayon: "Now", natira: "Leftovers", bukas: "Tomorrow", more: "Others", balita: "Balita" };
+type Tab = "ngayon" | "bukas" | "more" | "balita"; // Balita is opened from the bell, not the tab bar
+const TABS: { id: Tab; label: string }[] = [{ id: "ngayon", label: "Now" }, { id: "bukas", label: "Tomorrow" }, { id: "more", label: "Others" }];
+const TITLE: Record<Tab, string> = { ngayon: "Now", bukas: "Tomorrow", more: "Others", balita: "Balita" };
 const POLL_MS = 20_000;
 const DISH_ICONS: IconName[] = ["bowl", "meat", "fish", "leaf", "plate"];
 const post = (url: string, body: unknown, method = "POST") =>
@@ -210,7 +209,6 @@ export function Owner() {
 
       </>}
       {tab === "balita" && <Balita items={notes.items} fresh={fresh} now={clock} canAlert={canAlert} onAlert={async () => { await Notification.requestPermission(); setCanAlert(Notification.permission === "default"); }} />}
-      {tab === "natira" && (dishes.length > 0 ? <Natira stallId={stall.id} dishes={dishes} onSaved={() => setBukasTick((t) => t + 1)} /> : <p className="mute">Add a dish first.</p>)}
       {tab === "bukas" && dishes.length > 0 && <>
         <Bukas stallId={stall.id} refresh={bukasTick} />
         <Palengke stallId={stall.id} refresh={bukasTick} />

@@ -124,15 +124,10 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await offCtx.close();
 
   // End-of-day log: 12 cooked, 9 sold at ₱75 (after the price fix) leaves 3 portions, about ₱225.
-  await owner.getByRole("tab", { name: "Leftovers" }).click();
-  await owner.getByLabel("Adobo cooked").fill("12");
-  await owner.getByLabel("Adobo sold").fill("9");
-  await owner.getByRole("button", { name: "Save today" }).click();
-  await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱225");
-
-  // The same log shows under the dish's Manage panel, where today's numbers can also be entered.
-  await owner.getByRole("tab", { name: "Now" }).click();
   await owner.getByRole("button", { name: "Manage" }).click();
+  await owner.getByLabel("Adobo cooked today").fill("12");
+  await owner.getByLabel("Adobo sold today").fill("9");
+  await manage.getByRole("button", { name: "Save today" }).click();
   await expect(owner.getByTestId("dish-natira")).toContainText("cooked 12, sold 9, 3 left (₱225)");
   await manage.getByRole("button", { name: "Close" }).click();
 

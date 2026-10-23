@@ -16,13 +16,14 @@ import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
 import { DishNatira } from "./DishNatira";
+import { Profile } from "./Profile";
 import { Palengke } from "./Palengke";
 import { MAINS } from "@/src/domain/mains";
 import { Setup, setupKey } from "./Setup";
 import { TagBars } from "./TagBars";
 import { Ulat } from "./Ulat";
 
-type Stall = { id: string; name: string; area: string; code: string };
+type Stall = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null };
 type Summary = {
   id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null; main: string | null; ingredients: string | null; allergens: string[]; comments: { score: number; text: string; at: string }[];
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };
@@ -134,8 +135,8 @@ export function Owner() {
       <div className="hero">
         <Kapy pose={dishes.some((d) => d.pansin < 0 || d.private.score !== null && d.private.score < 3.4) ? "worry" : "wave"} size={92} anim="bob" />
         <div>
-          <h1>{TITLE[tab]}</h1>
-          <p>{stall.name} · {stall.area}</p>
+          <h1>{tab === "more" ? stall.name : TITLE[tab]}</h1>
+          <p>{tab === "more" ? stall.area : `${stall.name} · ${stall.area}`}</p>
         </div>
         <button type="button" key={ring} className={`bell${ring ? " ring" : ""}`} aria-pressed={tab === "balita"} aria-label={notes.unread > 0 ? `Balita, ${notes.unread} new` : "Balita"} onClick={openBalita}>
           <Icon name="bell" />{notes.unread > 0 && <span className="badge" data-testid="bell-count">{notes.unread > 9 ? "9+" : notes.unread}</span>}
@@ -148,12 +149,6 @@ export function Owner() {
       </div>
       <div className="stack" id="owner-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} key={tab}>
       {tab === "ngayon" && <>
-      <div className="chips" aria-label="Your stalls">
-        {stalls.map((s) => (
-          <button key={s.id} className="chip" aria-pressed={s.id === stall.id} onClick={() => { if (s.id === stall.id) return; setActiveId(s.id); setInSetup(null); setDishes([]); }}>{s.name}</button>
-        ))}
-        <button className="chip" onClick={() => setAdding(true)}><Icon name="plus" />Another stall</button>
-      </div>
       {dishes.length > 0 && (
         <div className="stats">
           <div className="stat"><strong>{dishes.reduce((s, d) => s + d.private.count, 0)}</strong><span>ratings</span></div>
@@ -232,6 +227,13 @@ export function Owner() {
       </>}
       {tab === "bukas" && dishes.length === 0 && <p className="mute">Add a dish first.</p>}
       {tab === "more" && <>
+        <Profile
+          stall={stall} stalls={stalls}
+          stats={{ dishes: dishes.length, ratings: dishes.reduce((n, d) => n + d.private.count, 0), avg: (() => { const n = dishes.reduce((c, d) => c + (d.private.score === null ? 0 : d.private.count), 0); return n ? dishes.reduce((s, d) => s + (d.private.score ?? 0) * (d.private.score === null ? 0 : d.private.count), 0) / n : null; })() }}
+          onSwitch={(id) => { setActiveId(id); setInSetup(null); setDishes([]); }}
+          onAdd={() => setAdding(true)}
+          onSaved={() => setTick((t) => t + 1)}
+        />
         {dishes.length > 0 && <Alok stallId={stall.id} dishes={dishes} />}
       <form className="card stack" onSubmit={async (e) => {
         e.preventDefault();
@@ -257,7 +259,7 @@ export function Owner() {
         <button className="btn block"><Icon name="plus" />Add</button>
       </form>
 
-      <div className="card stack center" style={{ alignItems: "center" }}>
+      <div id="stall-qr" className="card stack center" style={{ alignItems: "center", scrollMarginTop: 16 }}>
         <h2>Your QR</h2>
         <p className="mute">Print this and put it at the stall. Customers scan it to rate.</p>
         {/* eslint-disable-next-line @next/next/no-img-element */}

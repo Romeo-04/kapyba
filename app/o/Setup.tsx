@@ -7,16 +7,16 @@ import { PhotoPick } from "@/src/ui/PhotoPick";
 
 type Stall = { id: string; name: string; area: string; code: string };
 type Dish = { id: string; name: string; icon: string; imageV?: number | null };
-type Pick = { name: string; icon: IconName; price: number; plates: number };
+type Pick = { name: string; main?: string; icon: IconName; price: number; plates: number };
 
 // Common Filipino dishes. Prices are never guessed: the owner sets her own.
-const COMMON: { name: string; icon: IconName }[] = [
-  { name: "Adobo", icon: "meat" }, { name: "Sinigang", icon: "bowl" }, { name: "Tinola", icon: "bowl" },
-  { name: "Pritong isda", icon: "fish" }, { name: "Pinakbet", icon: "leaf" }, { name: "Kare-kare", icon: "meat" },
-  { name: "Menudo", icon: "meat" }, { name: "Lechon kawali", icon: "meat" }, { name: "Ginataang gulay", icon: "leaf" },
-  { name: "Tortang talong", icon: "leaf" }, { name: "Sisig", icon: "meat" }, { name: "Nilaga", icon: "bowl" },
-  { name: "Afritada", icon: "meat" }, { name: "Pancit", icon: "plate" }, { name: "Lugaw", icon: "bowl" },
-  { name: "Dinuguan", icon: "meat" }, { name: "Laing", icon: "leaf" }, { name: "Paksiw na isda", icon: "fish" },
+const COMMON: { name: string; main?: string; icon: IconName }[] = [
+  { name: "Adobo", main: "manok", icon: "meat" }, { name: "Sinigang", main: "baboy", icon: "bowl" }, { name: "Tinola", main: "manok", icon: "bowl" },
+  { name: "Pritong isda", main: "isda", icon: "fish" }, { name: "Pinakbet", main: "gulay", icon: "leaf" }, { name: "Kare-kare", main: "baka", icon: "meat" },
+  { name: "Menudo", main: "baboy", icon: "meat" }, { name: "Lechon kawali", main: "baboy", icon: "meat" }, { name: "Ginataang gulay", main: "gulay", icon: "leaf" },
+  { name: "Tortang talong", main: "itlog", icon: "leaf" }, { name: "Sisig", main: "baboy", icon: "meat" }, { name: "Nilaga", main: "baka", icon: "bowl" },
+  { name: "Afritada", main: "manok", icon: "meat" }, { name: "Pancit", icon: "plate" }, { name: "Lugaw", icon: "bowl" },
+  { name: "Dinuguan", main: "baboy", icon: "meat" }, { name: "Laing", main: "gulay", icon: "leaf" }, { name: "Paksiw na isda", main: "isda", icon: "fish" },
 ];
 const STEPS = 6;
 export const setupKey = (stallId: string) => `kb_setup_${stallId}`;
@@ -128,7 +128,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
           {msg && <p className="err" role="alert">{msg}</p>}
           <button className="btn block" onClick={async () => {
             for (const p of picked) {
-              const r = await post(`/api/stalls/${stall.id}/dishes`, { name: p.name, icon: p.icon, price: p.price, baseServings: p.plates });
+              const r = await post(`/api/stalls/${stall.id}/dishes`, { name: p.name, icon: p.icon, main: p.main, price: p.price, baseServings: p.plates });
               if (!r.ok) { setMsg(`Could not save ${p.name}. Check it and try again.`); return; }
             }
             setPicked([]);

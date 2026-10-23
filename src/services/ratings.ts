@@ -1,8 +1,9 @@
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, eq, gt, isNull } from "drizzle-orm";
 import type { Db } from "@/src/db";
 import { dishes, devices, ratings, stalls } from "@/src/db/schema";
 import { deviceHash, verifyScan } from "@/src/auth/qr";
 import { TAGS, type Tag } from "@/src/domain/scoring";
+import { cleanComment, commentProblem } from "@/src/domain/comment";
 
 export const MAX_RATINGS_PER_DEVICE_PER_DAY = 30;
 
@@ -34,6 +35,7 @@ export type RatingInput = {
   dishId: string;
   score: unknown;
   tags?: unknown;
+  comment?: unknown;
   idempotencyKey: unknown;
 };
 
@@ -46,6 +48,11 @@ export async function submitRating(db: Db, input: RatingInput, now = new Date())
   const tagList = tags === undefined ? [] : tags;
   if (!Array.isArray(tagList) || tagList.some((t) => typeof t !== "string" || !(t in TAGS))) return "invalid";
   const mask = (tagList as Tag[]).reduce((m, t) => m | TAGS[t], 0);
+  let comment: string | null = null;
+  if (input.comment !== undefined && input.comment !== null) {
+    if (typeof input.comment !== "string" || commentProblem(input.comment)) return "invalid";
+    comment = cleanComment(input.comment);
+  }
 
   if (!verifyScan(input.scanToken, input.stallCode, input.deviceToken, now.getTime())) return "forbidden";
 
@@ -75,8 +82,28 @@ export async function submitRating(db: Db, input: RatingInput, now = new Date())
   // The unique index on (dish, device, day) is the real guard; a conflict inserts nothing.
   const inserted = await db
     .insert(ratings)
-    .values({ dishId: input.dishId, deviceId, score, tags: mask, day, idempotencyKey, createdAt: now })
+    .values({ dishId: input.dishId, deviceId, score, tags: mask, comment, day, idempotencyKey, createdAt: now })
     .onConflictDoNothing()
     .returning({ id: ratings.id });
   return inserted.length === 1 ? "ok" : "already";
+}
+
+export const COMMENT_WINDOW_MIN = 30;
+
+/**
+ * A happy rating goes in with one tap; the comment can follow on the thank-you screen. It attaches only to
+ * this device's own rating, once, and only soon after the rating was made.
+ */
+export async function attachComment(db: Db, deviceToken: string, idempotencyKey: unknown, text: unknown, now = new Date()): Promise<"ok" | "invalid" | "gone"> {
+  if (typeof idempotencyKey !== "string" || typeof text !== "string" || commentProblem(text)) return "invalid";
+  const comment = cleanComment(text);
+  if (!comment) return "invalid";
+  const deviceId = await deviceFor(db, deviceToken);
+  const since = new Date(now.getTime() - COMMENT_WINDOW_MIN * 60_000);
+  const done = await db
+    .update(ratings)
+    .set({ comment })
+    .where(and(eq(ratings.idempotencyKey, idempotencyKey), eq(ratings.deviceId, deviceId), isNull(ratings.comment), gt(ratings.createdAt, since)))
+    .returning({ id: ratings.id });
+  return done.length === 1 ? "ok" : "gone";
 }

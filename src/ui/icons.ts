@@ -45,6 +45,7 @@ export const ICONS = {
   tomato: `<circle cx="12" cy="13" r="7.5"/><path d="M9 6c1 1 2 1 3 0 1 1 2 1 3 0"/>`,
   bin: `<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>`,
   camera: `<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/>`,
+  chili: `<path d="M15 6c3 0 5 2 5 5 0 6-5 9-12 9-2 0-3-1-3-2 4-1 6-3 7-6 1-3 1-6 3-6zM15 6c0-2 1-3 2-3"/>`,
   bell: `<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>`
 } as const;
 

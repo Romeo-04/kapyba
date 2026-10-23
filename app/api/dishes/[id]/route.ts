@@ -21,7 +21,7 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/dishes/[id]">)
   if (body?.salePrice !== undefined && !(await setSale(db, owner, id, body.salePrice === null ? null : Number(body.salePrice)))) {
     return NextResponse.json({ error: "not found or the sale price must be a whole peso below the usual price" }, { status: 400 });
   }
-  const fields = { name: body?.name, icon: body?.icon, price: body?.price, baseServings: body?.baseServings };
+  const fields = { name: body?.name, icon: body?.icon, price: body?.price, baseServings: body?.baseServings, main: body?.main, ingredients: body?.ingredients, allergens: body?.allergens };
   const edits = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
   if (Object.keys(edits).length && !(await updateDish(db, owner, id, edits))) {
     return NextResponse.json({ error: "not found or invalid" }, { status: 400 });

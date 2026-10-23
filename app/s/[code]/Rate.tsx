@@ -5,6 +5,7 @@ import { Face } from "@/src/ui/Face";
 import { Icon } from "@/src/ui/Icon";
 import { ICONS, type IconName } from "@/src/ui/icons";
 import type { Tag, Tone } from "@/src/domain/scoring";
+import { MAX_COMMENT, commentProblem } from "@/src/domain/comment";
 import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { enqueue } from "@/src/offline/queue";
 import { useOutbox } from "@/src/offline/useOutbox";
@@ -18,6 +19,10 @@ const TAGS: { tag: Tag; icon: IconName; label: string }[] = [
   { tag: "plate", icon: "plate", label: "Maliit ang serving" },
   { tag: "flame", icon: "flame", label: "Malamig" },
   { tag: "coin", icon: "coin", label: "Mahal" },
+  { tag: "leaf", icon: "leaf", label: "Hindi sariwa" },
+  { tag: "alert", icon: "alert", label: "Matigas o sobrang luto" },
+  { tag: "chili", icon: "chili", label: "Sobrang anghang" },
+  { tag: "clock", icon: "clock", label: "Matagal ang serbisyo" },
 ];
 
 export const iconFor = (name: string): IconName => (name in ICONS ? (name as IconName) : "bowl");
@@ -28,6 +33,9 @@ export function Rate({ code }: { code: string }) {
   const [tone, setTone] = useState<Tone | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
   const [key, setKey] = useState("");
+  const [comment, setComment] = useState("");
+  const [lastKey, setLastKey] = useState(""); // the finished rating, so a comment can still be added to it
+  const [commented, setCommented] = useState<"" | "sent" | "error">("");
   const [result, setResult] = useState<"sending" | "done" | "already" | "queued" | "error" | "expired" | null>(null);
   const outbox = useOutbox();
 
@@ -41,6 +49,8 @@ export function Rate({ code }: { code: string }) {
     setDish(null);
     setTone(null);
     setTags([]);
+    setComment("");
+    setCommented("");
     setResult(null);
   }
 
@@ -52,11 +62,13 @@ export function Rate({ code }: { code: string }) {
     // The same key is reused on a retry, so a slow network never counts a rating twice.
     const k = key || crypto.randomUUID();
     setKey(k);
-    const body = { code, scanToken: scan.scanToken, dishId: dish.id, score: SCORE[t], tags: t === "happy" ? [] : tags, idempotencyKey: k };
+    const note = t === "happy" ? "" : comment.trim();
+    if (note && commentProblem(note)) { setResult(null); return; }
+    const body = { code, scanToken: scan.scanToken, dishId: dish.id, score: SCORE[t], tags: t === "happy" ? [] : tags, ...(note ? { comment: note } : {}), idempotencyKey: k };
     try {
       const res = await fetch("/api/ratings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       setResult(res.status === 409 ? "already" : res.ok ? "done" : "error");
-      if (res.ok || res.status === 409) setKey("");
+      if (res.ok || res.status === 409) { setLastKey(k); setKey(""); }
     } catch {
       // No signal: keep the tap and send it when the phone is back online.
       enqueue(localStorage, { id: k, url: "/api/ratings", body });
@@ -87,6 +99,22 @@ export function Rate({ code }: { code: string }) {
         <p className="mute">
           {result === "done" ? "Your rating helps the owner cook better." : result === "queued" ? "No signal right now. We will send it when you are back online." : "One rating per dish per day. Try another dish or come back tomorrow."}
         </p>
+        {result === "done" && tone === "happy" && (
+          commented === "sent" ? <p className="mute">Salamat sa comment!</p> : (
+            <form className="stack block" onSubmit={async (e) => {
+              e.preventDefault();
+              const r = await fetch("/api/ratings/comment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idempotencyKey: lastKey, comment }) });
+              setCommented(r.ok ? "sent" : "error");
+            }}>
+              <label htmlFor="comment">Gusto mo bang mag-comment? (optional)</label>
+              <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="Ano ang nagustuhan mo?" />
+              <p className="mute">May chance na lumabas ang comment mo bilang testimonial sa Ulam board. Walang pangalan.</p>
+              {comment.trim() && commentProblem(comment.trim()) && <p className="err" role="alert">{commentProblem(comment.trim())}</p>}
+              {commented === "error" && <p className="err" role="alert">Hindi na-send ang comment.</p>}
+              <button className="btn soft" disabled={!comment.trim() || !!commentProblem(comment.trim())}>Send comment</button>
+            </form>
+          )
+        )}
         <button className="btn block" onClick={reset}>Rate another dish</button>
       </div>
     );
@@ -133,7 +161,7 @@ export function Rate({ code }: { code: string }) {
       {tone && tone !== "happy" && (
         <>
           <p className="mute">Ano ang problema? (optional)</p>
-          <div className="tags">
+          <div className="tags" role="group" aria-label="Problema">
             {TAGS.map((t) => (
               <button
                 key={t.tag}
@@ -142,11 +170,15 @@ export function Rate({ code }: { code: string }) {
                 aria-label={t.label}
                 onClick={() => setTags((cur) => (cur.includes(t.tag) ? cur.filter((x) => x !== t.tag) : [...cur, t.tag]))}
               >
-                <Icon name={t.icon} className="lg" />
+                <Icon name={t.icon} />{t.label}
               </button>
             ))}
           </div>
-          <button className="btn block" disabled={result === "sending"} onClick={() => send(tone)}><Icon name="check" /> Send</button>
+          <label htmlFor="comment">Comment (optional)</label>
+          <textarea id="comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={MAX_COMMENT} rows={2} placeholder="Ano ang gusto mong sabihin sa may-ari?" />
+          <p className="mute">Para sa may-ari lang ito. Hindi ito ipapakita sa Ulam board.</p>
+          {comment.trim() && commentProblem(comment.trim()) && <p className="err" role="alert">{commentProblem(comment.trim())}</p>}
+          <button className="btn block" disabled={result === "sending" || !!(comment.trim() && commentProblem(comment.trim()))} onClick={() => send(tone)}><Icon name="check" /> Send</button>
         </>
       )}
       {result === "sending" && <p className="mute center" role="status">Sandali...</p>}

@@ -9,7 +9,8 @@ export const tone = (score: number): Tone =>
 /** Ring arc as a 0 to 1 fraction. */
 export const arc = (score: number) => Math.max(0, Math.min(1, score / 5));
 
-export const TAGS = { salt: 1, plate: 2, flame: 4, coin: 8 } as const;
+// Keys double as icon names. Bits 1-8 are the first four problems, 16-128 were added later.
+export const TAGS = { salt: 1, plate: 2, flame: 4, coin: 8, leaf: 16, alert: 32, chili: 64, clock: 128 } as const;
 export type Tag = keyof typeof TAGS;
 
 export const packTags = (tags: Tag[]) => tags.reduce((m, t) => m | TAGS[t], 0);
@@ -26,7 +27,7 @@ export function meanScore(rows: Pick<RatingRow, "score">[]): number | null {
 
 /** Share of ratings carrying each tag, 0 to 1. */
 export function tagShares(rows: Pick<RatingRow, "tags">[]): Record<Tag, number> {
-  const out = { salt: 0, plate: 0, flame: 0, coin: 0 } as Record<Tag, number>;
+  const out = Object.fromEntries((Object.keys(TAGS) as Tag[]).map((t) => [t, 0])) as Record<Tag, number>;
   if (rows.length === 0) return out;
   for (const t of Object.keys(TAGS) as Tag[]) {
     out[t] = rows.filter((r) => (r.tags & TAGS[t]) !== 0).length / rows.length;

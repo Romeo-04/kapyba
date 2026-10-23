@@ -14,7 +14,7 @@ test("home page loads", async ({ page }) => {
 test("the Ulam board loads with an empty state and a budget filter", async ({ page }) => {
   await page.goto("/ulam");
   await expect(page.getByRole("heading", { name: "Ulam" })).toBeVisible();
-  await page.getByRole("button", { name: "₱60 pababa" }).click();
+  await page.getByLabel("Presyo").selectOption("50");
   await expect(page.getByTestId("board-empty")).toBeVisible();
 });
 

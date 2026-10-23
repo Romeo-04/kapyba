@@ -67,6 +67,18 @@ export async function claimAlok(db: Db, deviceToken: string, alokId: string, now
   return "ok";
 }
 
+/** The active deals this phone has reserved, so the board can show a Reserved status that survives a refresh. */
+export async function myClaims(db: Db, deviceToken: string, now = new Date()): Promise<{ alokId: string; dishId: string }[]> {
+  if (!deviceToken) return [];
+  const deviceId = await deviceFor(db, deviceToken);
+  const rows = await db
+    .select({ alokId: alok.id, dishId: alok.dishId })
+    .from(alokClaims)
+    .innerJoin(alok, eq(alok.id, alokClaims.alokId))
+    .where(and(eq(alokClaims.deviceId, deviceId), isNull(alok.closedAt), or(isNull(alok.endsAt), gt(alok.endsAt, now))));
+  return rows;
+}
+
 /** Active deals by dish id, for the board ribbon. */
 export async function activeAlokByDish(db: Db, now = new Date()) {
   const rows = await db.select().from(alok).where(and(isNull(alok.closedAt), or(isNull(alok.endsAt), gt(alok.endsAt, now))));

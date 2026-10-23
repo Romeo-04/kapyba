@@ -14,7 +14,7 @@ beforeAll(() => {
 });
 
 const NOW = new Date("2026-10-22T04:00:00Z");
-const shares = { salt: 0.2, plate: 0, flame: 0, coin: 0 };
+const shares = { salt: 0.2, plate: 0, flame: 0, coin: 0, leaf: 0, alert: 0, chili: 0, clock: 0 };
 
 describe("neighbourhood average", () => {
   it("stays hidden under 3 stalls and averages each stall once", () => {

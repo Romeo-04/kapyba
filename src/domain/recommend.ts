@@ -29,7 +29,7 @@ export function mismatch(d: Pick<DishView, "score" | "count" | "baseServings">):
   return 0;
 }
 
-export type Rec = { icon: Tag | "plate"; dir: "up" | "down"; word: string };
+export type Rec = { icon: Tag; dir: "up" | "down"; word: string };
 
 export function recsFor(d: DishView): Rec[] {
   if (d.count < MIN_RATINGS) return [];
@@ -37,6 +37,10 @@ export function recsFor(d: DishView): Rec[] {
   if (d.bad === "salt") r.push({ icon: "salt", dir: "down", word: "Bawasan" });
   if (d.bad === "plate") r.push({ icon: "plate", dir: "up", word: "Dagdagan" });
   if (d.bad === "flame") r.push({ icon: "flame", dir: "up", word: "Painitin" });
+  if (d.bad === "leaf") r.push({ icon: "leaf", dir: "up", word: "Sariwain" });
+  if (d.bad === "alert") r.push({ icon: "alert", dir: "down", word: "Lambutin" });
+  if (d.bad === "chili") r.push({ icon: "chili", dir: "down", word: "Bawasan" });
+  if (d.bad === "clock") r.push({ icon: "clock", dir: "down", word: "Bilisan" });
   const m = mismatch(d);
   if (m < 0) r.push({ icon: "plate", dir: "down", word: "Konti" });
   if (m > 0) r.push({ icon: "plate", dir: "up", word: "Dagdag" });

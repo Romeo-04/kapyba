@@ -279,6 +279,13 @@ label.check input:focus-visible { outline: 3px solid var(--rain); outline-offset
 .col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
 .col .fill { width: 100%; max-width: 40px; border-radius: 8px 8px 4px 4px; min-height: 4px; transform-origin: bottom; animation: grow-in 400ms var(--out) both; }
 @keyframes grow-in { from { transform: scaleY(0); } }
+svg.line { width: 100%; height: auto; overflow: visible; }
+svg.line .grid { stroke: rgba(80, 48, 28, 0.1); stroke-width: 1; stroke-dasharray: 3 4; }
+svg.line .path { fill: none; stroke: var(--brand); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; animation: draw-in 600ms var(--out) both; }
+svg.line .dot { fill: #fff; stroke: var(--brand); stroke-width: 3; }
+svg.line .num { font-size: 11px; font-weight: 800; fill: var(--ink); }
+svg.line .lab { font-size: 11px; font-weight: 700; fill: var(--mute); }
+@keyframes draw-in { from { stroke-dashoffset: 1; } }
 .col .num { font-size: 11px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .col .lab { font-size: 11px; font-weight: 700; color: var(--mute); }
 .big { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }

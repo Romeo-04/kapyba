@@ -33,7 +33,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
   await expect(owner.getByRole("button", { name: "Print" })).toBeVisible();
   await owner.getByRole("button", { name: "Tapos" }).click();
-  await expect(owner.getByRole("heading", { name: "Ngayon" })).toBeVisible();
+  await expect(owner.getByRole("heading", { name: "Now" })).toBeVisible();
   await expect(owner.getByTestId("waiting")).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await owner.getByRole("button", { name: "Manage" }).click();
@@ -45,9 +45,9 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.locator("img.thumb")).toBeVisible();
   await expect(owner.getByRole("button", { name: "Remove photo" })).toBeVisible();
 
-  await owner.getByRole("tab", { name: "Higit pa" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
-  await owner.getByRole("tab", { name: "Ngayon" }).click();
+  await owner.getByRole("tab", { name: "Now" }).click();
 
   // Fix the price (Manage is still open from above).
   await owner.getByRole("button", { name: "Edit" }).click();
@@ -118,19 +118,26 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await offCtx.close();
 
   // End-of-day log: 12 cooked, 9 sold at ₱75 (after the price fix) leaves 3 portions, about ₱225.
-  await owner.getByRole("tab", { name: "Natira" }).click();
+  await owner.getByRole("tab", { name: "Leftovers" }).click();
   await owner.getByLabel("Adobo cooked").fill("12");
   await owner.getByLabel("Adobo sold").fill("9");
   await owner.getByRole("button", { name: "Save today" }).click();
   await expect(owner.getByTestId("natira-summary")).toContainText("3 left over, about ₱225");
 
+  // The same log shows under the dish's Manage panel, where today's numbers can also be entered.
+  await owner.getByRole("tab", { name: "Now" }).click();
+  const manage = owner.getByRole("button", { name: /^(Manage|Close)$/ });
+  if ((await manage.getAttribute("aria-expanded")) !== "true") await manage.click();
+  await expect(owner.getByTestId("dish-natira")).toContainText("cooked 12, sold 9, 3 left (₱225)");
+  await owner.getByRole("button", { name: "Close", exact: true }).click();
+
   // Bukas now suggests 9 (the average sold) for Adobo.
-  await owner.getByRole("tab", { name: "Bukas" }).click();
+  await owner.getByRole("tab", { name: "Tomorrow" }).click();
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
   // Palengke: 9 servings of Adobo need 1.4 kg chicken; the list shows a range and the placeholder notice.
-  await expect(owner.getByText("Chicken · 1.4 kg")).toBeVisible();
-  await expect(owner.getByTestId("palengke-total")).toContainText("likely total");
+  await expect(owner.getByText("1.4kg of Chicken")).toBeVisible();
+  await expect(owner.getByTestId("palengke-total")).toContainText("Your estimated total is");
   await expect(owner.getByRole("note")).toContainText("placeholder estimate");
 
   // Bagyo mode trims tomorrow's plan to 60% (9 becomes 5); turning it off restores it.
@@ -141,7 +148,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("bukas-row").filter({ hasText: "Adobo" })).toContainText("12 → 9");
 
   // Alok: Adobo is already Paborito from setup (so it shows on the board); the owner posts a one-plate deal.
-  await owner.getByRole("tab", { name: "Higit pa" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
   await owner.getByLabel("Limit").fill("1");
   await owner.getByRole("button", { name: "Post deal" }).click();
   await expect(owner.getByTestId("alok-row")).toContainText("1 of 1 left");
@@ -172,7 +179,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await guestCtx.close();
 
   // Naubos and Sale: the owner marks Adobo gone and discounts it; the board shows both.
-  await owner.getByRole("tab", { name: "Ngayon" }).click();
+  await owner.getByRole("tab", { name: "Now" }).click();
   await owner.getByRole("button", { name: "Manage" }).click();
   await owner.getByRole("button", { name: "Naubos", exact: true }).click();
   await owner.getByRole("button", { name: "Sale", exact: true }).click();
@@ -185,7 +192,8 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await board.close();
 
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
-  await owner.getByRole("tab", { name: "Higit pa" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
+  await owner.getByText("Report odd ratings").click();
   await owner.getByLabel("What looked wrong?").fill("Looks odd");
   await owner.getByRole("button", { name: "Send report" }).click();
   await expect(owner.getByText("2 ratings are under review").first()).toBeVisible();
@@ -209,7 +217,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // Signing out ends the session on this device.
   await owner.goto(new URL("/o", owner.url()).href);
-  await owner.getByRole("tab", { name: "Higit pa" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
   await owner.getByRole("button", { name: "Sign out" }).click();
   await expect(owner.getByRole("button", { name: "Send link" })).toBeVisible();
   await owner.goto(new URL("/o", owner.url()).href);

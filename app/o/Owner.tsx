@@ -15,6 +15,7 @@ import { DishEdit } from "./DishEdit";
 import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
+import { DishNatira } from "./DishNatira";
 import { Palengke } from "./Palengke";
 import { MAINS } from "@/src/domain/mains";
 import { Setup, setupKey } from "./Setup";
@@ -31,8 +32,8 @@ type Summary = {
 };
 
 type Tab = "ngayon" | "natira" | "bukas" | "more" | "balita"; // Balita is opened from the bell, not the tab bar
-const TABS: { id: Tab; label: string }[] = [{ id: "ngayon", label: "Ngayon" }, { id: "natira", label: "Natira" }, { id: "bukas", label: "Bukas" }, { id: "more", label: "Higit pa" }];
-const TITLE: Record<Tab, string> = { ngayon: "Ngayon", natira: "Natira", bukas: "Bukas", more: "Higit pa", balita: "Balita" };
+const TABS: { id: Tab; label: string }[] = [{ id: "ngayon", label: "Now" }, { id: "natira", label: "Leftovers" }, { id: "bukas", label: "Tomorrow" }, { id: "more", label: "Others" }];
+const TITLE: Record<Tab, string> = { ngayon: "Now", natira: "Leftovers", bukas: "Tomorrow", more: "Others", balita: "Balita" };
 const POLL_MS = 20_000;
 const DISH_ICONS: IconName[] = ["bowl", "meat", "fish", "leaf", "plate"];
 const post = (url: string, body: unknown, method = "POST") =>
@@ -166,7 +167,7 @@ export function Owner() {
         <div className="card stack center" data-testid="waiting" style={{ alignItems: "center" }}>
           <Kapy pose="sleepy" size={110} anim="sway" />
           <strong>Naghihintay ng unang rating</strong>
-          <p className="mute">Print your QR (see Higit pa) and put it where customers pay. The first rating shows up here, privately, within seconds.</p>
+          <p className="mute">Print your QR (see Others) and put it where customers pay. The first rating shows up here, privately, within seconds.</p>
         </div>
       )}
       {dishes.map((d) => (
@@ -215,6 +216,7 @@ export function Owner() {
               <Icon name="alert" />Naubos
             </button>
             <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV} onDone={reload} />
+            <DishNatira stallId={stall.id} dishId={d.id} dishName={d.name} onSaved={() => setBukasTick((t) => t + 1)} />
             <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
             <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} main={d.main} ingredients={d.ingredients} allergens={d.allergens} onDone={reload} />
           </div>}
@@ -232,7 +234,6 @@ export function Owner() {
       {tab === "bukas" && dishes.length === 0 && <p className="mute">Add a dish first.</p>}
       {tab === "more" && <>
         {dishes.length > 0 && <Alok stallId={stall.id} dishes={dishes} />}
-        {dishes.length > 0 && <Ulat dishes={dishes} onFiled={reload} />}
       <form className="card stack" onSubmit={async (e) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -265,6 +266,7 @@ export function Owner() {
         <a className="btn soft" href={`/api/stalls/${stall.id}/qr`} download={`kapyba-${stall.code}.svg`}>Download</a>
       </div>
       <button className="btn soft block" onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/"); router.refresh(); }}>Sign out</button>
+      {dishes.length > 0 && <Ulat dishes={dishes} onFiled={reload} />}
       </>}
       </div>
     </div>

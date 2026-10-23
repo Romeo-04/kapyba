@@ -70,9 +70,10 @@ test("Kapy greets the first open of a visit, not the rating page", async ({ page
   await expect(page.getByTestId("splash")).toHaveCount(0);
 });
 
-test("the Community page asks a signed-out visitor to sign in", async ({ page }) => {
+test("the Community page shows the public feed and invites owners to sign in", async ({ page }) => {
   await page.goto("/community");
-  await expect(page.getByText("Sign in to see your customers' feedback")).toBeVisible();
+  await expect(page.getByTestId("community-feed")).toBeVisible();
+  await expect(page.getByText("Own a karinderya?")).toBeVisible();
   await expect(page.getByRole("link", { name: "Owner sign-in" })).toBeVisible();
 });
 

@@ -61,7 +61,7 @@ button.card[aria-pressed="true"] { background: var(--peach); box-shadow: 0 0 0 1
 .search { position: relative; }
 .search .i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--mute); }
 .search input { padding-left: 44px; border-radius: 999px; }
-.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 8px; margin: -4px -4px 0; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
 .chip { flex: none; appearance: none; border: 0; min-height: 44px; padding: 0 16px; border-radius: 999px; background: var(--cream); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; box-shadow: 0 0 0 1.5px transparent; cursor: pointer; transition: transform 200ms var(--out), background-color 160ms var(--ease), box-shadow 160ms var(--ease), color 160ms var(--ease); }
 .chip:active { transform: scale(0.94); }

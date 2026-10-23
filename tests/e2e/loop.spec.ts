@@ -37,25 +37,29 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByTestId("waiting")).toBeVisible();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await owner.getByRole("button", { name: "Manage" }).click();
-  await expect(owner.getByRole("button", { name: "Favorite" })).toHaveAttribute("aria-pressed", "true");
+  const manage = owner.getByRole("dialog", { name: "Manage Adobo" });
+  await expect(manage.getByRole("button", { name: "Set favorite" })).toHaveAttribute("aria-pressed", "true");
 
   // Photo is optional: the dish card shows one after the owner adds it under Manage, and the public board uses it.
   const dot = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGN4kaWDFTEMLQkAf/NfgaZ1GiMAAAAASUVORK5CYII=", "base64");
   await owner.getByLabel("Photo of Adobo").setInputFiles({ name: "adobo.png", mimeType: "image/png", buffer: dot });
-  await expect(owner.locator("img.thumb")).toBeVisible();
-  await expect(owner.getByRole("button", { name: "Remove photo" })).toBeVisible();
+  await expect(manage.locator("img.thumb")).toBeVisible();
+  await expect(manage.getByRole("button", { name: "Remove photo" })).toBeVisible();
+  await manage.getByRole("button", { name: "Close" }).click();
 
   await owner.getByRole("tab", { name: "Others" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
   await owner.getByRole("tab", { name: "Now" }).click();
 
-  // Fix the price (Manage is still open from above).
-  await owner.getByRole("button", { name: "Edit" }).click();
+  // Fix the price.
+  await owner.getByRole("button", { name: "Manage" }).click();
+  await manage.getByRole("button", { name: "Edit meal" }).click();
   await owner.getByLabel("Price (₱)").first().fill("75");
   await owner.getByLabel("Main ingredient").selectOption("chicken");
   await owner.getByLabel("Ingredients (optional)").fill("Chicken, soy sauce, vinegar");
   await owner.getByLabel("Soy", { exact: true }).check();
-  await owner.getByRole("button", { name: "Save", exact: true }).first().click();
+  await manage.getByRole("button", { name: "Save", exact: true }).first().click();
+  await manage.getByRole("button", { name: "Close" }).click();
   await expect(owner.getByText("₱75")).toBeVisible();
 
   // Fetch from the page: the browser keeps the Secure session cookie on 127.0.0.1, the request client may not.
@@ -128,10 +132,9 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // The same log shows under the dish's Manage panel, where today's numbers can also be entered.
   await owner.getByRole("tab", { name: "Now" }).click();
-  const manage = owner.getByRole("button", { name: /^(Manage|Close)$/ });
-  if ((await manage.getAttribute("aria-expanded")) !== "true") await manage.click();
+  await owner.getByRole("button", { name: "Manage" }).click();
   await expect(owner.getByTestId("dish-natira")).toContainText("cooked 12, sold 9, 3 left (₱225)");
-  await owner.getByRole("button", { name: "Close", exact: true }).click();
+  await manage.getByRole("button", { name: "Close" }).click();
 
   // Bukas now suggests 9 (the average sold) for Adobo.
   await owner.getByRole("tab", { name: "Tomorrow" }).click();
@@ -191,19 +194,20 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   // Naubos and Sale: the owner marks Adobo gone and discounts it; the board shows both.
   await owner.getByRole("tab", { name: "Now" }).click();
   await owner.getByRole("button", { name: "Manage" }).click();
-  await owner.getByRole("button", { name: "Sold out", exact: true }).click();
-  await owner.getByRole("button", { name: "Sale", exact: true }).click();
+  await manage.getByRole("button", { name: "Mark sold out" }).click();
+  await manage.getByRole("button", { name: "Put on sale" }).click();
   await owner.getByLabel("Sale price today (₱)").fill("50");
   await owner.getByRole("button", { name: "Start" }).click();
-  await expect(owner.getByRole("button", { name: /Sale ₱50/ })).toBeVisible();
+  await expect(manage.getByRole("button", { name: /Sale ₱50/ })).toBeVisible();
+  await manage.getByRole("button", { name: "Close" }).click();
   const board = await (await browser.newContext({ baseURL })).newPage();
   await board.goto("/ulam");
   await expect(board.getByText("Sold out")).toBeVisible();
   await board.close();
 
   // Ulat: the owner reports the last hour; the rating goes under review, then the reviewer rejects the report.
-  await owner.getByRole("tab", { name: "Others" }).click();
-  await owner.getByText("Report odd ratings").click();
+  await owner.getByRole("button", { name: "View Reviews" }).click();
+  await owner.getByText("Report suspicious ratings").click();
   await owner.getByLabel("What looked wrong?").fill("Looks odd");
   await owner.getByRole("button", { name: "Send report" }).click();
   await expect(owner.getByText("2 ratings are under review").first()).toBeVisible();

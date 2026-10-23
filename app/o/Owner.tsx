@@ -4,26 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
-import { PhotoPick, photoUrl } from "@/src/ui/PhotoPick";
+import { photoUrl } from "@/src/ui/PhotoPick";
 import { iconFor } from "../s/[code]/Rate";
 import type { Notice } from "@/src/services/notifications";
 import { Alok } from "./Alok";
 import { AllergenPick } from "./AllergenPick";
 import { Balita } from "./Balita";
-import { DishEdit } from "./DishEdit";
-import { SaleControl } from "./SaleControl";
 import { Bukas } from "./Bukas";
 import { Natira } from "./Natira";
-import { DishNatira } from "./DishNatira";
 import { Profile } from "./Profile";
 import { Palengke } from "./Palengke";
 import { MAINS } from "@/src/domain/mains";
 import { Setup, setupKey } from "./Setup";
-import { TagBars } from "./TagBars";
-import { Ulat } from "./Ulat";
+import { ManageSheet } from "./ManageSheet";
+import { ReviewsSheet } from "./ReviewsSheet";
 
 type Stall = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null };
-type Summary = {
+export type Summary = {
   id: string; name: string; icon: string; price: number; baseServings: number; soldOut: boolean; salePrice: number | null; published: boolean; paborito: boolean; imageV: number | null; main: string | null; ingredients: string | null; allergens: string[]; comments: { score: number; text: string; at: string }[];
   private: { count: number; buyers: number; score: number | null; improving: boolean; tagShares: Record<string, number>; trend: (number | null)[] };
   gate: { state: "public" } | { state: "kulang"; have: number; need: number };
@@ -198,31 +195,18 @@ export function Owner() {
               ))}
             </div>
             <div className="row dish-actions">
-              <button className="btn soft grow" aria-expanded={manageId === d.id} onClick={() => setManageId(manageId === d.id ? null : d.id)}>{manageId === d.id ? "Close" : "Manage"}</button>
+              <button className="btn soft grow" aria-haspopup="dialog" onClick={() => setManageId(d.id)}>Manage</button>
               {d.private.count > 0 && <button className="btn soft rev grow" aria-haspopup="dialog" onClick={() => setReviewId(d.id)}>View Reviews</button>}
             </div>
-            {reviewId === d.id && <TagBars dish={d.name} onClose={() => setReviewId(null)} shares={d.private.tagShares} nearby={d.kumpara?.tagShares ?? null} trend={d.private.trend} comments={d.comments} />}
-          {manageId === d.id && <div className="manage">
-            <button className="btn soft" aria-pressed={d.published} onClick={async () => { await post(`/api/dishes/${d.id}`, { published: !d.published }, "PATCH"); reload(); }}>
-              <Icon name={d.published ? "eye" : "eyeoff"} />{d.published ? "Public" : "Private"}
-            </button>
-            <button className="btn soft" aria-pressed={d.paborito} onClick={async () => {
-              const r = await post(`/api/dishes/${d.id}`, { paborito: !d.paborito }, "PATCH");
-              setMsg(r.ok ? "" : "You can pick up to three Favorite dishes.");
-              reload();
-            }}><Icon name="heart" />Favorite</button>
-            <button className="btn soft" aria-pressed={d.soldOut} onClick={async () => { await post(`/api/dishes/${d.id}`, { soldOut: !d.soldOut }, "PATCH"); reload(); }}>
-              <Icon name="alert" />Sold out
-            </button>
-            <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV} onDone={reload} />
-            <DishNatira stallId={stall.id} dishId={d.id} dishName={d.name} onSaved={() => setBukasTick((t) => t + 1)} />
-            <SaleControl id={d.id} price={d.price} sale={d.salePrice} onDone={reload} />
-            <DishEdit id={d.id} name={d.name} price={d.price} servings={d.baseServings} main={d.main} ingredients={d.ingredients} allergens={d.allergens} onDone={reload} />
-          </div>}
           </div>
         </div>
       ))}
       {msg && <p className="err" role="alert">{msg}</p>}
+      {manageId && dishes.find((x) => x.id === manageId) && (
+        <ManageSheet d={dishes.find((x) => x.id === manageId)!} stallId={stall.id} onClose={() => setManageId(null)} onChange={reload}
+          onLeftover={() => setBukasTick((t) => t + 1)} onReviews={() => { setReviewId(manageId); setManageId(null); }} />
+      )}
+      {reviewId && dishes.length > 0 && <ReviewsSheet dishes={dishes} id={reviewId} onSwitch={setReviewId} onClose={() => setReviewId(null)} onFiled={reload} />}
 
       </>}
       {tab === "balita" && <Balita items={notes.items} fresh={fresh} now={clock} canAlert={canAlert} onAlert={async () => { await Notification.requestPermission(); setCanAlert(Notification.permission === "default"); }} />}
@@ -273,7 +257,6 @@ export function Owner() {
         <a className="btn soft" href={`/api/stalls/${stall.id}/qr`} download={`kapyba-${stall.code}.svg`}>Download</a>
       </div>
       <button className="btn soft block" onClick={async () => { await fetch("/api/auth/signout", { method: "POST" }); router.replace("/"); router.refresh(); }}>Sign out</button>
-      {dishes.length > 0 && <Ulat dishes={dishes} onFiled={reload} />}
       </>}
       </div>
     </div>

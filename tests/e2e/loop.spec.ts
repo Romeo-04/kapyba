@@ -28,7 +28,7 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByLabel("Price of Adobo (₱)").fill("70");
   await owner.getByRole("button", { name: "Next" }).click();
   await owner.getByRole("button", { name: "Next" }).click(); // Karaniwan: leave the plates as they are
-  await owner.getByRole("button", { name: /Adobo/ }).click(); // Paborito
+  await owner.getByRole("button", { name: "Adobo", exact: true }).click(); // Paborito
   await owner.getByRole("button", { name: "Next" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
   await expect(owner.getByRole("button", { name: "Print" })).toBeVisible();
@@ -38,6 +38,13 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
   await owner.getByRole("button", { name: "Manage" }).click();
   await expect(owner.getByRole("button", { name: "Paborito" })).toHaveAttribute("aria-pressed", "true");
+
+  // Photo is optional: the dish card shows one after the owner adds it under Manage, and the public board uses it.
+  const dot = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGN4kaWDFTEMLQkAf/NfgaZ1GiMAAAAASUVORK5CYII=", "base64");
+  await owner.getByLabel("Photo of Adobo").setInputFiles({ name: "adobo.png", mimeType: "image/png", buffer: dot });
+  await expect(owner.locator("img.thumb")).toBeVisible();
+  await expect(owner.getByRole("button", { name: "Remove photo" })).toBeVisible();
+
   await owner.getByRole("tab", { name: "Higit pa" }).click();
   await expect(owner.getByAltText("Stall QR code")).toBeVisible();
   await owner.getByRole("tab", { name: "Ngayon" }).click();
@@ -61,6 +68,12 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
 
   // The owner sees what customers ticked, as bars, without opening anything private to the public.
   await owner.reload();
+  // Balita: the bell shows one new rating; opening it lists the dish (never who rated) and clears the count.
+  await expect(owner.getByTestId("bell-count")).toHaveText("1");
+  await owner.getByRole("button", { name: /Balita/ }).click();
+  await expect(owner.getByTestId("notice")).toContainText("Adobo was rated");
+  await expect(owner.getByTestId("bell-count")).toHaveCount(0);
+  await owner.getByRole("button", { name: "Balita" }).click(); // back to Ngayon
   await owner.getByText("Ano ang sinabi ng customers").click();
   await expect(owner.getByRole("meter", { name: "Maalat o matabang" })).toBeVisible();
   await expect(owner.getByTestId("trend")).toContainText("Kulang pa ang datos");

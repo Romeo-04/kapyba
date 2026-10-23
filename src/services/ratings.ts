@@ -75,7 +75,7 @@ export async function submitRating(db: Db, input: RatingInput, now = new Date())
   // The unique index on (dish, device, day) is the real guard; a conflict inserts nothing.
   const inserted = await db
     .insert(ratings)
-    .values({ dishId: input.dishId, deviceId, score, tags: mask, day, idempotencyKey })
+    .values({ dishId: input.dishId, deviceId, score, tags: mask, day, idempotencyKey, createdAt: now })
     .onConflictDoNothing()
     .returning({ id: ratings.id });
   return inserted.length === 1 ? "ok" : "already";

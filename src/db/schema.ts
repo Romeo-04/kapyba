@@ -9,6 +9,7 @@ const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull(
 export const owners = pgTable("owners", {
   id: id(),
   email: text("email").notNull().unique(),
+  notifiedAt: timestamp("notified_at", { withTimezone: true }), // ratings newer than this are unread in the owner's inbox
   createdAt: createdAt(),
 });
 
@@ -40,6 +41,14 @@ export const dishes = pgTable("dishes", {
   saleDay: date("sale_day"),
   salePrice: integer("sale_price"),
 }, (t) => [index("dishes_stall_idx").on(t.stallId)]);
+
+// One small photo per dish, already shrunk by the owner's phone. Base64 text keeps it in the same database, with no file store to set up.
+export const dishImages = pgTable("dish_images", {
+  dishId: uuid("dish_id").primaryKey().references(() => dishes.id, { onDelete: "cascade" }),
+  mime: text("mime").notNull(),
+  data: text("data").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const devices = pgTable("devices", {
   id: id(),

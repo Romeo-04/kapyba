@@ -3,9 +3,10 @@ import { useState } from "react";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
+import { PhotoPick } from "@/src/ui/PhotoPick";
 
 type Stall = { id: string; name: string; area: string; code: string };
-type Dish = { id: string; name: string; icon: string };
+type Dish = { id: string; name: string; icon: string; imageV?: number | null };
 type Pick = { name: string; icon: IconName; price: number; plates: number };
 
 // Common Filipino dishes. Prices are never guessed: the owner sets her own.
@@ -152,6 +153,16 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
             </button>
           ))}
           {msg && <p className="err" role="alert">{msg}</p>}
+          <div className="card stack">
+            <strong>Photos <span className="mute">(optional)</span></strong>
+            <p className="mute">A photo makes a dish easier to pick. You can add or change these anytime in Ngayon, under Manage.</p>
+            {dishes.map((d) => (
+              <div key={d.id} className="row" style={{ alignItems: "center", flexWrap: "wrap" }}>
+                <span className="grow">{d.name}</span>
+                <PhotoPick dishId={d.id} dishName={d.name} imageV={d.imageV ?? null} onDone={() => {}} />
+              </div>
+            ))}
+          </div>
           <button className="btn block" onClick={async () => {
             await Promise.all(fav.map((id) => post(`/api/dishes/${id}`, { paborito: true }, "PATCH")));
             go(6);

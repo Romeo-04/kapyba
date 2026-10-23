@@ -7,6 +7,7 @@ import { photoUrl } from "@/src/ui/PhotoPick";
 import { MAINS, mainLabel } from "@/src/domain/mains";
 import { ALLERGENS } from "@/src/domain/allergens";
 import { DishSheet } from "./DishSheet";
+import { BoardIntro } from "./BoardIntro";
 import { iconFor } from "../s/[code]/Rate";
 
 export type Item = {
@@ -61,6 +62,7 @@ export function Board() {
           <p>Worth your money, ranked.</p>
         </div>
       </div>
+      <BoardIntro />
       <div className="search">
         <Icon name="pin" />
         <input id="area" aria-label="Area or school" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area or school, like UST" maxLength={80} />

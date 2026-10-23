@@ -78,14 +78,15 @@ export function ReviewsSheet({ dishes, id, onSwitch, onClose, onFiled }: { dishe
               );
             })}
             {nearby && <p className="mute small">The tick marks the average of nearby karinderyas.</p>}
-            <div className="guide">
-              <Kapy pose="wave" size={56} anim="bob" />
-              <div className="grow">
-                <strong>Taste guidance</strong>
-                {d.recs.length === 0
-                  ? <p className="mute">A few more ratings are needed to generate taste balance guidance.</p>
-                  : <div className="row" style={{ flexWrap: "wrap", marginTop: 6 }}>{d.recs.map((r) => <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>)}</div>}
-              </div>
+          </div>
+
+          <div className="panel guide">
+            <Kapy pose="wave" size={56} anim="bob" />
+            <div className="grow">
+              <strong>Taste guidance</strong>
+              {d.recs.length === 0
+                ? <p className="mute">A few more ratings are needed to generate taste balance guidance.</p>
+                : <div className="row" style={{ flexWrap: "wrap", marginTop: 6 }}>{d.recs.map((r) => <span key={r.word} className="pill"><Icon name={iconFor(r.icon)} /><Icon name={r.dir} />{r.word}</span>)}</div>}
             </div>
           </div>
 

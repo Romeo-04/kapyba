@@ -4,7 +4,7 @@ import { currentOwner } from "@/src/auth/current";
 import { Review } from "./Review";
 
 async function Gate() {
-  if (!(await currentOwner())) redirect("/");
+  if (!(await currentOwner())) redirect("/owner");
   return <Review />;
 }
 

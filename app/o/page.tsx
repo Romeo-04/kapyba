@@ -5,7 +5,7 @@ import { Owner } from "./Owner";
 
 // The session cookie is read at request time, so it sits inside Suspense (cacheComponents is on).
 async function Gate() {
-  if (!(await currentOwner())) redirect("/");
+  if (!(await currentOwner())) redirect("/owner");
   return <Owner />;
 }
 

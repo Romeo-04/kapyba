@@ -33,7 +33,7 @@ export function StallProfile({ id }: { id: string }) {
 
   return (
     <div className="stack">
-      <a className="btn soft round" href="/ulam" aria-label="Back to the Ulam board"><Icon name="back" /></a>
+      <a className="btn soft round backfloat" href="/ulam" aria-label="Back to the Ulam board"><Icon name="back" /></a>
       <div className="hero">
         <Kapy pose="wave" size={92} anim="bob" />
         <div><h1>{p.name}</h1><p>{p.area}</p></div>

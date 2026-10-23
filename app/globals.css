@@ -125,7 +125,10 @@ label { font-size: 13px; font-weight: 700; color: var(--mute); display: block; m
 .hero > .kapy { flex: none; }
 
 /* Owner dashboard stat cards */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; }
+.stats { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; }
+.stat { min-width: 0; justify-content: space-between; }
+.stat > .row { min-height: 40px; flex-wrap: nowrap; }
+.backfloat { position: sticky; top: 64px; z-index: 10; align-self: flex-start; box-shadow: 0 4px 12px rgba(60, 35, 20, 0.15); }
 .stat { background: var(--cream); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
 .stat strong { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.04em; }

@@ -93,8 +93,8 @@ export function HomeDash() {
       <div className="stats">
         <div className="stat"><strong>{total}</strong><span>ratings</span></div>
         <div className="stat" data-testid="home-avg">
-          <div className="row" style={{ gap: 8 }}>
-            <Ring score={avg} locked={avg === null} size={48} />
+          <div className="row" style={{ gap: 6 }}>
+            <Ring score={avg} locked={avg === null} size={40} />
             <strong>{avg === null ? "–" : avg.toFixed(1)}</strong>
           </div>
           {delta !== null && delta !== 0 && (

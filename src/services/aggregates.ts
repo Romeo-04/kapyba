@@ -108,19 +108,20 @@ export async function ownerSummary(db: Db, ownerId: string, stallId: string, now
 export type AlokRibbon = { id: string; kind: string; remaining: number; endsAt: string | null };
 
 export type BoardItem =
-  | { kind: "scored"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null; main: string | null; ingredients: string | null; allergens: Allergen[] }
-  | { kind: "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null; main: string | null; ingredients: string | null; allergens: Allergen[] };
+  | { kind: "scored"; dishId: string; stallId: string; stallName: string; area: string; name: string; icon: string; price: number; score: number; tone: Tone; count: number; sulit: boolean; improving: boolean; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null; main: string | null; ingredients: string | null; allergens: Allergen[] }
+  | { kind: "paborito"; dishId: string; stallId: string; stallName: string; area: string; name: string; icon: string; price: number; alok: AlokRibbon | null; soldOut: boolean; salePrice: number | null; imageV: number | null; main: string | null; ingredients: string | null; allergens: Allergen[] };
 
 /**
  * The public Ulam board. Only published dishes that pass the gate show a score; a Paborito
  * pick with no score yet shows as an owner's pick. Removed and under-review ratings never count.
  * Order (my call): score high to low, then price low to high. Sulit = a happy dish priced at or under the board median.
  */
-export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: number } = {}, now = new Date()): Promise<BoardItem[]> {
+export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: number; stallId?: string } = {}, now = new Date()): Promise<BoardItem[]> {
   const conds = [isNull(dishes.archivedAt)];
   if (opts.area) conds.push(eq(stalls.area, opts.area));
+  if (opts.stallId) conds.push(eq(stalls.id, opts.stallId));
   const list = await db
-    .select({ id: dishes.id, name: dishes.name, icon: dishes.icon, price: dishes.price, published: dishes.published, paborito: dishes.paborito, main: dishes.main, ingredients: dishes.ingredients, allergens: dishes.allergens, soldOutDay: dishes.soldOutDay, saleDay: dishes.saleDay, salePrice: dishes.salePrice, stallName: stalls.name, area: stalls.area })
+    .select({ id: dishes.id, name: dishes.name, icon: dishes.icon, price: dishes.price, published: dishes.published, paborito: dishes.paborito, main: dishes.main, ingredients: dishes.ingredients, allergens: dishes.allergens, soldOutDay: dishes.soldOutDay, saleDay: dishes.saleDay, salePrice: dishes.salePrice, stallId: stalls.id, stallName: stalls.name, area: stalls.area })
     .from(dishes)
     .innerJoin(stalls, eq(stalls.id, dishes.stallId))
     .where(and(...conds));
@@ -137,9 +138,9 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
     const gate = publicGate(rows.length, distinctBuyers(rows), d.published);
     if (gate.state === "public") {
       const score = meanScore(rows)!;
-      scored.push({ kind: "scored", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, main: d.main, ingredients: d.ingredients, allergens: allergenList(d.allergens), ...todayState(d, now) });
+      scored.push({ kind: "scored", dishId: d.id, stallId: d.stallId, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, score, tone: tone(score), count: rows.length, sulit: false, improving: improving(rows, today), alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, main: d.main, ingredients: d.ingredients, allergens: allergenList(d.allergens), ...todayState(d, now) });
     } else if (d.paborito) {
-      picks.push({ kind: "paborito", dishId: d.id, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, main: d.main, ingredients: d.ingredients, allergens: allergenList(d.allergens), ...todayState(d, now) });
+      picks.push({ kind: "paborito", dishId: d.id, stallId: d.stallId, stallName: d.stallName, area: d.area, name: d.name, icon: d.icon, price: d.price, alok: deals.get(d.id) ?? null, imageV: photos.get(d.id) ?? null, main: d.main, ingredients: d.ingredients, allergens: allergenList(d.allergens), ...todayState(d, now) });
     }
   }
   const prices = scored.map((s) => s.price).sort((a, b) => a - b);
@@ -150,6 +151,14 @@ export async function publicBoard(db: Db, opts: { area?: string; maxPrice?: numb
   const isDeal = (i: BoardItem) => !i.soldOut && (i.alok !== null || i.salePrice !== null);
   const all = [...scored, ...picks];
   return [...all.filter(isDeal), ...all.filter((i) => !isDeal(i))];
+}
+
+/** The public karinderya page: the name and area, what the owner wrote, and the dishes that are public. Null if there is no such stall. */
+export async function stallProfile(db: Db, stallId: string, now = new Date()) {
+  if (!/^[0-9a-f-]{36}$/i.test(stallId)) return null;
+  const [s] = await db.select({ id: stalls.id, name: stalls.name, area: stalls.area, about: stalls.about, hours: stalls.hours }).from(stalls).where(eq(stalls.id, stallId));
+  if (!s) return null;
+  return { ...s, items: await publicBoard(db, { stallId }, now) };
 }
 
 export const TESTIMONY_MIN_SCORE = 4;

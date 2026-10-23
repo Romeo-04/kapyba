@@ -21,6 +21,8 @@ export const stalls = pgTable("stalls", {
   area: text("area").notNull(),
   lat: text("lat"), // rounded on write
   lng: text("lng"),
+  about: text("about"), // owner-written, shown on the public karinderya page
+  hours: text("hours"),
   bagyoUntil: timestamp("bagyo_until", { withTimezone: true }), // owner's Bagyo switch, lapses on its own
   createdAt: createdAt(),
 }, (t) => [index("stalls_area_idx").on(t.area)]);

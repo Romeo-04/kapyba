@@ -212,15 +212,31 @@ test("owner sets up a stall, a second phone rates, the owner sees it", async ({ 
   await owner.getByRole("button", { name: "Reject" }).click();
   await expect(owner.getByTestId("review-empty")).toBeVisible();
 
-  // A second stall can be added and the owner can switch back.
+  // The owner writes about the karinderya; customers read it on a public page.
   await owner.goto(new URL("/o", owner.url()).href);
-  await owner.getByRole("button", { name: "Another stall" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
+  await owner.getByRole("button", { name: "Edit Profile" }).click();
+  await owner.getByLabel("About (optional)").fill("Home-style ulam cooked fresh every morning.");
+  await owner.getByLabel("Hours (optional)").fill("Mon to Sat, 6am to 2pm");
+  await owner.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(owner.getByTestId("profile-card")).toContainText("Mon to Sat, 6am to 2pm");
+  const pub = await owner.getByRole("link", { name: "See how customers view this page" }).getAttribute("href");
+  await owner.goto(new URL(pub!, owner.url()).href);
+  await expect(owner.getByTestId("stall-about")).toContainText("cooked fresh every morning");
+  await expect(owner.getByTestId("stall-about")).toContainText("6am to 2pm");
+
+  // A second branch can be added and the owner can switch back.
+  await owner.goto(new URL("/o", owner.url()).href);
+  await owner.getByRole("tab", { name: "Others" }).click();
+  await owner.getByRole("button", { name: "Add Another Branch" }).click();
   await owner.getByLabel("Stall name").fill("Pangalawang Tindahan");
   await owner.getByLabel("Area or school nearby").fill("UST");
   await owner.getByRole("button", { name: "Next" }).click();
   await owner.getByRole("button", { name: "Laktaw" }).click();
-  await expect(owner.getByRole("button", { name: "Pangalawang Tindahan" })).toHaveAttribute("aria-pressed", "true");
-  await owner.getByRole("button", { name: "Karinderya ni Rosa" }).click();
+  await owner.getByRole("tab", { name: "Others" }).click();
+  await expect(owner.getByRole("button", { name: /Pangalawang Tindahan/ })).toHaveAttribute("aria-current", "true");
+  await owner.getByRole("button", { name: /Karinderya ni Rosa/ }).click();
+  await owner.getByRole("tab", { name: "Now" }).click();
   await expect(owner.getByText("Adobo", { exact: true }).first()).toBeVisible();
 
   // Signing out ends the session on this device.

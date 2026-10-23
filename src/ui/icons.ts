@@ -6,6 +6,7 @@ export const ICONS = {
   plate: `<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>`,
   cart: `<path d="M3 4h3l2.2 11h10.3l2-8H7"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>`,
   drop: `<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>`,
+  edit: `<path d="M4 16.5V20h3.5L18 9.5 14.5 6zM13 7.5l3.5 3.5"/>`,
   qr: `<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v6h-4M14 18h2"/>`,
   check: `<path d="M5 12.5l4.5 4.5L19 7"/>`,
   back: `<path d="M15 5l-7 7 7 7"/>`,

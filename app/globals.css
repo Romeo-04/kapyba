@@ -217,6 +217,26 @@ fieldset.allergens legend { font-weight: 700; margin-bottom: 6px; }
 .tick input { width: 20px; height: 20px; min-height: 20px; padding: 0; background: none; box-shadow: none; accent-color: var(--brand); margin: 0; }
 .tick:has(input:checked) { background: var(--peach); box-shadow: 0 0 0 1.5px var(--brand); }
 .tick:has(input:focus-visible) { outline: 3px solid var(--rain); outline-offset: 2px; }
+/* Owner profile and the public karinderya page: a stats strip, a white info panel, and a branch list. */
+.strip { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cream); border-radius: 22px; padding: 14px 0; box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.08); }
+.strip > div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.strip > div + div { border-left: 1.5px solid rgba(80, 48, 28, 0.1); }
+.strip strong { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.strip span { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); }
+.panel { background: #fff; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.12); }
+.panel > div + div { border-top: 1.5px solid rgba(80, 48, 28, 0.08); padding-top: 12px; }
+.panel p { font-size: 17px; margin-top: 2px; overflow-wrap: anywhere; }
+.panel .eyebrow { color: var(--brand-deep); }
+.panel input, .panel textarea { background: var(--cream); }
+a.round-ico.plain { text-decoration: none; }
+button.branch { appearance: none; border: 0; font: inherit; color: var(--ink); text-align: left; width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: #fff; box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.12); cursor: pointer; min-height: 64px; transition: transform 200ms var(--out); }
+button.branch:active { transform: scale(0.98); }
+button.branch.current { background: var(--peach); box-shadow: 0 0 0 1.5px var(--brand); cursor: default; }
+button.branch:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
+button.branch .tile { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--cream); color: var(--cocoa); flex: none; }
+button.branch.current .tile { background: var(--brand); color: #fff; }
+button.branch .thumb { border-radius: 12px; object-fit: cover; flex: none; }
+.pill.cur { background: #fff; color: var(--brand); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; }
 
 .vcard .btn.soft { background: #fff; }
 

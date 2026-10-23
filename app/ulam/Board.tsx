@@ -10,7 +10,7 @@ import { DishSheet } from "./DishSheet";
 import { iconFor } from "../s/[code]/Rate";
 
 export type Item = {
-  kind: "scored" | "paborito"; dishId: string; stallName: string; area: string; name: string; icon: string; price: number;
+  kind: "scored" | "paborito"; dishId: string; stallId: string; stallName: string; area: string; name: string; icon: string; price: number;
   score?: number; count?: number; sulit?: boolean; improving?: boolean;
   alok: { id: string; kind: string; remaining: number; endsAt: string | null } | null;
   soldOut: boolean; salePrice: number | null; imageV: number | null; main: string | null; ingredients: string | null; allergens: string[];
@@ -110,6 +110,7 @@ export function Board() {
           </button>
           <div className="body" style={{ paddingTop: 0 }}>
             <div className="row" style={{ flexWrap: "wrap", marginTop: 2 }}>
+              <a className="pill" href={`/ulam/stall/${d.stallId}`}><Icon name="store" />Karinderya</a>
               {d.main && <span className="pill g">{mainLabel(d.main)}</span>}
               {d.allergens.length > 0 && <span className="pill a" data-testid="allergens"><Icon name="alert" />Allergen: {d.allergens.map((a) => ALLERGENS.find((x) => x.id === a)?.label).join(", ")}</span>}
               {reserved && <span className="pill g"><Icon name="check" />Reserved</span>}

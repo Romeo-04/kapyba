@@ -4,6 +4,7 @@ import type { Db } from "@/src/db";
 import { dishes, stalls } from "@/src/db/schema";
 import { isAllergen } from "@/src/domain/allergens";
 import { MAX_INGREDIENTS, isMain } from "@/src/domain/mains";
+import { MAX_ABOUT, MAX_HOURS, infoProblem } from "@/src/domain/stallinfo";
 import { manilaDay } from "./ratings";
 
 const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no look-alikes (i, l, o, 0, 1)
@@ -26,6 +27,32 @@ export async function createStall(db: Db, ownerId: string, input: { name: unknow
 
 export async function listStalls(db: Db, ownerId: string) {
   return db.select().from(stalls).where(eq(stalls.ownerId, ownerId));
+}
+
+/**
+ * Sets what a customer sees on the karinderya page: name, area, about and hours. A field left out is unchanged; an empty
+ * about or hours clears it, an empty name or area is refused.
+ * Returns false if the stall is not this owner's or a text is too long or carries a link or phone number.
+ */
+export async function updateStallInfo(db: Db, ownerId: string, stallId: string, input: { name?: unknown; area?: unknown; about?: unknown; hours?: unknown }) {
+  if (!(await ownedStall(db, ownerId, stallId))) return false;
+  const set: { name?: string; area?: string; about?: string | null; hours?: string | null } = {};
+  for (const key of ["name", "area"] as const) {
+    if (input[key] === undefined) continue;
+    const v = clean(input[key], 80);
+    if (!v) return false; // a karinderya always has a name and a place
+    set[key] = v;
+  }
+  for (const [key, max] of [["about", MAX_ABOUT], ["hours", MAX_HOURS]] as const) {
+    const v = input[key];
+    if (v === undefined) continue;
+    if (typeof v !== "string") return false;
+    const text = v.replace(/\s+/g, " ").trim();
+    if (infoProblem(text, max)) return false;
+    set[key] = text || null;
+  }
+  if (Object.keys(set).length) await db.update(stalls).set(set).where(eq(stalls.id, stallId));
+  return true;
 }
 
 /** Returns the stall only if this owner owns it; the single place ownership is checked. */

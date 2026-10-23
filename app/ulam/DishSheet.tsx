@@ -50,6 +50,7 @@ export function DishSheet({ d, reserved, onReserve, onClose }: { d: Item; reserv
             <div className="grow">
               <h2>{d.name}</h2>
               <div className="mute">{d.stallName} · {d.area}</div>
+              <a href={`/ulam/stall/${d.stallId}`}>About this karinderya</a>
             </div>
             <span className="price">{d.salePrice !== null ? <><s className="mute">₱{d.price}</s> ₱{d.salePrice}</> : <>₱{d.price}</>}</span>
           </div>

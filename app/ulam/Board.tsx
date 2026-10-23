@@ -58,7 +58,7 @@ export function Board() {
         <Kapy pose="point" size={104} anim="bob" />
         <div>
           <h1>Ulam</h1>
-          <p>Which dishes are worth your money. Scores show only after enough customers have rated.</p>
+          <p>Worth your money, ranked.</p>
         </div>
       </div>
       <div className="search">

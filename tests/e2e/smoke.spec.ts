@@ -61,3 +61,11 @@ test("the front door is the Ulam board; first-time buyers see a short guide that
   await page.reload();
   await expect(page.getByTestId("board-intro")).toHaveCount(0);
 });
+
+test("Kapy greets the first open of a visit, not the rating page", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("splash")).toBeVisible();
+  await expect(page.getByTestId("splash")).toHaveCount(0, { timeout: 5000 });
+  await page.reload();
+  await expect(page.getByTestId("splash")).toHaveCount(0);
+});

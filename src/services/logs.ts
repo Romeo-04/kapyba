@@ -64,6 +64,18 @@ export async function leftoverPesos(db: Db, ownerId: string, stallId: string, da
   return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, v]) => ({ day, ...v }));
 }
 
+/** One dish's cooked, sold and leftover portions for the last `days` days, oldest first. Null if the stall is not this owner's or the dish is not in it. */
+export async function dishLog(db: Db, ownerId: string, stallId: string, dishId: string, days = 7, now = new Date()) {
+  if (!(await ownedStall(db, ownerId, stallId))) return null;
+  const [dish] = await db.select({ price: dishes.price }).from(dishes).where(and(eq(dishes.id, dishId), eq(dishes.stallId, stallId)));
+  if (!dish) return null;
+  const since = manilaDay(new Date(now.getTime() - (days - 1) * 86_400_000));
+  const rows = await db.select().from(dailyLogs).where(and(eq(dailyLogs.dishId, dishId), gte(dailyLogs.day, since)));
+  return rows
+    .sort((a, b) => a.day.localeCompare(b.day))
+    .map((r) => ({ day: r.day, cooked: r.cooked, sold: r.sold, leftover: r.leftover, pesos: r.leftover * dish.price }));
+}
+
 /** Tomorrow's suggested servings per dish from the last 7 logged days and the private ratings. */
 export async function bukasPlan(db: Db, ownerId: string, stallId: string, now = new Date(), factor = 1) {
   const summary = await ownerSummary(db, ownerId, stallId, now);

@@ -42,7 +42,7 @@ export function Natira({ stallId, dishes, onSaved }: { stallId: string; dishes: 
         setMsg("No signal. Saved on this phone and will be sent when you are online.");
       }
     }}>
-      <h2>Natira</h2>
+      <h2>Leftovers</h2>
       <p className="mute">End of day: how many portions did you cook and sell?</p>
       {dishes.map((d) => (
         <div key={d.id} className="row">

@@ -219,3 +219,37 @@ fieldset.allergens legend { font-weight: 700; margin-bottom: 6px; }
 .tick:has(input:focus-visible) { outline: 3px solid var(--rain); outline-offset: 2px; }
 
 .vcard .btn.soft { background: #fff; }
+
+/* Fields inside a cream card sit on white with a hairline edge, so each one reads as its own box. */
+.card input, .card select, .card textarea { background: #fff; box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.16); }
+.card input:focus, .card select:focus, .card textarea:focus { box-shadow: 0 0 0 2px var(--brand); }
+.card .tick { background: #fff; box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.16); }
+.card .tick:has(input:checked) { background: var(--peach); box-shadow: 0 0 0 1.5px var(--brand); }
+.card .tick input { box-shadow: none; background: none; }
+.card .row { align-items: flex-end; }
+.card .stack > div + div, .card.stack > div + div { margin-top: 2px; }
+.card.stack > * + fieldset.allergens, .card.stack > .sep { border-top: 1.5px solid rgba(80, 48, 28, 0.1); padding-top: 14px; }
+details.report { margin-top: 4px; }
+details.report > summary { list-style: none; cursor: pointer; justify-content: center; }
+details.report > summary::-webkit-details-marker { display: none; }
+details.report[open] > summary { margin-bottom: 12px; background: var(--peach); }
+
+/* Tomorrow tab: section headings sit above their cards; labelled lists with a hairline between. */
+h2.sec { font-size: 22px; margin-top: 6px; }
+.eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+hr.rule { border: 0; border-top: 1.5px solid rgba(80, 48, 28, 0.1); margin: 2px 0; width: 100%; }
+.row.between { justify-content: space-between; }
+.small { font-size: 12px; }
+.lead { font-size: 16px; line-height: 1.35; }
+.hot { color: var(--brand); font-weight: 800; }
+.total { color: var(--brand); font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.round-ico { appearance: none; border: 1.5px solid rgba(80, 48, 28, 0.16); background: #fff; color: var(--cocoa); width: 48px; height: 48px; border-radius: 999px; display: grid; place-items: center; cursor: pointer; flex: none; transition: background-color 200ms var(--ease), transform 200ms var(--out); }
+.round-ico:active { transform: scale(0.95); }
+.round-ico[aria-pressed="true"] { background: var(--green-tint); color: var(--leaf); border-color: var(--leaf); }
+.row.fund { background: #dbe9f6; border-radius: 14px; padding: 10px 12px; }
+label.check { margin: 0; font-size: 15px; font-weight: 500; color: var(--ink); min-height: 40px; gap: 12px; }
+label.check input { appearance: none; width: 24px; height: 24px; min-height: 24px; padding: 0; border-radius: 6px; background: #fff; box-shadow: inset 0 0 0 2px var(--brand); flex: none; cursor: pointer; display: grid; place-items: center; }
+label.check input:checked { background: var(--brand); box-shadow: inset 0 0 0 2px var(--brand); }
+label.check input:checked::after { content: ""; width: 10px; height: 6px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: translateY(-1px) rotate(-45deg); }
+label.check input:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
+.card .row.between, .card .row.fund, .card .row[data-testid="weather-pill"] { align-items: center; }

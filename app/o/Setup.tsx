@@ -155,7 +155,7 @@ export function Setup({ stall, dishes, step: startStep, onStall, onDone }: {
           {msg && <p className="err" role="alert">{msg}</p>}
           <div className="card stack">
             <strong>Photos <span className="mute">(optional)</span></strong>
-            <p className="mute">A photo makes a dish easier to pick. You can add or change these anytime in Ngayon, under Manage.</p>
+            <p className="mute">A photo makes a dish easier to pick. You can add or change these anytime in Now, under Manage.</p>
             {dishes.map((d) => (
               <div key={d.id} className="row" style={{ alignItems: "center", flexWrap: "wrap" }}>
                 <span className="grow">{d.name}</span>

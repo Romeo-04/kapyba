@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Icon } from "@/src/ui/Icon";
 
 type Dish = { id: string; name: string };
 const ERRORS: Record<string, string> = {
@@ -13,6 +14,8 @@ const ERRORS: Record<string, string> = {
 export function Ulat({ dishes, onFiled }: { dishes: Dish[]; onFiled: () => void }) {
   const [msg, setMsg] = useState("");
   return (
+    <details className="report">
+    <summary className="btn soft block"><Icon name="alert" />Report odd ratings</summary>
     <form className="card stack" onSubmit={async (e) => {
       e.preventDefault();
       const form = e.currentTarget;
@@ -30,7 +33,6 @@ export function Ulat({ dishes, onFiled }: { dishes: Dish[]; onFiled: () => void 
       if (r.ok) { setMsg(`Reported. ${j.report.flagged} ratings are under review; the team replies within 24 hours.`); form.reset(); onFiled(); }
       else setMsg(ERRORS[j.error] ?? "Could not send the report.");
     }}>
-      <h2>Ulat</h2>
       <p className="mute">Many odd ratings in a short time? Report them. They stay visible to you but leave the public score until reviewed. Reports are limited and every decision is logged.</p>
       <div><label htmlFor="udish">Dish</label><select id="udish" name="dish">{dishes.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></div>
       <div className="row">
@@ -41,5 +43,6 @@ export function Ulat({ dishes, onFiled }: { dishes: Dish[]; onFiled: () => void 
       {msg && <p role="status" className="mute">{msg}</p>}
       <button className="btn block">Send report</button>
     </form>
+    </details>
   );
 }

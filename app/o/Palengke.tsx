@@ -19,21 +19,30 @@ export function Palengke({ stallId, refresh }: { stallId: string; refresh: numbe
 
   if (!list) return null;
   return (
-    <div className="card stack">
-      <h2>Palengke</h2>
-      {list.items.length === 0 && <p className="mute">Kulang pa. Log a day in Natira, or add your usual servings, to get a list.</p>}
-      {list.items.length > 0 && (
-        <p data-testid="palengke-total"><strong>₱{list.total.low}–₱{list.total.high}</strong> <span className="mute">likely total</span></p>
-      )}
-      {list.items.map((i) => (
-        <label key={i.key} className="row" style={{ opacity: got.has(i.key) ? 0.5 : 1 }}>
-          <input type="checkbox" checked={got.has(i.key)} onChange={() => setGot((s) => { const n = new Set(s); if (n.has(i.key)) n.delete(i.key); else n.add(i.key); return n; })} style={{ width: 22, height: 22 }} />
-          <span className="grow">{i.label} · {i.kg} kg</span>
-          <span className="mute">₱{i.low}–₱{i.high}</span>
-        </label>
-      ))}
-      {list.noRecipe.length > 0 && <p className="mute">No recipe yet for: {list.noRecipe.join(", ")}.</p>}
-      <p className="mute" role="note">Prices are a {list.priceSource}. Treat them as a rough guide only.</p>
-    </div>
+    <section className="stack">
+      <h2 className="sec">Palengke</h2>
+      <div className="card stack">
+        {list.items.length === 0 && <p className="mute">Not enough data yet. Log a day in Leftovers, or add your usual servings, to get a list.</p>}
+        {list.items.length > 0 && (
+          <>
+            <div data-testid="palengke-total">
+              <span className="mute small">Your estimated total is</span>
+              <div className="total">₱{list.total.low}–₱{list.total.high}</div>
+            </div>
+            <hr className="rule" />
+            <div className="eyebrow">Checklist</div>
+          </>
+        )}
+        {list.items.map((i) => (
+          <label key={i.key} className="row between check" style={{ opacity: got.has(i.key) ? 0.5 : 1 }}>
+            <input type="checkbox" checked={got.has(i.key)} onChange={() => setGot((s) => { const n = new Set(s); if (n.has(i.key)) n.delete(i.key); else n.add(i.key); return n; })} />
+            <span className="grow">{i.kg}kg of {i.label}</span>
+            <strong>₱{i.low}–₱{i.high}</strong>
+          </label>
+        ))}
+        {list.noRecipe.length > 0 && <p className="mute">No recipe yet for: {list.noRecipe.join(", ")}.</p>}
+        <p className="mute small" role="note">Prices are a {list.priceSource}. Treat them as a rough guide only.</p>
+      </div>
+    </section>
   );
 }

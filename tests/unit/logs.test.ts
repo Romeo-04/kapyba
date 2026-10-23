@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/src/db";
 import { consumeLink, requestLink } from "@/src/services/auth";
-import { bukasPlan, leftoverPesos, saveDay } from "@/src/services/logs";
+import { bukasPlan, dishLog, leftoverPesos, saveDay } from "@/src/services/logs";
 import { addDish, createStall } from "@/src/services/stalls";
 import { testDb } from "./helpers/testdb";
 
@@ -23,6 +23,14 @@ describe("daily log", () => {
   it("turns cooked minus sold into leftover pesos", async () => {
     await saveDay(db, owner, stallId, [{ dishId: adobo, cooked: 12, sold: 9 }, { dishId: tinola, cooked: 8, sold: 8 }], NOW);
     expect(await leftoverPesos(db, owner, stallId, 7, NOW)).toEqual([{ day: "2026-10-22", pesos: 210, leftover: 3, cooked: 20 }]);
+  });
+
+  it("returns one dish's own log, and refuses a stranger or another stall's dish", async () => {
+    await saveDay(db, owner, stallId, [{ dishId: adobo, cooked: 12, sold: 9 }, { dishId: tinola, cooked: 8, sold: 8 }], NOW);
+    expect(await dishLog(db, owner, stallId, adobo, 7, NOW)).toEqual([{ day: "2026-10-22", cooked: 12, sold: 9, leftover: 3, pesos: 210 }]);
+    expect(await dishLog(db, other, stallId, adobo, 7, NOW)).toBeNull();
+    const otherStall = (await createStall(db, other, { name: "Ben", area: "UST" }))!.id;
+    expect(await dishLog(db, other, otherStall, adobo, 7, NOW)).toBeNull();
   });
 
   it("replaces an earlier entry for the same dish and day", async () => {

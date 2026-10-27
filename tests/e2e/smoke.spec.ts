@@ -48,7 +48,7 @@ test("the app is installable: manifest, icons and service worker are served", as
   for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
   const sw = await request.get("/sw.js");
   expect(sw.status()).toBe(200);
-  expect(await sw.text()).toContain("kb-v2");
+  expect(await sw.text()).toContain("kb-v3");
 });
 
 test("the front door is the Ulam board", async ({ page }) => {

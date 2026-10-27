@@ -2,12 +2,17 @@ import { defineConfig } from "@playwright/test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+const BASE = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100";
 export const MAIL_FILE = join(tmpdir(), "kapyba-e2e-mail.txt");
 
 export default defineConfig({
   testDir: "tests/e2e",
   workers: 1,
-  use: { baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100" },
+  use: {
+    baseURL: BASE,
+    // Tests start as a returning buyer so the first-run welcome does not cover the board; the welcome tests clear this.
+    storageState: { cookies: [], origins: [{ origin: new URL(BASE).origin, localStorage: [{ name: "kb_role", value: "buyer" }] }] },
+  },
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {

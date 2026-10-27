@@ -51,15 +51,52 @@ test("the app is installable: manifest, icons and service worker are served", as
   expect(await sw.text()).toContain("kb-v2");
 });
 
-test("the front door is the Ulam board; first-time buyers see a short guide that stays dismissed", async ({ page }) => {
+test("the front door is the Ulam board", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Ulam", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Owner" })).toBeVisible();
-  await expect(page.getByTestId("board-intro")).toContainText("Scan the stall's QR code");
-  await page.getByTestId("board-intro").getByRole("button", { name: "Got it" }).click();
-  await expect(page.getByTestId("board-intro")).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByTestId("board-intro")).toHaveCount(0);
+  await expect(page.getByTestId("welcome")).toHaveCount(0);
+});
+
+test.describe("first open on a new phone", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("a customer answers the welcome questions and the board uses them", async ({ page }) => {
+    await page.goto("/");
+    const w = page.getByTestId("welcome");
+    await expect(w.getByRole("heading", { name: /Which one is you/ })).toBeVisible();
+    await w.getByRole("button", { name: /I eat at karinderyas/ }).click();
+    await w.getByRole("button", { name: "Pork" }).click();
+    await w.getByRole("button", { name: "Next" }).click();
+    await w.getByRole("radio", { name: "₱75 or less" }).click();
+    await w.getByRole("button", { name: "Next" }).click();
+    await w.getByRole("button", { name: "Peanut" }).click();
+    await w.getByRole("button", { name: "Next" }).click();
+    await w.getByRole("button", { name: "Next" }).click();
+    await w.getByRole("button", { name: "Show my ulam" }).click();
+    await expect(w).toHaveCount(0);
+    await expect(page.locator("#budget")).toHaveValue("75");
+    await expect(page.getByRole("button", { name: /My preferences · 2/ })).toBeVisible();
+    await expect(page.getByText(/contain peanut are listed last/)).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId("welcome")).toHaveCount(0);
+    await page.getByRole("button", { name: /My preferences/ }).click();
+    await expect(page.getByTestId("welcome").getByRole("button", { name: "Pork" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("an owner is sent to set up their karinderya", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("welcome").getByRole("button", { name: /I run a karinderya/ }).click();
+    await expect(page.getByTestId("welcome")).toContainText("Print your QR code");
+    await page.getByRole("link", { name: "Set up my karinderya" }).click();
+    await expect(page).toHaveURL(/\/owner$/);
+    await expect(page.getByTestId("welcome")).toHaveCount(0);
+  });
+
+  test("the rating page never shows the welcome", async ({ page }) => {
+    await page.goto("/s/nope");
+    await expect(page.getByTestId("welcome")).toHaveCount(0);
+  });
 });
 
 test("Kapy greets the first open of a visit, not the rating page", async ({ page }) => {
@@ -75,14 +112,4 @@ test("the Community page shows the public feed and invites owners to sign in", a
   await expect(page.getByTestId("community-feed")).toBeVisible();
   await expect(page.getByText("Own a karinderya?")).toBeVisible();
   await expect(page.getByRole("link", { name: "Owner sign-in" })).toBeVisible();
-});
-
-test("a buyer picks the foods they like and sees them marked on the board", async ({ page }) => {
-  await page.goto("/");
-  await page.getByTestId("board-intro").getByRole("button", { name: "Pork" }).click();
-  await page.getByTestId("board-intro").getByRole("button", { name: "Save" }).click();
-  await expect(page.getByTestId("board-intro")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /My tastes · 1/ })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("button", { name: /My tastes · 1/ })).toBeVisible();
 });

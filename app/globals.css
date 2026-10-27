@@ -366,8 +366,6 @@ a.attn .pill { white-space: nowrap; }
 .delta .i { width: 14px; height: 14px; }
 .delta.up { color: var(--leaf); } .delta.down { color: var(--chili); }
 /* First-visit guide on the Ulam board. */
-.intro { display: grid; gap: 14px; background: var(--peach); }
-.intro h2 { font-size: 20px; }
 .intro-steps { list-style: none; padding: 0; display: grid; gap: 12px; }
 .intro-steps li { display: flex; gap: 12px; align-items: flex-start; }
 .intro-steps p { margin: 2px 0 0; font-size: 15px; }
@@ -379,6 +377,29 @@ a.attn .pill { white-space: nowrap; }
 .splash span { font-size: 17px; font-weight: 700; color: var(--peach); }
 @keyframes splash-out { to { opacity: 0; visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .splash { display: none; } }
+/* First-run welcome: owner or customer, then a few questions. Sits under the splash. */
+.welcome { position: fixed; inset: 0; z-index: 90; overflow-y: auto; background: var(--paper); animation: fade-in 220ms var(--ease); }
+.welcome-in { max-width: 480px; min-height: 100%; margin: 0 auto; padding: 16px 20px calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 20px; }
+.welcome h2 { font-size: 26px; line-height: 1.2; letter-spacing: -0.02em; outline: none; }
+.welcome-foot { margin-top: auto; display: grid; gap: 10px; }
+.wl-kapy { align-self: center; }
+.welcome a.btn { text-decoration: none; }
+.welcome .intro-ic { background: var(--peach); }
+.welcome-in > .row > :first-child, .welcome-in > .row > :last-child { min-width: 48px; }
+.wl-skip { appearance: none; border: 0; background: none; font: inherit; font-weight: 700; color: var(--mute); min-height: 44px; padding: 0 8px; cursor: pointer; }
+.wl-roles { display: grid; gap: 12px; }
+.wl-role { appearance: none; border: 0; font: inherit; text-align: left; color: var(--ink); display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; background: var(--cream); box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.1); cursor: pointer; transition: transform 200ms var(--out), box-shadow 160ms var(--ease); }
+.wl-role:active { transform: scale(0.98); }
+.wl-role:focus-visible, .wl-role:hover { box-shadow: 0 0 0 2px var(--brand); }
+.wl-role > span { display: grid; gap: 2px; }
+.wl-role strong { font-size: 18px; }
+.wl-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wl-opt { appearance: none; border: 0; font: inherit; font-weight: 700; color: var(--ink); min-height: 56px; border-radius: 16px; background: var(--cream); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform 200ms var(--out), background-color 160ms var(--ease); }
+.wl-opt .i { width: 18px; height: 18px; color: var(--brand); }
+.wl-opt[aria-checked="true"] { background: var(--brand); color: #fff; }
+.wl-opt[aria-checked="true"] .i { color: #fff; }
+.wl-opt:active { transform: scale(0.97); }
+.wl-input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 16px; border: 1.5px solid rgba(80, 48, 28, 0.15); background: #fff; font: inherit; color: var(--ink); }
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .chips-wrap .chip { min-height: 40px; background: var(--paper); }
 .chips-wrap .chip[aria-pressed="true"] { background: var(--brand); color: #fff; box-shadow: none; }

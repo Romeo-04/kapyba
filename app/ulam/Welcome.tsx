@@ -32,8 +32,15 @@ export function Welcome({ start, onClose }: { start?: "eat"; onClose?: () => voi
   const [step, setStep] = useState<Step>(start ?? "role");
   const head = useRef<HTMLHeadingElement>(null);
   useEffect(() => { head.current?.focus(); }, [step]);
+  const open = !!start || role === "";
+  useEffect(() => { // the board behind must not scroll (or show its scrollbar) while this covers it
+    if (!open) return;
+    const h = document.documentElement, was = h.style.overflow;
+    h.style.overflow = "hidden";
+    return () => { h.style.overflow = was; };
+  }, [open]);
 
-  if (!start && role !== "") return null; // "?" on the server and first render, a saved role after that
+  if (!open) return null; // "?" on the server and first render, a saved role after that
 
   const finish = (as: "buyer" | "owner") => { setPref("kb_role", as); onClose?.(); };
   const i = BUYER.indexOf(step);
@@ -98,13 +105,18 @@ function Role({ head, pick }: H & { pick: (r: "buyer" | "owner") => void }) {
   );
 }
 
+// A choice you can turn on and off: a tile with an edge at rest, a brand ring and a check when picked.
+const Pick = ({ on, label, toggle }: { on: boolean; label: string; toggle: () => void }) => (
+  <button type="button" className="wl-pick" aria-pressed={on} onClick={toggle}>{label}<Icon name="check" className="wl-tick" /></button>
+);
+
 function Eat({ head }: H) {
   const tastes = useTastes();
   return (
     <>
       <Title head={head} sub="Pick any. Those dishes come first on your board.">What do you usually eat?</Title>
-      <div className="chips-wrap" role="group" aria-label="Foods you like">
-        {MAINS.map((m) => <button key={m.id} type="button" className="chip" aria-pressed={tastes.includes(m.id)} onClick={() => toggleTaste(m.id)}>{m.label}</button>)}
+      <div className="wl-picks" role="group" aria-label="Foods you like">
+        {MAINS.map((m) => <Pick key={m.id} on={tastes.includes(m.id)} label={m.label} toggle={() => toggleTaste(m.id)} />)}
       </div>
     </>
   );
@@ -119,6 +131,7 @@ function Budget({ head }: H) {
         <span aria-hidden="true">₱</span>
         <input className="wl-input" type="number" inputMode="numeric" min={1} max={1000} placeholder="Like 75" aria-label="Most you spend on one ulam, in pesos" value={budget}
           onChange={(e) => { const n = Math.min(1000, Math.max(0, Math.round(Number(e.target.value) || 0))); setPref("kb_budget", n ? String(n) : ""); }} />
+        {budget && <span className="wl-unit" aria-hidden="true">or less</span>}
       </label>
       <div className="chips-wrap" role="group" aria-label="Quick amounts">
         {QUICK.map((v) => <button key={v} type="button" className="chip" aria-pressed={budget === v} onClick={() => setPref("kb_budget", v)}>₱{v}</button>)}
@@ -133,8 +146,8 @@ function Avoid({ head }: H) {
   return (
     <>
       <Title head={head} sub="Dishes the stall says contain these are listed last and marked. Always ask the stall if you have an allergy.">Anything you avoid?</Title>
-      <div className="chips-wrap" role="group" aria-label="Foods you avoid">
-        {ALLERGENS.map((a) => <button key={a.id} type="button" className="chip" aria-pressed={avoid.includes(a.id)} onClick={() => toggleAvoid(a.id)}>{a.label}</button>)}
+      <div className="wl-picks" role="group" aria-label="Foods you avoid">
+        {ALLERGENS.map((a) => <Pick key={a.id} on={avoid.includes(a.id)} label={a.label} toggle={() => toggleAvoid(a.id)} />)}
       </div>
     </>
   );

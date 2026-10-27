@@ -399,8 +399,21 @@ a.attn .pill { white-space: nowrap; }
 .wl-opt[aria-checked="true"] { background: var(--brand); color: #fff; }
 .wl-opt[aria-checked="true"] .i { color: #fff; }
 .wl-opt:active { transform: scale(0.97); }
+.wl-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wl-pick { appearance: none; border: 0; font: inherit; font-size: 16px; font-weight: 700; color: var(--ink); min-height: 56px; padding: 0 14px 0 16px; border-radius: 16px; background: var(--cream); box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 160ms var(--out), background-color 160ms var(--ease), box-shadow 160ms var(--ease); }
+.wl-pick:active { transform: scale(0.97); }
+.wl-pick:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
+.wl-pick .wl-tick { width: 22px; height: 22px; flex: none; padding: 4px; border-radius: 50%; background: var(--brand); color: #fff; opacity: 0; transform: scale(0.5); transition: opacity 140ms var(--ease), transform 220ms var(--out); }
+.wl-pick[aria-pressed="true"] { background: var(--peach); box-shadow: 0 0 0 2px var(--brand); }
+.wl-pick[aria-pressed="true"] .wl-tick { opacity: 1; transform: scale(1); }
+@media (hover: hover) { .wl-pick:hover { box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.28); } .wl-pick[aria-pressed="true"]:hover { box-shadow: 0 0 0 2px var(--brand); } }
+.welcome .chips-wrap .chip { background: var(--cream); box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.1); }
+.welcome .chips-wrap .chip[aria-pressed="true"] { background: var(--brand); color: #fff; box-shadow: none; }
 .wl-money { position: relative; display: block; }
 .wl-money span { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 24px; font-weight: 800; color: var(--brand); pointer-events: none; }
+.wl-money .wl-unit { left: auto; right: 18px; font-size: 15px; font-weight: 700; color: var(--mute); }
+.wl-money input::-webkit-outer-spin-button, .wl-money input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.wl-money input { -moz-appearance: textfield; appearance: textfield; }
 .wl-money .wl-input { min-height: 64px; padding-left: 44px; font-size: 24px; font-weight: 800; }
 .wl-input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 16px; border: 1.5px solid rgba(80, 48, 28, 0.15); background: #fff; font: inherit; color: var(--ink); }
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

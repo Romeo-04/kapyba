@@ -4,12 +4,14 @@ import { Kapy } from "@/src/ui/Kapy";
 import { PrivacyNote } from "@/src/ui/PrivacyNote";
 import { SignIn } from "../SignIn";
 import { HomeDash } from "../HomeDash";
+import { MarkOwner, RoleSwitch } from "../RoleSwitch";
 
 // A signed-in owner gets a way back to the stall instead of the sign-in form.
 async function OwnerEntry() {
   if (!(await currentOwner())) return <SignIn />;
   return (
     <div className="stack">
+      <MarkOwner />
       <HomeDash />
       <a className="btn block" href="/o">Open my stall</a>
     </div>
@@ -30,8 +32,8 @@ export default function OwnerHome() {
         <OwnerEntry />
       </Suspense>
       <PrivacyNote />
-      <p><a href="/ulam">Browse the Ulam board</a> · <a href="/privacy">Privacy</a></p>
-      <p className="mute">Customer? Scan the QR at the stall to rate a dish. No account needed.</p>
+      <RoleSwitch to="buyer" />
+      <p className="mute">Customer? Scan the QR at the stall to rate a dish. No account needed. <a href="/privacy">Privacy</a></p>
     </main>
   );
 }

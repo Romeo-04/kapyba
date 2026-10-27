@@ -7,6 +7,7 @@ import { tone } from "@/src/domain/scoring";
 import { ROWS } from "../o/ReviewsSheet";
 import { Icon } from "@/src/ui/Icon";
 import type { Summary } from "../o/Owner";
+import { setPref } from "../ulam/tastes";
 
 type Stall = { id: string; name: string };
 type Dish = Summary;
@@ -78,7 +79,7 @@ export function Community() {
       <div className="stack">
         {hero}
         {feed}
-        {view === "out" && <div className="card stack"><strong>Own a karinderya?</strong><p className="mute">Sign in to also see private feedback from your own customers, with things to fix.</p><a className="btn block" href="/owner">Owner sign-in</a></div>}
+        {view === "out" && <div className="card stack"><strong>Own a karinderya?</strong><p className="mute">Sign in to also see private feedback from your own customers, with things to fix.</p><a className="btn block" href="/owner" onClick={() => setPref("kb_role", "owner")}>Owner sign-in</a></div>}
       </div>
     );
   }

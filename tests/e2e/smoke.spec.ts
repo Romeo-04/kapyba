@@ -54,8 +54,27 @@ test("the app is installable: manifest, icons and service worker are served", as
 test("the front door is the Ulam board", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Ulam", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Owner" })).toBeVisible();
+  const nav = page.getByRole("navigation", { name: "Main" });
+  await expect(nav.getByRole("link", { name: "Community" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "My stall" })).toHaveCount(0);
   await expect(page.getByTestId("welcome")).toHaveCount(0);
+});
+
+test.describe("a phone in owner mode", () => {
+  test.use({ storageState: { cookies: [], origins: [{ origin: new URL(process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100").origin, localStorage: [{ name: "kb_role", value: "owner" }] }] } });
+
+  test("opens to the owner's Home with owner tabs only, and can switch to the customer view", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/owner$/);
+    const nav = page.getByRole("navigation", { name: "Main" });
+    for (const t of ["Home", "My stall", "Community"]) await expect(nav.getByRole("link", { name: t })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Ulam" })).toHaveCount(0);
+    await expect(page.getByText("for owners")).toBeVisible();
+    await page.getByRole("button", { name: "Switch to customer view" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(nav.getByRole("link", { name: "Ulam" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "My stall" })).toHaveCount(0);
+  });
 });
 
 test.describe("first open on a new phone", () => {

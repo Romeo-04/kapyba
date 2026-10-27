@@ -68,14 +68,14 @@ test.describe("first open on a new phone", () => {
     await w.getByRole("button", { name: /I eat at karinderyas/ }).click();
     await w.getByRole("button", { name: "Pork" }).click();
     await w.getByRole("button", { name: "Next" }).click();
-    await w.getByRole("radio", { name: "₱75 or less" }).click();
+    await w.getByLabel(/Most you spend/).fill("85");
     await w.getByRole("button", { name: "Next" }).click();
     await w.getByRole("button", { name: "Peanut" }).click();
     await w.getByRole("button", { name: "Next" }).click();
     await w.getByRole("button", { name: "Next" }).click();
     await w.getByRole("button", { name: "Show my ulam" }).click();
     await expect(w).toHaveCount(0);
-    await expect(page.locator("#budget")).toHaveValue("75");
+    await expect(page.locator("#budget")).toHaveValue("85");
     await expect(page.getByRole("button", { name: /My preferences · 2/ })).toBeVisible();
     await expect(page.getByText(/contain peanut are listed last/)).toBeVisible();
     await page.reload();

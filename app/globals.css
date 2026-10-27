@@ -399,6 +399,9 @@ a.attn .pill { white-space: nowrap; }
 .wl-opt[aria-checked="true"] { background: var(--brand); color: #fff; }
 .wl-opt[aria-checked="true"] .i { color: #fff; }
 .wl-opt:active { transform: scale(0.97); }
+.wl-money { position: relative; display: block; }
+.wl-money span { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 24px; font-weight: 800; color: var(--brand); pointer-events: none; }
+.wl-money .wl-input { min-height: 64px; padding-left: 44px; font-size: 24px; font-weight: 800; }
 .wl-input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 16px; border: 1.5px solid rgba(80, 48, 28, 0.15); background: #fff; font: inherit; color: var(--ink); }
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .chips-wrap .chip { min-height: 40px; background: var(--paper); }

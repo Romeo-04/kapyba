@@ -11,7 +11,7 @@ import { setPref, toggleAvoid, toggleTaste, useAvoid, usePref, useTastes } from 
 
 type Step = "role" | "eat" | "budget" | "avoid" | "where" | "done" | "owner";
 const BUYER: Step[] = ["eat", "budget", "avoid", "where", "done"];
-const BUDGETS = [{ v: "50", label: "₱50 or less" }, { v: "75", label: "₱75 or less" }, { v: "100", label: "₱100 or less" }, { v: "", label: "Any price" }];
+const QUICK = ["50", "75", "100"];
 const HOW: { icon: IconName; head: string; body: string }[] = [
   { icon: "board", head: "Browse the board", body: "Dishes are ranked by how worth their price they are." },
   { icon: "tag", head: "Spot the deals", body: "Tap Deals for dishes on sale or with limited spots." },
@@ -114,13 +114,15 @@ function Budget({ head }: H) {
   const budget = usePref("kb_budget");
   return (
     <>
-      <Title head={head} sub="Your board starts at this price. You can change it on the board.">How much do you usually spend on one ulam?</Title>
-      <div className="wl-opts" role="radiogroup" aria-label="Budget per ulam">
-        {BUDGETS.map((b) => (
-          <button key={b.label} type="button" role="radio" aria-checked={budget === b.v} className="wl-opt" onClick={() => setPref("kb_budget", b.v)}>
-            <Icon name="coin" />{b.label}
-          </button>
-        ))}
+      <Title head={head} sub="Your board starts at this price. Leave it empty for any price. You can change it on the board.">How much do you usually spend on one ulam?</Title>
+      <label className="wl-money">
+        <span aria-hidden="true">₱</span>
+        <input className="wl-input" type="number" inputMode="numeric" min={1} max={1000} placeholder="Like 75" aria-label="Most you spend on one ulam, in pesos" value={budget}
+          onChange={(e) => { const n = Math.min(1000, Math.max(0, Math.round(Number(e.target.value) || 0))); setPref("kb_budget", n ? String(n) : ""); }} />
+      </label>
+      <div className="chips-wrap" role="group" aria-label="Quick amounts">
+        {QUICK.map((v) => <button key={v} type="button" className="chip" aria-pressed={budget === v} onClick={() => setPref("kb_budget", v)}>₱{v}</button>)}
+        <button type="button" className="chip" aria-pressed={budget === ""} onClick={() => setPref("kb_budget", "")}>Any price</button>
       </div>
     </>
   );

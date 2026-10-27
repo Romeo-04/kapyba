@@ -40,3 +40,8 @@ TODO: team contact email (open, D1c in `docs/adr/001-decisions.md`).
 
 - First sign-in (owner) and first rating (buyer): a one-line notice with a link to /privacy, dismissed per phone. Set NEXT_PUBLIC_PRIVACY_EMAIL once D5 is decided.
 - The Bagyo Fund screen says it is a simulation. KapyBa does not sell or carry insurance.
+
+## Saved on the phone only
+
+- The first-run welcome asks a buyer what they eat, their budget per ulam, what they avoid and where they eat. The answers live in the phone's localStorage (`kb_role`, `kb_tastes`, `kb_budget`, `kb_avoid`, `kb_area`, `kb_near`) and are never sent to the server.
+- With nearest first on, the phone's position is sent once per visit to `/api/near` to get distances. It is not stored or logged.

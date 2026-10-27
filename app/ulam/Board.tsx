@@ -7,8 +7,8 @@ import { photoUrl } from "@/src/ui/PhotoPick";
 import { MAINS, mainLabel } from "@/src/domain/mains";
 import { ALLERGENS } from "@/src/domain/allergens";
 import { DishSheet } from "./DishSheet";
-import { BoardIntro } from "./BoardIntro";
-import { useTastes } from "./tastes";
+import { Welcome } from "./Welcome";
+import { setPref, useAvoid, usePref, useTastes } from "./tastes";
 import { iconFor } from "../s/[code]/Rate";
 
 export type Item = {
@@ -23,8 +23,14 @@ const isDeal = (d: Item) => !d.soldOut && (d.alok !== null || d.salePrice !== nu
 
 export function Board() {
   const [items, setItems] = useState<Item[] | null>(null);
-  const [max, setMax] = useState(0);
-  const [area, setArea] = useState("");
+  // The welcome answers set where the board starts; a pick on the board itself wins for this visit.
+  const budget = Number(usePref("kb_budget")) || 0;
+  const prefArea = usePref("kb_area");
+  const near = usePref("kb_near");
+  const [maxPick, setMax] = useState<number | null>(null);
+  const [areaPick, setArea] = useState<string | null>(null);
+  const max = maxPick ?? budget;
+  const area = areaPick ?? prefArea;
   const [claims, setClaims] = useState<Record<string, string>>({});
   const [main, setMain] = useState("");
   const [dealsOnly, setDealsOnly] = useState(false);
@@ -33,8 +39,9 @@ export function Board() {
   const [tick, setTick] = useState(0);
   const [dist, setDist] = useState<Record<string, number> | null>(null); // km from this phone to each stall that has a location
   const [nearMsg, setNearMsg] = useState("");
-  const [intro, setIntro] = useState(false);
+  const [prefs, setPrefs] = useState(false);
   const tastes = useTastes();
+  const avoid = useAvoid();
 
   // Asks for the phone's position only when the buyer taps Near me (or the Ulam near you pill). It is sent once, not stored.
   const findNear = () => {
@@ -47,11 +54,11 @@ export function Board() {
     }, () => setNearMsg("Allow location to see the nearest karinderyas."), { timeout: 10000, maximumAge: 300000 });
   };
   useEffect(() => {
-    const check = () => { if (location.hash === "#near") findNear(); };
+    const check = () => { if (location.hash === "#near" || localStorage.getItem("kb_near") === "1") findNear(); };
     check();
     window.addEventListener("hashchange", check);
     return () => window.removeEventListener("hashchange", check);
-  }, []);
+  }, [near]);
 
   useEffect(() => {
     const q = new URLSearchParams();
@@ -73,10 +80,15 @@ export function Board() {
   const dealCount = items?.filter(isDeal).length ?? 0;
   const mains = MAINS.filter((m) => items?.some((d) => d.main === m.id));
   const filtered = items?.filter((d) => (!dealsOnly || isDeal(d)) && (!main || d.main === main));
-  // Nearest first when the phone shared its position; otherwise the dishes this buyer likes first. Both keep the board order within a group.
-  const shown = filtered && (dist
+  // Nearest first when the phone shared its position; otherwise the dishes this buyer likes first. Dishes the stall says
+  // contain something the buyer avoids go last either way. Every step keeps the board order within a group.
+  const split = (list: Item[], yes: (d: Item) => boolean) => [...list.filter(yes), ...list.filter((d) => !yes(d))];
+  const avoided = (d: Item) => d.allergens.some((a) => avoid.includes(a));
+  const liked = (d: Item) => !!d.main && tastes.includes(d.main);
+  const ordered = filtered && (dist
     ? [...filtered].sort((a, b) => (dist[a.stallId] ?? Infinity) - (dist[b.stallId] ?? Infinity))
-    : tastes.length ? [...filtered.filter((d) => d.main && tastes.includes(d.main)), ...filtered.filter((d) => !(d.main && tastes.includes(d.main)))] : filtered);
+    : tastes.length ? split(filtered, liked) : filtered);
+  const shown = ordered && (avoid.length ? split(ordered, (d) => !avoided(d)) : ordered);
   const sheet = items?.find((d) => d.dishId === open) ?? null;
 
   return (
@@ -88,20 +100,22 @@ export function Board() {
           <p>Worth your money, ranked.</p>
         </div>
       </div>
-      <BoardIntro forced={intro} onClose={() => setIntro(false)} />
+      <Welcome />
+      {prefs && <Welcome start="eat" onClose={() => setPrefs(false)} />}
       <div className="search">
         <Icon name="pin" />
         <input id="area" aria-label="Area or school" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Area or school, like UST" maxLength={80} />
       </div>
       <div className="chips" role="group" aria-label="For you">
         <button className="chip" aria-pressed={dealsOnly} onClick={() => setDealsOnly(!dealsOnly)}><Icon name="tag" />Deals for you{dealCount > 0 && ` · ${dealCount}`}</button>
-        <button className="chip" aria-pressed={dist !== null} onClick={() => (dist ? setDist(null) : findNear())}><Icon name="pin" />Near me</button>
-        <button className="chip" aria-pressed={tastes.length > 0} onClick={() => setIntro(!intro)}><Icon name="heart" />My tastes{tastes.length > 0 && ` · ${tastes.length}`}</button>
+        <button className="chip" aria-pressed={dist !== null} onClick={() => { if (dist) { setDist(null); setPref("kb_near", ""); } else findNear(); }}><Icon name="pin" />Near me</button>
+        <button className="chip" aria-haspopup="dialog" onClick={() => setPrefs(true)}><Icon name="heart" />My preferences{tastes.length + avoid.length > 0 && ` · ${tastes.length + avoid.length}`}</button>
       </div>
       {nearMsg && <p className="err" role="status">{nearMsg}</p>}
+      {avoid.length > 0 && <p className="mute small">Dishes the stall says contain {avoid.map((a) => ALLERGENS.find((x) => x.id === a)?.label.toLowerCase()).join(", ")} are listed last. Always ask the stall if you have an allergy.</p>}
       <div className="filters">
         <div><label htmlFor="budget">Price</label>
-          <select id="budget" value={max} onChange={(e) => setMax(Number(e.target.value))}>
+          <select id="budget" value={BUDGETS.includes(max) ? max : 0} onChange={(e) => setMax(Number(e.target.value))}>
             {BUDGETS.map((b) => <option key={b} value={b}>{b ? `₱${b} or less` : "Any"}</option>)}
           </select>
         </div>

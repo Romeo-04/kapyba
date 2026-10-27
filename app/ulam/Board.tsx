@@ -115,8 +115,8 @@ export function Board() {
       {avoid.length > 0 && <p className="mute small">Dishes the stall says contain {avoid.map((a) => ALLERGENS.find((x) => x.id === a)?.label.toLowerCase()).join(", ")} are listed last. Always ask the stall if you have an allergy.</p>}
       <div className="filters">
         <div><label htmlFor="budget">Price</label>
-          <select id="budget" value={BUDGETS.includes(max) ? max : 0} onChange={(e) => setMax(Number(e.target.value))}>
-            {BUDGETS.map((b) => <option key={b} value={b}>{b ? `₱${b} or less` : "Any"}</option>)}
+          <select id="budget" value={max} onChange={(e) => setMax(Number(e.target.value))}>
+            {(BUDGETS.includes(max) ? BUDGETS : [...BUDGETS, max].sort((a, b) => a - b)).map((b) => <option key={b} value={b}>{b ? `₱${b} or less` : "Any"}</option>)}
           </select>
         </div>
         <div><label htmlFor="kind">Main ingredient</label>

@@ -1,6 +1,6 @@
 // KapyBa service worker: keeps the app shell and public scan data available after the first visit.
 // Owner and other private API answers are never cached. Bump VERSION to drop old caches.
-const VERSION = "kb-v2";
+const VERSION = "kb-v3";
 const PUBLIC_API = [/^\/api\/s\//, /^\/api\/board/];
 
 self.addEventListener("install", () => self.skipWaiting());

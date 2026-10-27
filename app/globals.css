@@ -402,6 +402,8 @@ a.attn .pill { white-space: nowrap; }
 .wl-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .wl-pick { appearance: none; border: 0; font: inherit; font-size: 16px; font-weight: 700; color: var(--ink); min-height: 56px; padding: 0 14px 0 16px; border-radius: 16px; background: var(--cream); box-shadow: 0 0 0 1.5px rgba(80, 48, 28, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 160ms var(--out), background-color 160ms var(--ease), box-shadow 160ms var(--ease); }
 .wl-pick:active { transform: scale(0.97); }
+.wl-pick-label { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.wl-pick-label .i { width: 22px; height: 22px; flex: none; color: var(--brand); }
 .wl-pick:focus-visible { outline: 3px solid var(--rain); outline-offset: 2px; }
 .wl-pick .wl-tick { width: 22px; height: 22px; flex: none; padding: 4px; border-radius: 50%; background: var(--brand); color: #fff; opacity: 0; transform: scale(0.5); transition: opacity 140ms var(--ease), transform 220ms var(--out); }
 .wl-pick[aria-pressed="true"] { background: var(--peach); box-shadow: 0 0 0 2px var(--brand); }

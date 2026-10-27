@@ -24,6 +24,8 @@ h1 { font-size: 28px; line-height: 1.12; font-weight: 800; letter-spacing: -0.02
 /* App chrome: light top bar, bottom tabs, Kapy peeking over the tabs */
 .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(10px); }
 .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--brand); text-decoration: none; font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+.brand > span { display: grid; line-height: 1.05; }
+.brand-role { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cocoa); }
 .brand .kapy { transition: transform 300ms var(--out); }
 .brand:hover .kapy, .brand:focus-visible .kapy { transform: rotate(-8deg) scale(1.12); }
 .locpill { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; background: var(--cream); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 700; }

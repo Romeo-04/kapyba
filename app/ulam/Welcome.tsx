@@ -5,13 +5,15 @@ import Link from "next/link";
 import { Kapy } from "@/src/ui/Kapy";
 import { Icon } from "@/src/ui/Icon";
 import type { IconName } from "@/src/ui/icons";
-import { MAINS } from "@/src/domain/mains";
+import { MAINS, type Main } from "@/src/domain/mains";
 import { ALLERGENS } from "@/src/domain/allergens";
 import { setPref, toggleAvoid, toggleTaste, useAvoid, usePref, useTastes } from "./tastes";
 
 type Step = "role" | "eat" | "budget" | "avoid" | "where" | "done" | "owner";
 const BUYER: Step[] = ["eat", "budget", "avoid", "where", "done"];
 const QUICK = ["50", "75", "100"];
+const MAIN_ICON: Record<Main, IconName> = { pork: "pig", chicken: "meat", beef: "steak", fish: "fish", vegetables: "leaf", egg: "egg", tofu: "tofu" };
+const AVOID_ICON: Record<string, IconName> = { shellfish: "shrimp", fish: "fish", egg: "egg", milk: "milk", peanut: "peanut", soy: "soy", wheat: "wheat" };
 const HOW: { icon: IconName; head: string; body: string }[] = [
   { icon: "board", head: "Browse the board", body: "Dishes are ranked by how worth their price they are." },
   { icon: "tag", head: "Spot the deals", body: "Tap Deals for dishes on sale or with limited spots." },
@@ -106,8 +108,10 @@ function Role({ head, pick }: H & { pick: (r: "buyer" | "owner") => void }) {
 }
 
 // A choice you can turn on and off: a tile with an edge at rest, a brand ring and a check when picked.
-const Pick = ({ on, label, toggle }: { on: boolean; label: string; toggle: () => void }) => (
-  <button type="button" className="wl-pick" aria-pressed={on} onClick={toggle}>{label}<Icon name="check" className="wl-tick" /></button>
+const Pick = ({ on, label, icon, toggle }: { on: boolean; label: string; icon?: IconName; toggle: () => void }) => (
+  <button type="button" className="wl-pick" aria-pressed={on} onClick={toggle}>
+    <span className="wl-pick-label">{icon && <Icon name={icon} />}{label}</span><Icon name="check" className="wl-tick" />
+  </button>
 );
 
 function Eat({ head }: H) {
@@ -116,7 +120,7 @@ function Eat({ head }: H) {
     <>
       <Title head={head} sub="Pick any. Those dishes come first on your board.">What do you usually eat?</Title>
       <div className="wl-picks" role="group" aria-label="Foods you like">
-        {MAINS.map((m) => <Pick key={m.id} on={tastes.includes(m.id)} label={m.label} toggle={() => toggleTaste(m.id)} />)}
+        {MAINS.map((m) => <Pick key={m.id} on={tastes.includes(m.id)} label={m.label} icon={MAIN_ICON[m.id]} toggle={() => toggleTaste(m.id)} />)}
       </div>
     </>
   );
@@ -147,7 +151,7 @@ function Avoid({ head }: H) {
     <>
       <Title head={head} sub="Dishes the stall says contain these are listed last and marked. Always ask the stall if you have an allergy.">Anything you avoid?</Title>
       <div className="wl-picks" role="group" aria-label="Foods you avoid">
-        {ALLERGENS.map((a) => <Pick key={a.id} on={avoid.includes(a.id)} label={a.label} toggle={() => toggleAvoid(a.id)} />)}
+        {ALLERGENS.map((a) => <Pick key={a.id} on={avoid.includes(a.id)} label={a.label} icon={AVOID_ICON[a.id]} toggle={() => toggleAvoid(a.id)} />)}
       </div>
     </>
   );

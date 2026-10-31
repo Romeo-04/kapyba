@@ -53,7 +53,8 @@ export function HomeDash() {
     (async () => {
       const s = await fetch("/api/stalls");
       if (!s.ok) return;
-      const id = (await s.json()).stalls?.[0]?.id;
+      const list: { id: string }[] = (await s.json()).stalls ?? [];
+      const id = (list.find((x) => x.id === localStorage.getItem("kb_stall")) ?? list[0])?.id; // the stall picked in My stall
       if (!id) { if (live) setDishes([]); return; }
       const [sum, log, bukas] = await Promise.all([
         fetch(`/api/stalls/${id}/summary`), fetch(`/api/stalls/${id}/log`), fetch(`/api/stalls/${id}/bukas`),

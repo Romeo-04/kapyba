@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 // What a buyer told us in the welcome steps, kept on this phone only (never sent anywhere).
 // kb_role: "buyer" | "owner". kb_tastes and kb_avoid: comma separated ids from src/domain/mains.ts and allergens.ts.
 // kb_budget: pesos per meal, "" for any. kb_area: an area or school. kb_near: "1" when the buyer wants nearest first.
+// kb_stall: the owner's stall id last opened in My stall, so Home shows the same one.
 const listeners = new Set<() => void>();
 const subscribe = (cb: () => void) => { listeners.add(cb); return () => void listeners.delete(cb); };
 

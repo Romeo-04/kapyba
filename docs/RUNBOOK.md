@@ -36,6 +36,21 @@ For whoever is on call during the pilot. Fill in the TODOs when accounts exist (
 2. Set it in Vercel for production and redeploy.
 3. Revoke the old value. Rotating the QR signing secret invalidates open scan tokens; buyers rescan, which is fine.
 
+## Demo data
+
+Six made-up karinderyas in UST and FEU, each named "(sample)", with four weeks of ratings and comments, two weeks of
+cooked and sold logs, and real dish photos from Wikimedia Commons (credited at `/credits`). The data lives in
+`src/demo/seed.ts`; the photos and their credits in `src/demo/photos/`.
+
+- Local: `DEMO_DATA=1 DATABASE_URL=pglite:memory npm run dev`. The sample owner is `owner@demo.kapyba.invalid`, or
+  `DEMO_OWNER_EMAIL` if set.
+- A real database: `DATABASE_URL=... DEMO_OWNER_EMAIL=<who owns "Kusina ni Kapy"> node scripts/demo.ts seed`.
+  Create a Neon backup branch first. Seeding again replaces the demo rows and moves the dates up to today. Scores
+  only count ratings from the last 30 days, so re-seed before a demo that is more than about two weeks later.
+- Remove it all: `DATABASE_URL=... node scripts/demo.ts remove`. It deletes stalls whose code starts with `demo`
+  (a real code never contains an "o"), devices hashed `demo:*` and owners at `demo.kapyba.invalid`. It never touches
+  real stalls, and it keeps the `DEMO_OWNER_EMAIL` owner and that owner's real stalls.
+
 ## Take down a bad stall or dish
 
 1. Set `dishes.published = false` for the stall's dishes, or set `archived_at` for the stall.

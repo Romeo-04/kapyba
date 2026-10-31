@@ -37,6 +37,7 @@ export default function PrivacyPage() {
         <p>You can ask to see, correct or delete your data, object to how it is used, or complain to the National Privacy Commission.</p>
         <p>{contact ? <>Contact us: <a href={`mailto:${contact}`}>{contact}</a></> : "Contact email: to be set by the team before launch."}</p>
       </section>
+      <p className="mute small"><a href="/credits">Photo credits</a> for the sample stalls.</p>
     </main>
   );
 }

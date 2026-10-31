@@ -177,7 +177,7 @@ export function Board() {
         );
       })}
       </div>
-      <p className="mute small" style={{ marginTop: 24, paddingRight: 88 }}>Run a karinderya? <a href="/owner" onClick={() => setPref("kb_role", "owner")}>Switch to owner view</a></p>
+      <p className="mute small" style={{ marginTop: 24, paddingRight: 88 }}>Run a karinderya? <a href="/owner" onClick={() => setPref("kb_role", "owner")}>Switch to owner view</a> · <a href="/credits">Photo credits</a></p>
       {sheet && <DishSheet d={sheet} reserved={mine.includes(sheet.dishId)} onReserve={() => reserve(sheet)} onClose={() => setOpen(null)} />}
     </div>
   );

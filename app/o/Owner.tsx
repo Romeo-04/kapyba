@@ -17,6 +17,7 @@ import { MAINS } from "@/src/domain/mains";
 import { Setup, setupKey } from "./Setup";
 import { ManageSheet } from "./ManageSheet";
 import { ReviewsSheet } from "./ReviewsSheet";
+import { setPref, usePref } from "../ulam/tastes";
 
 type Stall = { id: string; name: string; area: string; code: string; about: string | null; hours: string | null; lat: string | null };
 export type Summary = {
@@ -41,7 +42,9 @@ export function Owner() {
   const [dishes, setDishes] = useState<Summary[]>([]);
   const [inSetup, setInSetup] = useState<boolean | null>(null); // decided once, when the first dish list arrives
   const [msg, setMsg] = useState("");
-  const [activeId, setActiveId] = useState<string | null>(null);
+  // The stall last opened here; Home reads the same key, so both show one stall.
+  const activeId = usePref("kb_stall");
+  const setActiveId = (id: string | null) => setPref("kb_stall", id ?? "");
   const [adding, setAdding] = useState(false);
   const [tab, setTab] = useState<Tab>("ngayon");
   const [manageId, setManageId] = useState<string | null>(null);
